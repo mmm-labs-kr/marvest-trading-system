@@ -39,7 +39,7 @@ freqtrade-dashboard/
     └── vite.config.js
 
 
-***설치 및 실행 방법 (Getting Started)***
+## 설치 및 실행 방법 (Getting Started)
 
 1. 사전 요구사항 (Prerequisites)
 Python 3.8 이상
@@ -53,24 +53,24 @@ cd freqtrade-dashboard
 
 3. 백엔드 설정 (Backend Setup)
 
-# 1. 백엔드 폴더로 이동
+1. 백엔드 폴더로 이동
 cd backend
 
-# 2. 가상환경 활성화 (Freqtrade 가상환경 사용 권장)
+2. 가상환경 활성화 (Freqtrade 가상환경 사용 권장)
 source ../.venv/bin/activate  # Mac/Linux
-# 또는
+또는
 ..\.venv\Scripts\activate     # Windows
 
-# 3. 필수 패키지 설치
+3. 필수 패키지 설치
 pip install fastapi uvicorn pydantic
 
 4. 프론트엔드 설정 (Frontend Setup)
 새로운 터미널을 열고 진행하세요.
 
-# 1. 프론트엔드 폴더로 이동
+1. 프론트엔드 폴더로 이동
 cd frontend
 
-# 2. 패키지 설치
+2. 패키지 설치
 npm install
 ▶️ 실행하기 (Running the App)
 서버와 클라이언트를 각각 다른 터미널에서 실행해야 합니다.
@@ -78,12 +78,12 @@ npm install
 터미널 1: 백엔드 실행 (Backend)
 cd backend
 uvicorn app.main:app --reload
-# 실행 성공 시: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+실행 성공 시: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 터미널 2: 프론트엔드 실행 (Frontend)
 cd frontend
 npm run dev
-# 실행 성공 시: http://localhost:5173
+실행 성공 시: http://localhost:5173
 이제 브라우저에서 http://localhost:5173 으로 접속하면 대시보드를 사용할 수 있습니다!
 
 ⚙️ 설정 (Configuration)
