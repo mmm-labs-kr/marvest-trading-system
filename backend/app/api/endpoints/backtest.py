@@ -13,10 +13,7 @@ from app.schemas.backtest import BacktestResultSummary
 router = APIRouter()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 USER_DATA_DIR = os.path.join(BASE_DIR, "user_data")
-LOG_DIR = os.path.join(USER_DATA_DIR,"logs")
 BACKTEST_RESULTS_DIR = os.path.join(USER_DATA_DIR,"backtest_results")
-if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)
 
 @router.post("/run")
 def run_backtest(req: BackTestRequest):

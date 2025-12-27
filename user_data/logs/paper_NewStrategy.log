@@ -1,0 +1,164 @@
+2025-12-24 16:06:28,273 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-12-24 16:06:28,274 - freqtrade.loggers - INFO - Logfile configured
+2025-12-24 16:06:28,275 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-12-24 16:06:28,275 - freqtrade.configuration.configuration - INFO - Parameter --dry-run detected, overriding dry_run to: True ...
+2025-12-24 16:06:28,276 - freqtrade.configuration.configuration - INFO - Runmode set to dry_run.
+2025-12-24 16:06:28,277 - freqtrade.configuration.configuration - INFO - Parameter --db-url detected ...
+2025-12-24 16:06:28,278 - freqtrade.configuration.configuration - INFO - Dry run is enabled
+2025-12-24 16:06:28,278 - freqtrade.configuration.configuration - INFO - Using DB: "sqlite:///C:\Users\sujin\coding\freqtrade\user_data\tradesv3.dryrun.sqlite"
+2025-12-24 16:06:28,279 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 5 ...
+2025-12-24 16:06:28,281 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\sujin\coding\freqtrade\user_data ...
+2025-12-24 16:06:28,282 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\sujin\coding\freqtrade\user_data\data\okx ...
+2025-12-24 16:06:28,284 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-12-24 16:06:28,291 - freqtrade.exchange.check_exchange - INFO - Exchange "okx" is officially supported by the Freqtrade development team.
+2025-12-24 16:06:28,292 - freqtrade.configuration.configuration - INFO - Using pairlist from configuration.
+2025-12-24 16:06:28,294 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-12-24 16:06:28,295 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.28
+2025-12-24 16:06:28,315 - freqtrade.exchange.exchange - INFO - Using Exchange "OKX"
+2025-12-24 16:06:29,226 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Okx'...
+2025-12-24 16:06:29,249 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy NewStrategy from 'C:\Users\sujin\coding\freqtrade\user_data\strategies\NewStrategy.py'...
+2025-12-24 16:06:29,250 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2025-12-24 16:06:29,251 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2025-12-24 16:06:29,253 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2025-12-24 16:06:29,253 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2025-12-24 16:06:29,254 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 5.
+2025-12-24 16:06:29,255 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 0.01}
+2025-12-24 16:06:29,255 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2025-12-24 16:06:29,256 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.05
+2025-12-24 16:06:29,257 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2025-12-24 16:06:29,258 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2025-12-24 16:06:29,259 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2025-12-24 16:06:29,259 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: False
+2025-12-24 16:06:29,260 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2025-12-24 16:06:29,261 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 'stoploss_on_exchange_interval': 60}
+2025-12-24 16:06:29,261 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2025-12-24 16:06:29,262 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2025-12-24 16:06:29,263 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2025-12-24 16:06:29,264 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 0
+2025-12-24 16:06:29,264 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2025-12-24 16:06:29,265 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2025-12-24 16:06:29,266 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2025-12-24 16:06:29,267 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2025-12-24 16:06:29,267 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2025-12-24 16:06:29,268 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2025-12-24 16:06:29,268 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2025-12-24 16:06:29,269 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2025-12-24 16:06:29,270 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 5
+2025-12-24 16:06:29,271 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-12-24 16:06:29,325 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-24 16:06:29,929 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 'C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2025-12-24 16:06:29,930 - freqtrade.freqtradebot - INFO - Starting initial pairlist refresh
+2025-12-24 16:06:29,935 - freqtrade.plugins.pairlistmanager - INFO - Whitelist with 1 pairs: ['BTC/USDT']
+2025-12-24 16:06:29,938 - freqtrade.freqtradebot - INFO - Initial Pairlist refresh took 0.01s
+2025-12-24 16:06:29,942 - freqtrade.plugins.protectionmanager - INFO - No protection Handlers defined.
+2025-12-24 16:06:29,944 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': status, 'status': 'running'}
+2025-12-24 16:06:29,945 - freqtrade.worker - INFO - Changing state to: RUNNING
+2025-12-24 16:06:29,956 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': warning, 'status': 'Dry run is enabled. All trades are simulated.'}
+2025-12-24 16:06:29,958 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': startup, 'status': "*Exchange:* `okx`\n*Stake per trade:* `unlimited USDT`\n*Minimum ROI:* `{'0': 0.01}`\n*Stoploss:* `-0.05`\n*Position adjustment:* `Off`\n*Timeframe:* `5m`\n*Strategy:* `NewStrategy`"}
+2025-12-24 16:06:29,959 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': startup, 'status': "Searching for USDT pairs to buy and sell based on [{'StaticPairList': 'StaticPairList'}]"}
+2025-12-24 16:06:29,964 - freqtrade.persistence.trade_model - INFO - Found open trade: Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:06:29,966 - freqtrade.persistence.trade_model - INFO - Stoploss for Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30) needs adjustment...
+2025-12-24 16:06:29,967 - freqtrade.persistence.trade_model - INFO - New stoploss: 82667.2.
+2025-12-24 16:06:30,754 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:06:30,857 - freqtrade.freqtradebot - INFO - No currency pair in active pair whitelist, but checking to exit open trades.
+2025-12-24 16:06:34,968 - freqtrade.worker - INFO - Bot heartbeat. PID=1812, version='2025.11.1', state='RUNNING'
+2025-12-24 16:06:35,054 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:06:40,104 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:06:45,054 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:06:45,068 - freqtrade.freqtradebot - INFO - Fee for Trade Trade(id=1, pair=BTC/USDT, amount=0.00000000, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30) [buy]: 0.19799924 USDT - rate: 0.001
+2025-12-24 16:06:45,069 - freqtrade.persistence.trade_model - INFO - Updating trade (id=1) ...
+2025-12-24 16:06:45,070 - freqtrade.persistence.trade_model - INFO - LIMIT_BUY has been fulfilled for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30).
+2025-12-24 16:06:45,076 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-24 16:06:45,078 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'trade_id': 1, 'type': entry_fill, 'buy_tag': '', 'enter_tag': '', 'exchange': 'Okx', 'pair': 'BTC/USDT', 'leverage': 1.0, 'direction': 'Long', 'limit': 87018.1, 'order_rate': 87018.1, 'open_rate': 87018.1, 'order_type': 'limit', 'stake_amount': 197.999244378, 'stake_currency': 'USDT', 'base_currency': 'BTC', 'quote_currency': 'USDT', 'fiat_currency': 'USD', 'amount': 0.00227538, 'open_date': datetime.datetime(2025, 12, 24, 6, 59, 30, 871753, tzinfo=datetime.timezone.utc), 'current_rate': 87023.0, 'sub_trade': False}
+2025-12-24 16:07:34,979 - freqtrade.worker - INFO - Bot heartbeat. PID=1812, version='2025.11.1', state='RUNNING'
+2025-12-24 16:08:44,030 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-12-24 16:08:44,031 - freqtrade.loggers - INFO - Logfile configured
+2025-12-24 16:08:44,032 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-12-24 16:08:44,033 - freqtrade.configuration.configuration - INFO - Parameter --dry-run detected, overriding dry_run to: True ...
+2025-12-24 16:08:44,034 - freqtrade.configuration.configuration - INFO - Runmode set to dry_run.
+2025-12-24 16:08:44,036 - freqtrade.configuration.configuration - INFO - Parameter --db-url detected ...
+2025-12-24 16:08:44,038 - freqtrade.configuration.configuration - INFO - Dry run is enabled
+2025-12-24 16:08:44,039 - freqtrade.configuration.configuration - INFO - Using DB: "sqlite:///C:\Users\sujin\coding\freqtrade\user_data\tradesv3.dryrun.sqlite"
+2025-12-24 16:08:44,041 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 5 ...
+2025-12-24 16:08:44,045 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\sujin\coding\freqtrade\user_data ...
+2025-12-24 16:08:44,047 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\sujin\coding\freqtrade\user_data\data\okx ...
+2025-12-24 16:08:44,052 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-12-24 16:08:44,065 - freqtrade.exchange.check_exchange - INFO - Exchange "okx" is officially supported by the Freqtrade development team.
+2025-12-24 16:08:44,066 - freqtrade.configuration.configuration - INFO - Using pairlist from configuration.
+2025-12-24 16:08:44,071 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-12-24 16:08:44,073 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.28
+2025-12-24 16:08:44,106 - freqtrade.exchange.exchange - INFO - Using Exchange "OKX"
+2025-12-24 16:08:45,184 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Okx'...
+2025-12-24 16:08:45,214 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy NewStrategy from 'C:\Users\sujin\coding\freqtrade\user_data\strategies\NewStrategy.py'...
+2025-12-24 16:08:45,215 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2025-12-24 16:08:45,216 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2025-12-24 16:08:45,217 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2025-12-24 16:08:45,218 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2025-12-24 16:08:45,219 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 5.
+2025-12-24 16:08:45,220 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 0.01}
+2025-12-24 16:08:45,221 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2025-12-24 16:08:45,223 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.05
+2025-12-24 16:08:45,224 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2025-12-24 16:08:45,224 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2025-12-24 16:08:45,225 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2025-12-24 16:08:45,226 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: False
+2025-12-24 16:08:45,227 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2025-12-24 16:08:45,229 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 'stoploss_on_exchange_interval': 60}
+2025-12-24 16:08:45,230 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2025-12-24 16:08:45,231 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2025-12-24 16:08:45,233 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2025-12-24 16:08:45,234 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 0
+2025-12-24 16:08:45,235 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2025-12-24 16:08:45,235 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2025-12-24 16:08:45,237 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2025-12-24 16:08:45,237 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2025-12-24 16:08:45,238 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2025-12-24 16:08:45,239 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2025-12-24 16:08:45,240 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2025-12-24 16:08:45,241 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2025-12-24 16:08:45,242 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 5
+2025-12-24 16:08:45,243 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-12-24 16:08:45,295 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-24 16:08:45,942 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 'C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2025-12-24 16:08:45,945 - freqtrade.freqtradebot - INFO - Starting initial pairlist refresh
+2025-12-24 16:08:45,954 - freqtrade.plugins.pairlistmanager - INFO - Whitelist with 1 pairs: ['BTC/USDT']
+2025-12-24 16:08:45,958 - freqtrade.freqtradebot - INFO - Initial Pairlist refresh took 0.01s
+2025-12-24 16:08:45,962 - freqtrade.plugins.protectionmanager - INFO - No protection Handlers defined.
+2025-12-24 16:08:45,966 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': status, 'status': 'running'}
+2025-12-24 16:08:45,969 - freqtrade.worker - INFO - Changing state to: RUNNING
+2025-12-24 16:08:45,979 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': warning, 'status': 'Dry run is enabled. All trades are simulated.'}
+2025-12-24 16:08:45,981 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': startup, 'status': "*Exchange:* `okx`\n*Stake per trade:* `unlimited USDT`\n*Minimum ROI:* `{'0': 0.01}`\n*Stoploss:* `-0.05`\n*Position adjustment:* `Off`\n*Timeframe:* `5m`\n*Strategy:* `NewStrategy`"}
+2025-12-24 16:08:45,984 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': startup, 'status': "Searching for USDT pairs to buy and sell based on [{'StaticPairList': 'StaticPairList'}]"}
+2025-12-24 16:08:45,992 - freqtrade.persistence.trade_model - INFO - Found open trade: Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:08:46,911 - freqtrade.freqtradebot - INFO - No currency pair in active pair whitelist, but checking to exit open trades.
+2025-12-24 16:08:50,994 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:09:51,006 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:10:01,113 - freqtrade.freqtradebot - INFO - Exit for BTC/USDT detected. Reason: exit_signal Tag: 
+2025-12-24 16:10:01,116 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-24 16:10:01,203 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': exit, 'trade_id': 1, 'exchange': 'Okx', 'pair': 'BTC/USDT', 'leverage': 1.0, 'direction': 'Long', 'gain': 'loss', 'limit': 87050.0, 'order_rate': 87050.0, 'order_type': 'limit', 'amount': 0.00227538, 'open_rate': 87018.1, 'close_rate': 87050.0, 'current_rate': 87050.0, 'profit_amount': -0.32348645, 'profit_ratio': -0.00163214, 'buy_tag': '', 'enter_tag': '', 'exit_reason': 'exit_signal', 'open_date': datetime.datetime(2025, 12, 24, 6, 59, 30, 871753, tzinfo=datetime.timezone.utc), 'close_date': datetime.datetime(2025, 12, 24, 7, 10, 1, 203500, tzinfo=datetime.timezone.utc), 'stake_amount': 197.999244378, 'stake_currency': 'USDT', 'base_currency': 'BTC', 'quote_currency': 'USDT', 'fiat_currency': 'USD', 'sub_trade': False, 'cumulative_profit': 0.0, 'final_profit_ratio': None, 'is_final_exit': False}
+2025-12-24 16:10:01,209 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-24 16:10:06,102 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:11,101 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:16,103 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:21,101 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:26,115 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:31,101 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:36,104 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:41,106 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:46,102 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:51,009 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:10:51,103 - freqtrade.freqtradebot - INFO - Found open order for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30)
+2025-12-24 16:10:51,118 - freqtrade.freqtradebot - INFO - Fee for Trade Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30) [sell]: 0.19807183 USDT - rate: 0.001
+2025-12-24 16:10:51,120 - freqtrade.persistence.trade_model - INFO - Updating trade (id=1) ...
+2025-12-24 16:10:51,122 - freqtrade.persistence.trade_model - INFO - LIMIT_SELL has been fulfilled for Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=2025-12-24 06:59:30).
+2025-12-24 16:10:51,124 - freqtrade.persistence.trade_model - INFO - Marking Trade(id=1, pair=BTC/USDT, amount=0.00227538, is_short=False, leverage=1.0, open_rate=87018.10000000, open_since=closed) as closed as the trade is fulfilled and found no open orders for it.
+2025-12-24 16:10:51,130 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-24 16:10:51,132 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': exit_fill, 'trade_id': 1, 'exchange': 'Okx', 'pair': 'BTC/USDT', 'leverage': 1.0, 'direction': 'Long', 'gain': 'loss', 'limit': 87050.0, 'order_rate': 87050.0, 'order_type': 'limit', 'amount': 0.00227538, 'open_rate': 87018.1, 'close_rate': 87050.0, 'current_rate': None, 'profit_amount': -0.32348645, 'profit_ratio': -0.00163214, 'buy_tag': '', 'enter_tag': '', 'exit_reason': 'exit_signal', 'open_date': datetime.datetime(2025, 12, 24, 6, 59, 30, 871753, tzinfo=datetime.timezone.utc), 'close_date': datetime.datetime(2025, 12, 24, 7, 10, 51, 104000, tzinfo=datetime.timezone.utc), 'stake_amount': 197.999244378, 'stake_currency': 'USDT', 'base_currency': 'BTC', 'quote_currency': 'USDT', 'fiat_currency': 'USD', 'sub_trade': False, 'cumulative_profit': -0.32348645, 'final_profit_ratio': -0.0016321440403900545, 'is_final_exit': True}
+2025-12-24 16:11:51,021 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:12:51,034 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:13:51,055 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:14:51,067 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:15:56,009 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:16:56,022 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:17:56,032 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
+2025-12-24 16:18:56,046 - freqtrade.worker - INFO - Bot heartbeat. PID=2476, version='2025.11.1', state='RUNNING'
