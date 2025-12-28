@@ -1,0 +1,5 @@
+backend/venv/
+frontend/node_modules/
+.git/
+user_data/logs/
+user_data/backtest_results/

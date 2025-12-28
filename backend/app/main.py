@@ -26,6 +26,10 @@ app.include_router(configs.router, prefix="/configs",tags=["configs"])
 app.include_router(backtest.router, prefix="/backtest",tags=["backtest"])
 app.include_router(paper.router, prefix="/paper",tags=["paper"])
 
+if os.path.exists(frontend_path):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
+
+# 4. 루트 경로에서 React index.html 반환
 @app.get("/")
 def read_root():
     index_path = os.path.join(frontend_path, "index.html")
