@@ -1,2 +1,11 @@
 venv/
 .venv/
+user_data/config_live.json
+user_data/databases/*.sqlite
+user_data/logs/
+user_data/backtest_results/
+
+node_modules/
+frontend/node_modules/
+
+.vscode/

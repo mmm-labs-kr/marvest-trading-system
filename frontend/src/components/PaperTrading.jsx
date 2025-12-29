@@ -21,7 +21,10 @@ function PaperTrading() {
 
     // --- [API Functions] ---
     const fetchBots = async () => {
-        try { const res = await axios.get(`${API_BASE}/bots`); setBots(res.data); } catch (e) { console.error(e); }
+        try { 
+            const res = await axios.get(`${API_BASE}/bots`);
+            setBots(res.data.filter(bot => bot.mode === 'paper' || !bot.mode));
+        } catch (e) { console.error(e); }
     };
 
     const fetchBotDetails = async () => {

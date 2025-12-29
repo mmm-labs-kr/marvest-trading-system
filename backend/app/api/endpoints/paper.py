@@ -38,26 +38,43 @@ def save_bots_data(data):
     with open(BOTS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
-def get_bot_paths(bot_id: str, strategy_name: str):
-    """bot_id를 기준으로 고유한 파일 경로 생성"""
-    # DB 파일: tradesv3_{bot_id}.sqlite (ID로 구분하여 완벽 격리)
+def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
+    """
+    bot_id와 mode를 기준으로 파일 경로 생성
+    mode가 'live'이면 config_live.json을 우선적으로 찾음
+    """
+    # 1. DB 폴더 생성
+    if not os.path.exists(DB_DIR):
+        os.makedirs(DB_DIR)
+
+    # 2. DB 및 로그 파일 경로 (ID로 격리)
     db_path = os.path.join(DB_DIR, f"tradesv3_{bot_id}.sqlite")
-    log_path = os.path.join(USER_DATA_DIR, "logs", f"paper_{bot_id}.log")
+    log_path = os.path.join(USER_DATA_DIR, "logs", f"{mode}_{bot_id}.log")
     
-    # 설정 파일은 전략 이름을 따라감 (전략 파일은 공유 가능하므로)
-    # 없다면 기본 config.json 사용
-    config_path = os.path.join(USER_DATA_DIR, "paper_configs", f"config_paper_{strategy_name}.json")
-    if not os.path.exists(config_path):
-         config_path = os.path.join(USER_DATA_DIR, "config.json")
+    # 3. 설정 파일 결정 로직 (가장 중요 ★)
+    # 전략별 전용 설정 파일이 있는지 확인
+    strategy_config = os.path.join(USER_DATA_DIR, "paper_configs", f"config_{mode}_{strategy_name}.json")
+    
+    if os.path.exists(strategy_config):
+        config_path = strategy_config
+    else:
+        # 없다면 공용 설정 파일 사용
+        # live -> config_live.json
+        # paper -> config.json (기본값)
+        if mode == 'live':
+            config_path = os.path.join(USER_DATA_DIR, "config_live.json")
+        else:
+            config_path = os.path.join(USER_DATA_DIR, "config.json")
          
     return db_path, log_path, config_path
 
 # --- [Pydantic Models] ---
 
 class BotCreateRequest(BaseModel):
-    name: str          # 사용자가 식별하기 쉬운 이름 (예: 비트코인 1호기)
-    strategy: str      # 사용할 전략 파일명
-    pair: str          # 거래할 코인 (예: BTC/USDT)
+    name: str          
+    strategy: str      
+    pair: str          
+    mode: str = "paper" # [추가] paper 또는 live
 
 class BotControlRequest(BaseModel):
     bot_id: str
@@ -67,7 +84,8 @@ class BotResponse(BaseModel):
     name: str
     strategy: str
     pair: str
-    status: str        # STOPPED, RUNNING
+    mode: str          # [추가]
+    status: str        
     pid: Optional[int] = None
 
 # --- [API 1: 봇 관리 (CRUD)] ---
@@ -79,7 +97,6 @@ def list_bots():
     result = []
     
     for bot_id, bot_info in bots.items():
-        # 실제 프로세스가 살아있는지 확인하여 상태 동기화
         proc = running_processes.get(bot_id)
         is_alive = proc is not None and proc.poll() is None
         
@@ -88,6 +105,7 @@ def list_bots():
             "name": bot_info.get("name"),
             "strategy": bot_info.get("strategy"),
             "pair": bot_info.get("pair"),
+            "mode": bot_info.get("mode", "paper"), # 없으면 기본 paper
             "status": "RUNNING" if is_alive else "STOPPED",
             "pid": proc.pid if is_alive else None
         })
@@ -95,17 +113,17 @@ def list_bots():
 
 @router.post("/bots")
 def create_bot(req: BotCreateRequest):
-    """새로운 봇 생성 (실행 X, 리스트에 추가만 함)"""
+    """새로운 봇 생성"""
     bots = load_bots_data()
     
-    # 고유 ID 생성 (UUID 사용)
-    bot_id = str(uuid.uuid4())[:8] # 짧게 8자리만 사용
+    bot_id = str(uuid.uuid4())[:8]
     
     new_bot = {
         "id": bot_id,
         "name": req.name,
         "strategy": req.strategy,
         "pair": req.pair,
+        "mode": req.mode, # [추가] 모드 저장
         "created_at": str(pd.Timestamp.now())
     }
     
@@ -116,12 +134,10 @@ def create_bot(req: BotCreateRequest):
 
 @router.delete("/bots/{bot_id}")
 def delete_bot(bot_id: str):
-    """봇 삭제 (실행 중이면 강제 종료 후 삭제)"""
-    # 1. 실행 중이면 종료
+    """봇 삭제"""
     if bot_id in running_processes:
         stop_bot(BotControlRequest(bot_id=bot_id))
         
-    # 2. JSON에서 삭제
     bots = load_bots_data()
     if bot_id in bots:
         del bots[bot_id]
@@ -141,26 +157,33 @@ def start_bot(req: BotControlRequest):
         raise HTTPException(status_code=404, detail="Bot ID not found")
         
     bot_info = bots[req.bot_id]
+    mode = bot_info.get("mode", "paper") # 모드 확인
     
-    # 이미 실행 중인지 확인
     if req.bot_id in running_processes and running_processes[req.bot_id].poll() is None:
         return {"message": "Bot is already running"}
 
     try:
-        # 경로 생성 (bot_id 기준)
-        db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'])
+        # 경로 생성
+        db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'], mode)
         
-        # 명령어 구성
+        # [핵심] 설정 파일 존재 여부 체크 (특히 Live 모드일 때 중요)
+        if not os.path.exists(config_path):
+             raise Exception(f"Config file not found: {config_path}. Please create it first.")
+
+        # 기본 명령어
         command = [
             "freqtrade", 
             "trade", 
-            "--dry-run", 
             "--strategy", bot_info['strategy'], 
             "--config", config_path,
             "--userdir", USER_DATA_DIR,
             "--db-url", f"sqlite:///{db_path}",
             "--logfile", log_path
         ]
+        
+        # [핵심] 모의투자 모드일 때만 --dry-run 추가
+        if mode == "paper":
+            command.append("--dry-run")
         
         # 프로세스 실행
         proc = subprocess.Popen(
@@ -173,7 +196,7 @@ def start_bot(req: BotControlRequest):
         
         running_processes[req.bot_id] = proc
         
-        return {"message": f"Bot {bot_info['name']} started", "pid": proc.pid}
+        return {"message": f"[{mode.upper()}] Bot {bot_info['name']} started", "pid": proc.pid}
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -200,20 +223,20 @@ def stop_bot(req: BotControlRequest):
 
 @router.get("/status")
 def get_bot_status(bot_id: str):
-    """특정 봇의 현황 조회 (DB 읽기)"""
+    """현황 조회"""
     bots = load_bots_data()
     if bot_id not in bots:
         raise HTTPException(status_code=404, detail="Bot not found")
         
     strategy_name = bots[bot_id]['strategy']
+    mode = bots[bot_id].get('mode', 'paper')
     
-    # 프로세스 상태 확인
     proc = running_processes.get(bot_id)
     is_running = proc is not None and proc.poll() is None
     status_str = "RUNNING" if is_running else "STOPPED"
     
     # DB 연결
-    db_path, _, _ = get_bot_paths(bot_id, strategy_name)
+    db_path, _, _ = get_bot_paths(bot_id, strategy_name, mode)
     
     if not os.path.exists(db_path):
         return {
@@ -237,10 +260,8 @@ def get_bot_status(bot_id: str):
             WHERE is_open = 0
         """)
         stats = cursor.fetchone()
-        
         cursor.execute("SELECT COUNT(*) as active FROM trades WHERE is_open = 1")
         active = cursor.fetchone()
-        
         conn.close()
 
         total_profit = stats['total_profit'] if stats['total_profit'] else 0.0
@@ -249,6 +270,7 @@ def get_bot_status(bot_id: str):
             "status": status_str,
             "name": bots[bot_id]['name'],
             "strategy": strategy_name,
+            "mode": mode,
             "total_roi": round(total_profit * 100, 2),
             "total_trade_count": stats['total_count'] if stats['total_count'] else 0,
             "win_count": stats['wins'] if stats['wins'] else 0,
@@ -265,19 +287,16 @@ def get_bot_status(bot_id: str):
 
 @router.get("/trades")
 def get_trade_logs(bot_id: str):
-    """특정 봇의 거래 기록 조회"""
+    """거래 기록 조회"""
     bots = load_bots_data()
-    if bot_id not in bots:
-        return []
+    if bot_id not in bots: return []
         
-    db_path, _, _ = get_bot_paths(bot_id, bots[bot_id]['strategy'])
+    db_path, _, _ = get_bot_paths(bot_id, bots[bot_id]['strategy'], bots[bot_id].get('mode', 'paper'))
     
-    if not os.path.exists(db_path):
-        return []
+    if not os.path.exists(db_path): return []
 
     try:
         conn = sqlite3.connect(db_path)
-        
         query = """
             SELECT 
                 id, pair, is_open, open_date, close_date, 
@@ -290,8 +309,7 @@ def get_trade_logs(bot_id: str):
         df = pd.read_sql_query(query, conn)
         conn.close()
         
-        if df.empty:
-            return []
+        if df.empty: return []
 
         df['accumulated_profit'] = df['close_profit_abs'].cumsum()
         df = df.sort_values(by='close_date', ascending=False).head(50)
