@@ -25,49 +25,47 @@ function AppContent() {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
-    // [전체 테마] bg-black, text-gray-300, font-mono 적용
-    <div className="min-h-screen bg-black text-gray-300 flex flex-col font-mono selection:bg-green-500 selection:text-black">
+    // [수정] font-mono 제거 -> font-sans 적용 (가독성 향상)
+    <div className="min-h-screen bg-black text-gray-200 flex flex-col font-sans selection:bg-green-500 selection:text-black">
       
       {/* 1. 상단 헤더 */}
-      {/* 테두리를 초록색(green-900)으로 은은하게 주고, 배경은 검정 유지 */}
-      <header className="bg-black border-b border-green-900/50 px-4 py-3 flex items-center gap-4 sticky top-0 z-20 shadow-lg shadow-green-900/5">
+      <header className="bg-black border-b border-gray-800 px-4 py-3 flex items-center gap-4 sticky top-0 z-20">
         <button 
           onClick={toggleSidebar}
-          className="p-2 rounded-sm hover:bg-green-900/30 text-green-500 transition-colors"
+          className="p-2 rounded-md hover:bg-gray-800 text-gray-300 transition-colors"
         >
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
         
-        {/* 로고 영역: 터미널 프롬프트 느낌 */}
-        <div className="flex flex-col">
+        {/* 로고 영역: 여기만 font-mono 유지하여 아이덴티티 유지 */}
+        <div className="flex flex-col font-mono">
           <h1 className="font-bold text-xl text-green-500 flex items-center gap-2 tracking-wider">
             <Terminal size={20} strokeWidth={3} /> 
             <span>MMM_SYSTEM</span>
           </h1>
-          <div className='text-[10px] text-green-800 font-bold tracking-[0.2em] pl-7'>
+          <div className='text-[10px] text-green-700 font-bold tracking-[0.2em] pl-7'>
             MONEY MAKES MONEY
           </div>
         </div>
       </header>
 
       {/* 2. 사이드바 (네비게이션) */}
-      {/* 오버레이 (배경 어둡게) */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 z-30 backdrop-blur-[1px]"
+          className="fixed inset-0 bg-black/80 z-30 backdrop-blur-sm"
           onClick={closeSidebar}
         />
       )}
 
       {/* 사이드바 패널 */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-black border-r border-green-900/50 z-40 transform transition-transform duration-300 ease-in-out ${
+      <div className={`fixed top-0 left-0 h-full w-64 bg-[#0a0a0a] border-r border-gray-800 z-40 transform transition-transform duration-300 ease-in-out ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="p-5 flex justify-between items-center border-b border-green-900/30">
-          <span className="font-bold text-lg text-green-500 tracking-widest">
+        <div className="p-5 flex justify-between items-center border-b border-gray-800">
+          <span className="font-bold text-lg text-white tracking-wider font-mono">
             {'>'} MENU
           </span>
-          <button onClick={closeSidebar} className="text-gray-500 hover:text-green-500 transition-colors">
+          <button onClick={closeSidebar} className="text-gray-400 hover:text-white transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -80,17 +78,14 @@ function AppContent() {
                 key={item.path}
                 to={item.path}
                 onClick={closeSidebar}
-                className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 border-l-2 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   isActive 
-                    ? 'bg-green-900/20 text-green-400 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.1)]' 
-                    : 'text-gray-600 border-transparent hover:text-green-300 hover:bg-green-900/10 hover:border-green-800'
+                    ? 'bg-green-600 text-white shadow-lg shadow-green-900/50 font-bold' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
                 }`}
               >
-                {/* 아이콘: 활성 상태면 밝게 빛나게 */}
-                <span className={isActive ? "drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]" : ""}>
-                    {item.icon}
-                </span>
-                <span className="text-sm font-bold tracking-wider">
+                <span>{item.icon}</span>
+                <span className="text-sm tracking-wide">
                     {item.name}
                 </span>
               </Link>
@@ -98,17 +93,16 @@ function AppContent() {
           })}
         </nav>
 
-        {/* 하단 장식 (터미널 상태 표시 느낌) */}
-        <div className="absolute bottom-0 w-full p-4 border-t border-green-900/30">
-            <div className="text-[10px] text-green-900 flex justify-between">
-                <span>STATUS: ONLINE</span>
-                <span className="animate-pulse">●</span>
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-800">
+            <div className="text-[10px] text-gray-500 font-mono flex justify-between uppercase">
+                <span>Status: Online</span>
+                <span className="text-green-500 animate-pulse">●</span>
             </div>
         </div>
       </div>
 
       {/* 3. 메인 콘텐츠 영역 */}
-      <main className="flex-1 overflow-auto bg-black scrollbar-thin scrollbar-thumb-green-900 scrollbar-track-black">
+      <main className="flex-1 overflow-auto bg-black text-gray-100">
         <Routes>
           <Route path="/" element={<BacktestList />} />
           <Route path="/paper" element={<PaperTrading />} />

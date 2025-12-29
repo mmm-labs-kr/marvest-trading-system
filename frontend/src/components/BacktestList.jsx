@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { TrendingUp, TrendingDown, FileText, Play, X, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, FileText, Play, X, Loader2, ListFilter } from 'lucide-react';
 
 function BacktestList() {
   const navigate = useNavigate();
@@ -9,12 +9,11 @@ function BacktestList() {
   const [loading, setLoading] = useState(true);
   
   // --- 모달 및 실행 관련 상태 ---
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열림 여부
-  const [strategyName, setStrategyName] = useState("");  // 입력받은 전략명
-  const [isRunning, setIsRunning] = useState(false);     // 실행 중인지(로딩)
-  const [runLog, setRunLog] = useState(null);            // 실행 결과 로그
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [strategyName, setStrategyName] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [runLog, setRunLog] = useState(null);
 
-  // 목록 불러오기 함수 (재사용을 위해 분리)
   const fetchResults = async () => {
     try {
       const response = await axios.get('/api/backtest/results');
@@ -30,25 +29,18 @@ function BacktestList() {
     fetchResults();
   }, []);
 
-  // 백테스팅 실행 함수
   const handleRunBacktest = async () => {
     if (!strategyName.trim()) {
       alert("전략 이름을 입력해주세요!");
       return;
     }
-
     setIsRunning(true);
-    setRunLog(null); // 이전 로그 초기화
-
+    setRunLog(null);
     try {
-      // 백엔드에 실행 요청 (시간이 걸림)
-      const response = await axios.post('/api/backtest/run', {
-        strategy: strategyName
-      });
-
+      const response = await axios.post('/api/backtest/run', { strategy: strategyName });
       if (response.data.status === "success") {
-        setRunLog(response.data.output); // 성공 로그 저장
-        fetchResults(); // 목록 새로고침 (새 결과 파일이 생겼을 테니)
+        setRunLog(response.data.output);
+        fetchResults();
       } else {
         setRunLog(`[Error] ${response.data.message}\n${response.data.error}`);
       }
@@ -59,63 +51,78 @@ function BacktestList() {
     }
   };
 
-  // 모달 닫기 핸들러
   const closeModal = () => {
     setIsModalOpen(false);
     setStrategyName("");
     setRunLog(null);
   };
 
-  if (loading) return <div className="p-10 text-center">로딩 중... ⏳</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center text-gray-500 font-mono text-sm">
+      <Loader2 className="animate-spin mr-2 text-green-500" /> LOADING DATA...
+    </div>
+  );
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-8 font-sans">
       
-      {/* 상단 헤더 및 실행 버튼 */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          백테스팅 결과 목록
-        </h1>
+      {/* 헤더 섹션 */}
+      <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Backtest Registry</h1>
+        </div>
+        {/* [수정] Blue -> Green 테마 적용 */}
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold transition shadow-md"
+          className="group relative px-5 py-2.5 bg-green-600/10 hover:bg-green-600/20 text-green-500 hover:text-green-400 border border-green-900/50 hover:border-green-500/50 rounded-lg transition-all duration-200 flex items-center gap-2 font-bold text-sm tracking-wide"
         >
-          <Play size={18} fill="currentColor" />
-          새 백테스팅 실행
+          <Play size={16} fill="currentColor" className="opacity-70 group-hover:opacity-100 transition-opacity" />
+          RUN NEW SIMULATION
         </button>
       </div>
       
-      {/* 결과 목록 테이블 */}
-      <div className="overflow-x-auto shadow-md rounded-lg bg-white">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead className="bg-gray-100">
+      {/* 결과 목록 테이블 컨테이너 */}
+      <div className="rounded-xl border border-gray-800 bg-[#0a0a0a] overflow-hidden shadow-sm">
+        <table className="min-w-full text-left">
+          <thead className="bg-[#050505] border-b border-gray-800">
             <tr>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">전략 이름</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600">파일명</th>
-              <th className="py-3 px-4 text-right font-semibold text-gray-600">거래 횟수</th>
-              <th className="py-3 px-4 text-right font-semibold text-gray-600">승률</th>
-              <th className="py-3 px-4 text-right font-semibold text-gray-600">수익률</th>
+              <th className="py-4 px-6 font-bold text-gray-500 text-[10px] uppercase tracking-widest">Strategy Class</th>
+              <th className="py-4 px-6 font-bold text-gray-500 text-[10px] uppercase tracking-widest">Filename</th>
+              <th className="py-4 px-6 text-right font-bold text-gray-500 text-[10px] uppercase tracking-widest">Total Trades</th>
+              <th className="py-4 px-6 text-right font-bold text-gray-500 text-[10px] uppercase tracking-widest">Win Rate</th>
+              <th className="py-4 px-6 text-right font-bold text-gray-500 text-[10px] uppercase tracking-widest">Net Profit</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-800/50">
             {results.map((item, index) => (
               <tr 
                 key={index} 
                 onClick={() => navigate(`/result/${item.filename}`)} 
-                className="border-b hover:bg-gray-50 transition cursor-pointer"
+                className="hover:bg-white/5 transition-colors cursor-pointer group"
               >
-                <td className="py-3 px-4 font-medium">{item.strategy}</td>
-                <td className="py-3 px-4 text-sm text-gray-500 flex items-center gap-1">
-                  <FileText size={14} />
-                  {item.filename}
+                <td className="py-4 px-6">
+                  {/* [수정] 호버 시 텍스트 색상 Green으로 변경 */}
+                  <span className="text-gray-200 font-bold group-hover:text-green-400 transition-colors">
+                    {item.strategy}
+                  </span>
                 </td>
-                <td className="py-3 px-4 text-right">{item.total_trades}회</td>
-                <td className="py-3 px-4 text-right">{item.win_rate}%</td>
-                <td className={`py-3 px-4 text-right font-bold ${
-                  item.total_profit_pct >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  <div className="flex items-center justify-end gap-1">
-                    {item.total_profit_pct >= 0 ? <TrendingUp size={16}/> : <TrendingDown size={16}/>}
+                <td className="py-4 px-6">
+                   <div className="flex items-center gap-2 text-gray-500 text-xs font-mono group-hover:text-gray-400">
+                    <FileText size={14} />
+                    {item.filename}
+                   </div>
+                </td>
+                <td className="py-4 px-6 text-right">
+                    <span className="font-mono text-gray-300 text-sm">{item.total_trades}</span>
+                </td>
+                <td className="py-4 px-6 text-right">
+                    <span className="font-mono text-gray-300 text-sm">{item.win_rate}%</span>
+                </td>
+                <td className="py-4 px-6 text-right">
+                  <div className={`inline-flex items-center justify-end gap-1.5 font-mono font-bold text-sm ${
+                    item.total_profit_pct >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {item.total_profit_pct >= 0 ? <TrendingUp size={14}/> : <TrendingDown size={14}/>}
                     {item.total_profit_pct}%
                   </div>
                 </td>
@@ -123,25 +130,28 @@ function BacktestList() {
             ))}
           </tbody>
         </table>
+        
         {results.length === 0 && (
-          <div className="text-center py-10 text-gray-500">
-            데이터가 없습니다. 우측 상단 버튼을 눌러 백테스팅을 실행해보세요.
+          <div className="flex flex-col items-center justify-center py-20 text-gray-600 gap-3">
+            <FileText size={48} strokeWidth={1} className="opacity-20" />
+            <p className="text-sm font-mono uppercase tracking-widest">No Backtest Data Found</p>
           </div>
         )}
       </div>
 
-      {/* --- 백테스팅 실행 모달 (Popup) --- */}
+      {/* --- 모달 (Popup) --- */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border border-gray-700 w-full max-w-lg overflow-hidden rounded-lg shadow-2xl">
             {/* 모달 헤더 */}
-            <div className="bg-gray-100 px-6 py-4 border-b flex justify-between items-center">
-              <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                <Play size={20} className="text-blue-600" /> 백테스팅 실행
+            <div className="px-6 py-4 border-b border-gray-800 flex justify-between items-center bg-[#050505]">
+              <h3 className="font-bold text-gray-200 text-sm uppercase tracking-widest flex items-center gap-2">
+                {/* [수정] 아이콘 색상 Green */}
+                <Play size={16} className="text-green-500" /> Execute Strategy
               </h3>
               {!isRunning && (
-                <button onClick={closeModal} className="text-gray-500 hover:text-red-500">
-                  <X size={24} />
+                <button onClick={closeModal} className="text-gray-500 hover:text-white transition-colors">
+                  <X size={20} />
                 </button>
               )}
             </div>
@@ -149,67 +159,66 @@ function BacktestList() {
             {/* 모달 본문 */}
             <div className="p-6">
               {!isRunning && !runLog ? (
-                // 1. 입력 화면
                 <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    실행할 전략 이름 (Class Name)
+                  <label className="block text-gray-400 text-xs font-bold mb-2 uppercase tracking-wide">
+                    Strategy Class Name
                   </label>
+                  {/* [수정] 포커스 시 테두리/링 색상 Green */}
                   <input 
                     type="text"
                     value={strategyName}
                     onChange={(e) => setStrategyName(e.target.value)}
-                    placeholder="예: MyStrategy"
-                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. MyStrategy"
+                    className="w-full bg-black border border-gray-700 rounded px-4 py-3 text-white focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all font-mono text-sm placeholder-gray-700"
                   />
-                  <p className="text-xs text-gray-500 mt-2">
-                    * class 이름을 정확히 입력하세요.
+                  <p className="text-[10px] text-gray-500 mt-2 flex items-center gap-1">
+                     * Enter the exact class name defined in your strategy file.
                   </p>
                 </div>
               ) : isRunning ? (
-                // 2. 로딩 화면
-                <div className="text-center py-10">
-                  <Loader2 size={48} className="animate-spin text-blue-600 mx-auto mb-4" />
-                  <p className="text-lg font-bold text-gray-700">백테스팅 실행 중...</p>
-                  <p className="text-sm text-gray-500">잠시만 기다려주세요. (최대 수 분 소요)</p>
+                <div className="text-center py-8">
+                  {/* [수정] 로딩 아이콘 Green */}
+                  <Loader2 size={40} className="animate-spin text-green-500 mx-auto mb-4" />
+                  <p className="text-base font-bold text-gray-200">Processing Simulation...</p>
+                  <p className="text-xs text-gray-500 mt-2 font-mono">THIS MAY TAKE A FEW MINUTES</p>
                 </div>
               ) : (
-                // 3. 결과 로그 화면
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-bold text-green-600">실행 완료!</span>
+                    <span className="font-bold text-green-500 text-xs uppercase tracking-wider">Execution Finished</span>
                   </div>
-                  <div className="bg-gray-900 text-gray-100 p-3 rounded text-xs font-mono h-64 overflow-auto">
-                    <pre>{runLog}</pre>
+                  <div className="bg-black border border-gray-800 p-3 rounded text-[10px] font-mono h-60 overflow-auto text-gray-300 whitespace-pre-wrap scrollbar-thin scrollbar-thumb-gray-800">
+                    {runLog}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* 모달 푸터 (버튼) */}
-            <div className="bg-gray-50 px-6 py-4 border-t flex justify-end gap-2">
+            {/* 모달 푸터 */}
+            <div className="px-6 py-4 border-t border-gray-800 bg-[#050505] flex justify-end gap-3">
               {!isRunning && !runLog && (
                 <>
                   <button 
                     onClick={closeModal}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded font-medium"
+                    className="px-4 py-2 text-gray-500 hover:text-gray-300 text-xs font-bold uppercase tracking-wide transition-colors"
                   >
-                    취소
+                    Cancel
                   </button>
+                  {/* [수정] 버튼 배경색 Green */}
                   <button 
                     onClick={handleRunBacktest}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold"
+                    className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded text-xs font-bold uppercase tracking-wide shadow-lg shadow-green-900/20 transition-all"
                   >
-                    실행하기
+                    Run Test
                   </button>
                 </>
               )}
-              {/* 실행 완료 후 닫기 버튼 */}
               {!isRunning && runLog && (
                 <button 
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded font-bold"
+                  className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded text-xs font-bold uppercase tracking-wide transition-colors"
                 >
-                  닫기
+                  Close
                 </button>
               )}
             </div>
