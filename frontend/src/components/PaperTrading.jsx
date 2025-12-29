@@ -1,235 +1,312 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FileText, Play, Square, Activity, TrendingUp, RefreshCw, Layers, LayoutDashboard, Terminal } from 'lucide-react';
+import { 
+    Terminal, Activity, Play, Square, Plus, Trash2, 
+    Server, Cpu, FileText, X, Menu 
+} from 'lucide-react';
+
+const API_BASE = "http://127.0.0.1:8000/paper";
 
 function PaperTrading() {
+    // --- [State Definitions] ---
+    const [bots, setBots] = useState([]);
+    const [selectedBotId, setSelectedBotId] = useState(null);
     const [statusData, setStatusData] = useState(null);
     const [logs, setLogs] = useState([]);
-    const [strategy, setStrategy] = useState("MyStrategy");
-    const [pair, setPair] = useState("BTC/USDT");
+    
+    // UI States
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newBotConfig, setNewBotConfig] = useState({ name: "", strategy: "", pair: "BTC/USDT" });
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // --- API 호출 함수들 ---
-    const fetchStatus = async () => {
-        try {
-            // [수정] 전략 이름을 쿼리 파라미터로 전달
-            const res = await axios.get(`http://127.0.0.1:8000/paper/status?strategy=${strategy}`);
-            setStatusData(res.data);
-        } catch (error) { console.error(error); }
+    // --- [API Functions] ---
+    const fetchBots = async () => {
+        try { const res = await axios.get(`${API_BASE}/bots`); setBots(res.data); } catch (e) { console.error(e); }
     };
 
-    const fetchLogs = async () => {
+    const fetchBotDetails = async () => {
+        if (!selectedBotId) return;
         try {
-            // [수정] 전략 이름을 쿼리 파라미터로 전달
-            const res = await axios.get(`http://127.0.0.1:8000/paper/trades?strategy=${strategy}`);
-            setLogs(res.data);
-        } catch (error) { console.error(error); }
+            const statusRes = await axios.get(`${API_BASE}/status?bot_id=${selectedBotId}`);
+            const logsRes = await axios.get(`${API_BASE}/trades?bot_id=${selectedBotId}`);
+            setStatusData(statusRes.data);
+            setLogs(logsRes.data);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleCreateBot = async () => {
+        if (!newBotConfig.name || !newBotConfig.strategy) return alert("빈칸을 확인해주세요.");
+        try {
+            await axios.post(`${API_BASE}/bots`, newBotConfig);
+            setShowCreateModal(false);
+            setNewBotConfig({ name: "", strategy: "", pair: "BTC/USDT" });
+            fetchBots();
+        } catch (e) { alert("생성 실패: " + e.message); }
+    };
+
+    const handleDeleteBot = async (e, botId) => {
+        e.stopPropagation();
+        if (!window.confirm("정말 이 봇을 삭제하시겠습니까?")) return;
+        try {
+            await axios.delete(`${API_BASE}/bots/${botId}`);
+            fetchBots();
+            if (selectedBotId === botId) {
+                setSelectedBotId(null);
+                setStatusData(null);
+            }
+        } catch (e) { alert("삭제 실패: " + e.message); }
     };
 
     const handleStart = async () => {
-        try {
-            await axios.post("http://127.0.0.1:8000/paper/start", { strategy, pairs: [pair] });
-            alert("시스템 가동 시작"); fetchStatus();
-        } catch (e) { 
-            // 에러 메시지 상세 출력
-            alert("에러: " + (e.response?.data?.detail || e.message)); 
-        }
+        try { await axios.post(`${API_BASE}/start`, { bot_id: selectedBotId }); fetchBotDetails(); fetchBots(); } 
+        catch (e) { alert("실행 실패: " + (e.response?.data?.detail || e.message)); }
     };
 
-    // ▼▼▼ [핵심 수정 부분] ▼▼▼
     const handleStop = async () => {
-        try {
-            // 백엔드가 어떤 봇을 끌지 알아야 하므로 { strategy: strategy } 를 바디에 실어 보냄
-            await axios.post("http://127.0.0.1:8000/paper/stop", { strategy: strategy });
-            alert("시스템 강제 종료"); 
-            fetchStatus();
-        } catch (e) { 
-            console.error(e);
-            alert("종료 실패: " + (e.response?.data?.detail || e.message));
-        }
+        try { await axios.post(`${API_BASE}/stop`, { bot_id: selectedBotId }); fetchBotDetails(); fetchBots(); } 
+        catch (e) { alert("정지 실패: " + (e.response?.data?.detail || e.message)); }
     };
-    // ▲▲▲ [수정 끝] ▲▲▲
 
+    // --- [Effects] ---
+    useEffect(() => { fetchBots(); }, []);
+    
     useEffect(() => {
-        fetchStatus();
-        fetchLogs();
-        const interval = setInterval(() => { fetchStatus(); fetchLogs(); }, 1000);
-        return () => clearInterval(interval);
-    }, [strategy]); // 전략이 바뀔 때마다 갱신
+        if (selectedBotId) {
+            fetchBotDetails();
+            const interval = setInterval(fetchBotDetails, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [selectedBotId]);
 
+    const selectedBot = bots.find(b => b.id === selectedBotId);
     const isRunning = statusData?.status === "RUNNING";
 
     return (
-        <div className="flex h-screen bg-black text-gray-300 overflow-hidden font-mono selection:bg-green-500 selection:text-black" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+        <div className="flex flex-col md:flex-row h-screen w-screen bg-black text-gray-300 font-mono overflow-hidden selection:bg-green-500 selection:text-black" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
             
+            {/* ▼▼▼ [핵심 수정] 브라우저 기본 마진 제거 스타일 주입 ▼▼▼ */}
+            <style>{`
+                html, body, #root {
+                    margin: 0;
+                    padding: 0;
+                    height: 100%;
+                    overflow: hidden; /* 전체 화면 스크롤 방지 */
+                }
+            `}</style>
+
             {/* ================================================= */}
-            {/* [좌측 패널] 너비 300px 고정 (제어판)               */}
+            {/* [좌측 사이드바] Bot Registry                        */}
             {/* ================================================= */}
-            <div className="w-[300px] flex flex-col border-r border-green-900/50 bg-black p-4 shrink-0 z-20">
-                
-                {/* 로고 영역 */}
-                <div className="mb-8 mt-2 px-1 border-l-2 border-green-500 pl-4">
-                    <h1 className="text-xl font-bold flex items-center gap-2 text-green-500 tracking-wider">
-                        <Terminal size={20} /> 
-                        <span>FREQ_BOT</span>
-                    </h1>
-                    <p className="text-[10px] text-green-800 mt-1 uppercase tracking-[0.2em] font-bold">Automated System</p>
+            <div className={`
+                flex flex-col border-b md:border-b-0 md:border-r border-green-900/50 bg-black z-20 transition-all duration-300
+                w-full md:w-[280px] shrink-0
+                ${isSidebarOpen ? 'h-[50vh] md:h-full' : 'h-14 md:h-full'} 
+            `}>
+                {/* 헤더 */}
+                <div className="h-14 flex items-center justify-between px-4 sm:px-6 border-b border-green-900/50 shrink-0 bg-black">
+                    <div className="flex items-center gap-2 text-green-500 font-bold tracking-wider">
+                        <Terminal size={18} />
+                        <span className="text-sm md:text-base">BOT_REGISTRY</span>
+                    </div>
+                    {/* 모바일용 토글 버튼 */}
+                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden text-green-700 p-2">
+                        {isSidebarOpen ? <X size={18}/> : <Menu size={18}/>}
+                    </button>
                 </div>
 
-                {/* 제어판 카드 */}
-                <div className="bg-black p-4 border border-green-900/50 shadow-[0_0_15px_rgba(20,83,45,0.1)]">
-                    <h3 className="text-xs font-bold text-green-600 mb-4 flex items-center gap-2 border-b border-green-900/50 pb-2 uppercase tracking-widest">
-                        <RefreshCw size={12}/> Control Module
-                    </h3>
-                    
-                    <div className="space-y-4">
-                        <div>
-                            <label className="text-[10px] text-green-700 font-bold mb-1 block uppercase">Target Strategy</label>
-                            <input 
-                                className="w-full bg-black text-green-400 border border-green-800 px-3 py-2 text-sm focus:border-green-500 focus:shadow-[0_0_10px_rgba(34,197,94,0.2)] outline-none transition-all placeholder-green-900/50"
-                                value={strategy} onChange={(e) => setStrategy(e.target.value)} placeholder="ENTER_STRATEGY_NAME"
-                            />
-                        </div>
-                        
-                        <div>
-                            <label className="text-[10px] text-green-700 font-bold mb-1 block uppercase">Trading Pair</label>
-                            <input 
-                                className="w-full bg-black text-green-400 border border-green-800 px-3 py-2 text-sm focus:border-green-500 focus:shadow-[0_0_10px_rgba(34,197,94,0.2)] outline-none transition-all placeholder-green-900/50"
-                                value={pair} onChange={(e) => setPair(e.target.value)} placeholder="BTC/USDT"
-                            />
-                        </div>
+                {/* 생성 버튼 (항상 보임) */}
+                <div className={`p-3 border-b border-green-900/50 shrink-0 bg-black ${!isSidebarOpen && 'hidden md:block'}`}>
+                    <button 
+                        onClick={() => setShowCreateModal(true)}
+                        className="w-full py-2 bg-green-900/10 hover:bg-green-500 hover:text-black text-green-500 border border-green-600/50 transition-all flex justify-center items-center gap-2 text-xs font-bold uppercase tracking-wider"
+                    >
+                        <Plus size={14} /> New Bot
+                    </button>
+                </div>
 
-                        <div className="pt-4">
-                            {isRunning ? (
-                                <button onClick={handleStop} className="w-full bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900 py-3 flex justify-center items-center gap-2 text-sm font-bold shadow-[0_0_10px_rgba(239,68,68,0.1)] transition-all active:scale-[0.98] uppercase tracking-wider">
-                                    <Square size={14} fill="currentColor"/> Terminate
-                                </button>
-                            ) : (
-                                <button onClick={handleStart} className="w-full bg-green-900/20 hover:bg-green-900/40 text-green-500 border border-green-900 py-3 flex justify-center items-center gap-2 text-sm font-bold shadow-[0_0_10px_rgba(34,197,94,0.1)] transition-all active:scale-[0.98] uppercase tracking-wider">
-                                    <Play size={14} fill="currentColor"/> Initialize
-                                </button>
-                            )}
+                {/* 봇 리스트 (스크롤 영역) */}
+                {/* min-h-0: Flex 컨테이너 내에서 스크롤이 정상 작동하도록 함 */}
+                <div className={`flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-green-900 min-h-0 ${!isSidebarOpen && 'hidden md:block'}`}>
+                    {bots.map(bot => (
+                        <div 
+                            key={bot.id}
+                            onClick={() => { setSelectedBotId(bot.id); setIsSidebarOpen(false); }}
+                            className={`group relative p-3 border cursor-pointer transition-all hover:bg-green-900/10
+                                ${selectedBotId === bot.id 
+                                    ? 'border-green-500 bg-green-900/20 shadow-[0_0_10px_rgba(34,197,94,0.1)]' 
+                                    : 'border-green-900/30 hover:border-green-500/50 text-gray-500'}`}
+                        >
+                            <div className="flex justify-between items-start mb-1">
+                                <div className={`font-bold text-sm truncate pr-2 ${selectedBotId === bot.id ? 'text-green-400' : 'group-hover:text-green-300'}`}>
+                                    {bot.name}
+                                </div>
+                                <div className={`w-2 h-2 rounded-full shrink-0 ${bot.status === 'RUNNING' ? 'bg-green-500 animate-pulse' : 'bg-red-900'}`} />
+                            </div>
+                            <div className="text-[10px] font-mono opacity-70 flex justify-between items-center">
+                                <span className="truncate max-w-[120px]">{bot.pair}</span>
+                                <Trash2 size={12} className="hover:text-red-500 transition-colors z-10" onClick={(e) => handleDeleteBot(e, bot.id)}/>
+                            </div>
                         </div>
-                        
-                        {/* 상태 텍스트 */}
-                        <div className="text-center">
-                            <span className={`text-[10px] tracking-widest uppercase ${isRunning ? 'text-green-500 animate-pulse' : 'text-red-900'}`}>
-                                {isRunning ? ">> PROCESS RUNNING <<" : ">> SYSTEM HALTED <<"}
-                            </span>
-                        </div>
-                    </div>
+                    ))}
+
+                    {bots.length === 0 && (
+                        <div className="text-center py-10 text-xs text-gray-700">NO BOTS DEPLOYED</div>
+                    )}
                 </div>
             </div>
 
+
             {/* ================================================= */}
-            {/* [우측 패널] 3단 구조 (헤더 -> 현황 -> 테이블)      */}
+            {/* [우측 메인] Dashboard Area                          */}
             {/* ================================================= */}
-            <div className="flex-1 flex flex-col min-w-0 bg-black scrollbar-thin scrollbar-thumb-green-900 scrollbar-track-black">
+            <div className="flex-1 flex flex-col bg-black min-w-0 h-full overflow-hidden relative">
                 
-                {/* 1. 최상단 네비게이션 바 */}
-                <div className="h-14 bg-black border-b border-green-900/50 flex items-center px-6 shrink-0 justify-between z-10">
-                    <div className="flex items-center gap-2 text-green-500 font-bold tracking-widest text-sm">
-                        <LayoutDashboard size={16} />
-                        <span>DASHBOARD // OVERVIEW</span>
+                {!selectedBotId ? (
+                    <div className="flex-1 flex flex-col items-center justify-center text-green-900/30 gap-4 p-4 text-center">
+                        <Server size={48} strokeWidth={1} />
+                        <span className="text-base tracking-widest uppercase">Select a bot to view status</span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs">
-                        <span className={`px-2 py-1 border ${isRunning ? 'border-green-500/50 bg-green-500/10 text-green-400 shadow-[0_0_8px_rgba(34,197,94,0.3)]' : 'border-red-900 bg-red-900/10 text-red-700'}`}>
-                            {isRunning ? "● ONLINE" : "○ OFFLINE"}
-                        </span>
-                    </div>
-                </div>
-
-                {/* 2. 실시간 현황판 */}
-                <div className="px-6 py-4 bg-black border-b border-green-900/30 shrink-0">
-                    <div className="grid grid-cols-4 gap-4">
-                        <MiniStatusCard title="SYSTEM STATUS" value={statusData?.status || "WAITING"} color={isRunning ? "text-green-400" : "text-gray-600"} icon={<Layers size={14} className="opacity-50"/>} />
-                        <MiniStatusCard title="TOTAL RETURN" value={`${statusData?.total_roi || 0}%`} color={(statusData?.total_roi || 0) >= 0 ? "text-green-400" : "text-red-500"} icon={<TrendingUp size={14} className="opacity-50"/>} />
-                        <MiniStatusCard title="WIN / LOSS" value={`${statusData?.win_count || 0}W / ${statusData?.loss_count || 0}L`} color="text-gray-300" subtext={`WIN RATE: ${statusData?.win_count + statusData?.loss_count > 0 ? Math.round(statusData.win_count / (statusData.win_count + statusData.loss_count) * 100) : 0}%`} />
-                        <MiniStatusCard title="ACTIVE POSITIONS" value={`${statusData?.active_trade_count || 0}`} color="text-yellow-500" unit="OPEN" />
-                    </div>
-                </div>
-
-                {/* 3. 거래 기록 테이블 */}
-                <div className="flex-1 overflow-hidden flex flex-col relative">
-                    <div className="px-6 py-2 bg-green-900/5 border-b border-green-900/30 flex justify-between items-center shrink-0">
-                        <h2 className="font-bold text-green-600 flex items-center gap-2 text-xs uppercase tracking-widest">
-                            <FileText size={14}/> Trade Logs
-                        </h2>
-                        {isRunning && <span className="text-[10px] text-green-500 animate-pulse">● LIVE DATA FEED</span>}
-                    </div>
-
-                    <div className="flex-1 overflow-auto bg-black scrollbar-thin scrollbar-thumb-green-900 scrollbar-track-black">
-                        <table className="w-full text-center border-collapse">
-                            <thead className="text-[10px] text-green-700 bg-black border-b border-green-900 uppercase font-medium sticky top-0 z-10">
-                                <tr>
-                                    <th className="px-2 py-3">Timestamp</th>
-                                    <th className="px-2 py-3">Type</th>
-                                    <th className="px-2 py-3">Pair</th>
-                                    <th className="px-2 py-3">Close</th>
-                                    <th className="px-2 py-3">Amt</th>
-                                    <th className="px-2 py-3">Open</th>
-                                    <th className="px-2 py-3">Profit %</th>
-                                    <th className="px-2 py-3">Profit $</th>
-                                    <th className="px-2 py-3">Total $</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-green-900/20 text-xs">
-                                {logs.length === 0 ? (
-                                    <tr><td colSpan="9" className="py-20 text-green-900/50 uppercase tracking-widest">No Data Available</td></tr>
+                ) : (
+                    <>
+                        {/* 1. 상단 정보바 */}
+                        <div className="min-h-14 border-b border-green-900/50 flex flex-row items-center justify-between px-4 py-2 bg-black/50 backdrop-blur-sm z-10 gap-2 shrink-0">
+                            <div className="overflow-hidden flex-1">
+                                <div className="text-[9px] text-green-700 font-bold uppercase tracking-wider mb-0.5">Target System</div>
+                                <h2 className="text-base sm:text-lg font-bold text-green-500 flex items-center gap-2 truncate">
+                                    {selectedBot?.name} 
+                                    <span className="text-[10px] font-normal text-gray-500 bg-green-900/10 px-1.5 border border-green-900/30 rounded hidden sm:inline-block">
+                                        {selectedBot?.pair}
+                                    </span>
+                                </h2>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 shrink-0">
+                                {isRunning ? (
+                                    <button onClick={handleStop} className="bg-red-900/20 text-red-500 border border-red-900 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase flex items-center gap-1">
+                                        <Square size={10} fill="currentColor" /> Stop
+                                    </button>
                                 ) : (
-                                    logs.map((log) => (
-                                        <tr key={log.id} className="hover:bg-green-900/10 transition-colors font-mono group">
-                                            <td className="px-2 py-2 text-gray-500 whitespace-nowrap group-hover:text-green-400">{log.timestamp.substring(5)}</td>
-                                            
-                                            <td className="px-2 py-2 font-bold whitespace-nowrap">
-                                                <span className={`px-1 rounded-sm text-[10px] ${log.side === 'long' ? 'text-green-400 border border-green-900' : 'text-red-400 border border-red-900'} mr-2`}>
-                                                    {log.side === 'long' ? "LNG" : "SHT"}
-                                                </span>
-                                                <span className={`text-[10px] ${log.is_win ? 'text-green-400' : 'text-red-500'}`}>
-                                                    {log.is_win ? "WIN" : "LOSS"}
-                                                </span>
-                                            </td>
-
-                                            <td className="px-2 py-2 text-gray-400 font-bold">{log.pair}</td>
-                                            <td className="px-2 py-2 text-gray-500">{log.close_price.toFixed(2)}</td>
-                                            <td className="px-2 py-2 text-gray-500">{log.amount.toFixed(4)}</td>
-                                            <td className="px-2 py-2 text-gray-500">{log.open_price.toFixed(2)}</td>
-
-                                            <td className={`px-2 py-2 font-bold ${log.is_win ? 'text-green-400' : 'text-red-500'}`}>
-                                                {log.profit_percent > 0 ? "+" : ""}{log.profit_percent}%
-                                            </td>
-
-                                            <td className={`px-2 py-2 font-bold ${log.profit_abs >= 0 ? 'text-green-400' : 'text-red-500'}`}>
-                                                {log.profit_abs > 0 ? "+" : ""}{log.profit_abs}
-                                            </td>
-
-                                            <td className={`px-2 py-2 font-bold ${log.accumulated_profit >= 0 ? 'text-green-400' : 'text-red-500'}`}>
-                                                {log.accumulated_profit > 0 ? "+" : ""}{log.accumulated_profit}
-                                            </td>
-                                        </tr>
-                                    ))
+                                    <button onClick={handleStart} className="bg-green-900/20 text-green-500 border border-green-900 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase flex items-center gap-1">
+                                        <Play size={10} fill="currentColor" /> Start
+                                    </button>
                                 )}
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
+
+                        {/* 2. 스탯 카드 (Grid) */}
+                        <div className="p-3 sm:p-6 pb-0 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 shrink-0">
+                            <StatCard title="Total Return" value={`${statusData?.total_roi || 0}%`} color={(statusData?.total_roi || 0) >= 0 ? "text-green-400" : "text-red-500"} />
+                            <StatCard title="Win / Loss" value={`${statusData?.win_count || 0} / ${statusData?.loss_count || 0}`} color="text-white" />
+                            <StatCard title="Total Trades" value={statusData?.total_trade_count || 0} color="text-blue-400" />
+                            <StatCard title="Active Positions" value={statusData?.active_trade_count || 0} color="text-yellow-400" />
+                        </div>
+
+                        {/* 3. 로그 테이블 */}
+                        {/* min-h-0: 여기도 중요합니다. 부모 높이를 넘어가지 않게 함 */}
+                        <div className="flex-1 p-3 sm:p-6 overflow-hidden flex flex-col min-h-0">
+                            <div className="flex items-center justify-between mb-2 border-b border-green-900/30 pb-2 shrink-0">
+                                <h3 className="text-green-600 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                                    <FileText size={14}/> Execution Logs
+                                </h3>
+                                <div className="text-[10px] text-gray-600 hidden sm:block">ID: {selectedBotId?.substring(0,8)}...</div>
+                            </div>
+                            
+                            <div className="flex-1 overflow-auto border border-green-900/30 bg-black scrollbar-thin scrollbar-thumb-green-900">
+                                <table className="w-full text-left text-xs min-w-[350px]">
+                                    <thead className="bg-green-900/10 text-green-500 sticky top-0 font-bold uppercase text-[10px]">
+                                        <tr>
+                                            <th className="p-2 whitespace-nowrap">Time</th>
+                                            <th className="p-2 whitespace-nowrap">Type</th>
+                                            <th className="p-2 whitespace-nowrap text-right">Profit %</th>
+                                            <th className="p-2 whitespace-nowrap text-right">Profit $</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-green-900/20">
+                                        {logs.map((log) => (
+                                            <tr key={log.id} className="hover:bg-green-900/5 transition-colors font-mono">
+                                                <td className="p-2 text-gray-500 whitespace-nowrap">{log.timestamp.substring(5, 16)}</td>
+                                                <td className="p-2">
+                                                    <span className={`px-1 py-0.5 text-[9px] border ${log.is_win ? 'border-green-600 text-green-400' : 'border-red-600 text-red-500'}`}>
+                                                        {log.is_win ? "WIN" : "LOSS"}
+                                                    </span>
+                                                </td>
+                                                <td className={`p-2 font-bold text-right ${log.profit_percent >= 0 ? 'text-green-400' : 'text-red-500'}`}>
+                                                    {log.profit_percent}%
+                                                </td>
+                                                <td className={`p-2 text-right ${log.profit_abs >= 0 ? 'text-green-400' : 'text-red-500'}`}>
+                                                    {log.profit_abs}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {logs.length === 0 && <div className="p-10 text-center text-gray-700 text-xs">NO TRADES RECORDED</div>}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* ================================================= */}
+            {/* [모달] 봇 생성 팝업                                */}
+            {/* ================================================= */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-black border border-green-500 w-full max-w-xs shadow-[0_0_30px_rgba(34,197,94,0.2)] p-6 relative">
+                        <button onClick={() => setShowCreateModal(false)} className="absolute top-4 right-4 text-green-700 hover:text-green-400"><X size={20}/></button>
+                        
+                        <h2 className="text-lg font-bold text-green-500 mb-4 flex items-center gap-2">
+                            <Cpu size={20}/> DEPLOY NEW UNIT
+                        </h2>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-[10px] text-green-700 font-bold mb-1 uppercase">Unit Name</label>
+                                <input 
+                                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 text-sm focus:border-green-500 outline-none placeholder-green-900/50"
+                                    placeholder="e.g. BTC Scalper"
+                                    value={newBotConfig.name}
+                                    onChange={(e) => setNewBotConfig({...newBotConfig, name: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] text-green-700 font-bold mb-1 uppercase">Strategy File</label>
+                                <input 
+                                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 text-sm focus:border-green-500 outline-none placeholder-green-900/50"
+                                    placeholder="e.g. MyStrategy"
+                                    value={newBotConfig.strategy}
+                                    onChange={(e) => setNewBotConfig({...newBotConfig, strategy: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] text-green-700 font-bold mb-1 uppercase">Target Pair</label>
+                                <input 
+                                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 text-sm focus:border-green-500 outline-none placeholder-green-900/50"
+                                    placeholder="e.g. BTC/USDT"
+                                    value={newBotConfig.pair}
+                                    onChange={(e) => setNewBotConfig({...newBotConfig, pair: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleCreateBot}
+                            className="mt-6 w-full bg-green-600 hover:bg-green-500 text-black font-bold py-3 text-xs uppercase tracking-wider transition-all"
+                        >
+                            Confirm Deployment
+                        </button>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
 
-// 미니 카드 스타일
-const MiniStatusCard = ({ title, value, color, icon, subtext, unit }) => (
-    <div className="bg-black p-3 border border-green-900/30 flex flex-col justify-center h-20 relative overflow-hidden group hover:border-green-500/50 hover:shadow-[0_0_10px_rgba(34,197,94,0.1)] transition-all">
-        <div className="absolute top-0 right-0 w-8 h-8 bg-green-900/10 transform rotate-45 translate-x-4 -translate-y-4"></div>
-        <div className="absolute right-2 top-2 opacity-20 group-hover:opacity-100 group-hover:text-green-500 transition-all">
-            {icon}
-        </div>
-        <div className="text-[9px] text-green-800 font-bold uppercase tracking-widest mb-1">{title}</div>
-        <div className="flex items-baseline gap-1">
-            <div className={`text-xl font-bold leading-none ${color} tracking-tight shadow-green-900`}>{value}</div>
-            {unit && <span className="text-[9px] text-gray-600 uppercase">{unit}</span>}
-        </div>
-        {subtext && <div className="text-[9px] text-gray-600 mt-1 font-medium">{subtext}</div>}
+// 미니 컴포넌트: 스탯 카드
+const StatCard = ({ title, value, color }) => (
+    <div className="bg-black border border-green-900/30 p-2 sm:p-3 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
+        <div className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">{title}</div>
+        <div className={`text-base sm:text-xl font-bold ${color} font-mono truncate`}>{value}</div>
     </div>
 );
 

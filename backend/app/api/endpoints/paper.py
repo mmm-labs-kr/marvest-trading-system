@@ -5,106 +5,157 @@ import subprocess
 import os
 import signal
 import pandas as pd
+import json
+import uuid
 from typing import List, Optional, Dict
-
-# --- [수정 1] 전역 변수: 봇 프로세스들을 딕셔너리로 관리 ---
-# Key: 전략이름, Value: subprocess 객체
-bot_processes: Dict[str, subprocess.Popen] = {}
 
 router = APIRouter()
 
+# --- [전역 변수 및 경로 설정] ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 USER_DATA_DIR = os.path.join(BASE_DIR, "user_data")
+BOTS_FILE = os.path.join(USER_DATA_DIR, "bots.json") # 봇 목록 저장 파일
+DB_DIR = os.path.join(USER_DATA_DIR, "databases")
 
-# --- [수정 2] 동적 경로 생성 함수 ---
-def get_paths(strategy_name: str):
-    """전략 이름을 받아서 해당 전략 전용 파일 경로들을 반환"""
-    # 1. DB 파일: tradesv3_{전략명}.sqlite
-    db_path = os.path.join(USER_DATA_DIR, f"tradesv3_{strategy_name}.sqlite")
+# 실행 중인 봇 프로세스 관리 (Memory Only)
+# Key: bot_id, Value: subprocess.Popen 객체
+running_processes: Dict[str, subprocess.Popen] = {}
+
+# --- [Helper Functions] ---
+
+def load_bots_data():
+    """bots.json에서 봇 목록을 읽어옴"""
+    if not os.path.exists(BOTS_FILE):
+        return {}
+    with open(BOTS_FILE, "r", encoding="utf-8") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            return {}
+
+def save_bots_data(data):
+    """bots.json에 봇 목록 저장"""
+    with open(BOTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+def get_bot_paths(bot_id: str, strategy_name: str):
+    """bot_id를 기준으로 고유한 파일 경로 생성"""
+    # DB 파일: tradesv3_{bot_id}.sqlite (ID로 구분하여 완벽 격리)
+    db_path = os.path.join(DB_DIR, f"tradesv3_{bot_id}.sqlite")
+    log_path = os.path.join(USER_DATA_DIR, "logs", f"paper_{bot_id}.log")
     
-    # 2. 로그 파일: logs/paper_{전략명}.log
-    log_path = os.path.join(USER_DATA_DIR, "logs", f"paper_{strategy_name}.log")
-    
-    # 3. 설정 파일: paper_configs/config_paper_{전략명}.json
-    # (주의: 해당 설정 파일이 실제로 존재해야 합니다. 없으면 기본 config 사용 로직 추가 가능)
+    # 설정 파일은 전략 이름을 따라감 (전략 파일은 공유 가능하므로)
+    # 없다면 기본 config.json 사용
     config_path = os.path.join(USER_DATA_DIR, "paper_configs", f"config_paper_{strategy_name}.json")
-    
-    # 만약 전용 설정 파일이 없으면 기본 설정 파일 사용 (선택사항)
     if not os.path.exists(config_path):
          config_path = os.path.join(USER_DATA_DIR, "config.json")
          
     return db_path, log_path, config_path
 
-class BotStartRequest(BaseModel):
-    strategy: str
-    pairs: List[str]
+# --- [Pydantic Models] ---
 
-# 봇 중지 요청용 모델 추가
-class BotStopRequest(BaseModel):
-    strategy: str
+class BotCreateRequest(BaseModel):
+    name: str          # 사용자가 식별하기 쉬운 이름 (예: 비트코인 1호기)
+    strategy: str      # 사용할 전략 파일명
+    pair: str          # 거래할 코인 (예: BTC/USDT)
 
-class BotStatusResponse(BaseModel):
-    status: str
-    strategy_name: str
-    total_roi: float
-    total_trade_count: int
-    win_count: int
-    loss_count: int
-    active_trade_count: int
+class BotControlRequest(BaseModel):
+    bot_id: str
+
+class BotResponse(BaseModel):
+    id: str
+    name: str
+    strategy: str
+    pair: str
+    status: str        # STOPPED, RUNNING
     pid: Optional[int] = None
 
-class TradeLog(BaseModel):
-    id: int
-    timestamp: str
-    pair: str
-    side: str
-    is_win: bool
-    close_price: float
-    amount: float
-    open_price: float
-    profit_percent: float
-    profit_abs: float
-    accumulated_profit: float
-    is_open: bool
+# --- [API 1: 봇 관리 (CRUD)] ---
 
-# --- [수정 3] DB 연결 함수도 전략 이름을 받아야 함 ---
-def get_db_connection(strategy_name: str):
-    db_path, _, _ = get_paths(strategy_name)
+@router.get("/bots", response_model=List[BotResponse])
+def list_bots():
+    """저장된 모든 봇 목록 반환"""
+    bots = load_bots_data()
+    result = []
     
-    if not os.path.exists(db_path):
-        return None
-    
-    try:
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
-    except Exception:
-        return None
-
-# 1. 봇 실행 -> URL: POST /paper/start
-@router.post("/start")
-def start_bot(req: BotStartRequest):
-    global bot_processes
-
-    # 이미 해당 전략이 실행 중인지 확인
-    if req.strategy in bot_processes:
-        proc = bot_processes[req.strategy]
-        if proc.poll() is None: # 살아있다면
-             return {"message": f"Bot {req.strategy} is already running", "pid": proc.pid}
-        else:
-            # 죽어있다면 딕셔너리에서 제거 후 재실행
-            del bot_processes[req.strategy]
-
-    try:
-        # 경로 가져오기
-        db_path, log_path, config_path = get_paths(req.strategy)
+    for bot_id, bot_info in bots.items():
+        # 실제 프로세스가 살아있는지 확인하여 상태 동기화
+        proc = running_processes.get(bot_id)
+        is_alive = proc is not None and proc.poll() is None
         
-        # 명령어 구성 (DB URL과 로그파일을 전략별로 분리)
+        result.append({
+            "id": bot_id,
+            "name": bot_info.get("name"),
+            "strategy": bot_info.get("strategy"),
+            "pair": bot_info.get("pair"),
+            "status": "RUNNING" if is_alive else "STOPPED",
+            "pid": proc.pid if is_alive else None
+        })
+    return result
+
+@router.post("/bots")
+def create_bot(req: BotCreateRequest):
+    """새로운 봇 생성 (실행 X, 리스트에 추가만 함)"""
+    bots = load_bots_data()
+    
+    # 고유 ID 생성 (UUID 사용)
+    bot_id = str(uuid.uuid4())[:8] # 짧게 8자리만 사용
+    
+    new_bot = {
+        "id": bot_id,
+        "name": req.name,
+        "strategy": req.strategy,
+        "pair": req.pair,
+        "created_at": str(pd.Timestamp.now())
+    }
+    
+    bots[bot_id] = new_bot
+    save_bots_data(bots)
+    
+    return {"message": "Bot created successfully", "bot_id": bot_id}
+
+@router.delete("/bots/{bot_id}")
+def delete_bot(bot_id: str):
+    """봇 삭제 (실행 중이면 강제 종료 후 삭제)"""
+    # 1. 실행 중이면 종료
+    if bot_id in running_processes:
+        stop_bot(BotControlRequest(bot_id=bot_id))
+        
+    # 2. JSON에서 삭제
+    bots = load_bots_data()
+    if bot_id in bots:
+        del bots[bot_id]
+        save_bots_data(bots)
+        return {"message": "Bot deleted"}
+    raise HTTPException(status_code=404, detail="Bot not found")
+
+# --- [API 2: 봇 제어 (Start/Stop)] ---
+
+@router.post("/start")
+def start_bot(req: BotControlRequest):
+    """봇 실행"""
+    global running_processes
+    bots = load_bots_data()
+    
+    if req.bot_id not in bots:
+        raise HTTPException(status_code=404, detail="Bot ID not found")
+        
+    bot_info = bots[req.bot_id]
+    
+    # 이미 실행 중인지 확인
+    if req.bot_id in running_processes and running_processes[req.bot_id].poll() is None:
+        return {"message": "Bot is already running"}
+
+    try:
+        # 경로 생성 (bot_id 기준)
+        db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'])
+        
+        # 명령어 구성
         command = [
             "freqtrade", 
             "trade", 
             "--dry-run", 
-            "--strategy", req.strategy, 
+            "--strategy", bot_info['strategy'], 
             "--config", config_path,
             "--userdir", USER_DATA_DIR,
             "--db-url", f"sqlite:///{db_path}",
@@ -120,70 +171,62 @@ def start_bot(req: BotStartRequest):
             stderr=subprocess.DEVNULL
         )
         
-        # 딕셔너리에 저장 (Key: 전략이름)
-        bot_processes[req.strategy] = proc
+        running_processes[req.bot_id] = proc
         
-        return {
-            "message": f"Bot started with strategy {req.strategy}", 
-            "pid": proc.pid,
-            "db_path": db_path
-        }
+        return {"message": f"Bot {bot_info['name']} started", "pid": proc.pid}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# 2. 봇 중지 -> URL: POST /paper/stop
 @router.post("/stop")
-def stop_bot(req: BotStopRequest): # 전략 이름을 받아서 특정 봇만 끔
-    global bot_processes
-
-    target_proc = bot_processes.get(req.strategy)
-
-    if target_proc:
+def stop_bot(req: BotControlRequest):
+    """봇 중지"""
+    global running_processes
+    
+    proc = running_processes.get(req.bot_id)
+    
+    if proc:
         try:
-            # 해당 프로세스 강제 종료
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(target_proc.pid)], 
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], 
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
-            # 목록에서 제거
-            del bot_processes[req.strategy]
-            return {"message": f"Bot {req.strategy} stopped successfully"}
+            del running_processes[req.bot_id]
+            return {"message": "Bot stopped"}
         except Exception as e:
-            print(f"Kill failed: {e}")
-            return {"message": f"Failed to stop bot {req.strategy}", "error": str(e)}
-    else:
-        return {"message": f"Bot {req.strategy} is not running"}
-
-
-# 3. 봇 현황 조회 -> URL: GET /paper/status?strategy=MyStrategy
-@router.get("/status", response_model=BotStatusResponse)
-def get_bot_status(strategy: str = "MyStrategy"): # Query Parameter로 전략 이름 받음
-    global bot_processes
+            return {"message": f"Error stopping bot: {e}"}
     
-    # 해당 전략 봇이 실행 중인지 확인
-    target_proc = bot_processes.get(strategy)
-    is_running = (target_proc is not None and target_proc.poll() is None)
+    return {"message": "Bot is not running"}
+
+# --- [API 3: 모니터링 (Status/Logs)] ---
+
+@router.get("/status")
+def get_bot_status(bot_id: str):
+    """특정 봇의 현황 조회 (DB 읽기)"""
+    bots = load_bots_data()
+    if bot_id not in bots:
+        raise HTTPException(status_code=404, detail="Bot not found")
+        
+    strategy_name = bots[bot_id]['strategy']
     
+    # 프로세스 상태 확인
+    proc = running_processes.get(bot_id)
+    is_running = proc is not None and proc.poll() is None
     status_str = "RUNNING" if is_running else "STOPPED"
     
-    # 해당 전략의 DB 연결
-    conn = get_db_connection(strategy)
+    # DB 연결
+    db_path, _, _ = get_bot_paths(bot_id, strategy_name)
     
-    # DB가 없거나 연결 실패 시 (봇이 한 번도 안 켜진 경우 등)
-    if conn is None:
+    if not os.path.exists(db_path):
         return {
             "status": status_str,
-            "strategy_name": strategy,
-            "total_roi": 0.0,
-            "total_trade_count": 0,
-            "win_count": 0,
-            "loss_count": 0,
-            "active_trade_count": 0,
-            "pid": target_proc.pid if is_running else None
+            "name": bots[bot_id]['name'],
+            "total_roi": 0.0, "total_trade_count": 0, "win_count": 0, "loss_count": 0, "active_trade_count": 0
         }
 
     try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
+        
         cursor.execute("""
             SELECT 
                 COUNT(*) as total_count,
@@ -197,37 +240,44 @@ def get_bot_status(strategy: str = "MyStrategy"): # Query Parameter로 전략 �
         
         cursor.execute("SELECT COUNT(*) as active FROM trades WHERE is_open = 1")
         active = cursor.fetchone()
+        
+        conn.close()
 
         total_profit = stats['total_profit'] if stats['total_profit'] else 0.0
         
         return {
             "status": status_str,
-            "strategy_name": strategy, 
+            "name": bots[bot_id]['name'],
+            "strategy": strategy_name,
             "total_roi": round(total_profit * 100, 2),
             "total_trade_count": stats['total_count'] if stats['total_count'] else 0,
             "win_count": stats['wins'] if stats['wins'] else 0,
             "loss_count": stats['losses'] if stats['losses'] else 0,
             "active_trade_count": active['active'],
-            "pid": target_proc.pid if is_running else None
+            "pid": proc.pid if is_running else None
         }
-    except Exception as e:
-        print(f"DB Error: {e}")
+    except Exception:
         return {
             "status": status_str,
-            "strategy_name": "Error",
+            "name": bots[bot_id]['name'],
             "total_roi": 0.0, "total_trade_count": 0, "win_count": 0, "loss_count": 0, "active_trade_count": 0
         }
-    finally:
-        if conn: conn.close()
 
-# 4. 거래 로그 조회 -> URL: GET /paper/trades?strategy=MyStrategy
-@router.get("/trades", response_model=List[TradeLog])
-def get_trade_logs(strategy: str = "MyStrategy"): # Query Parameter로 전략 이름 받음
-    conn = get_db_connection(strategy)
-    if conn is None:
+@router.get("/trades")
+def get_trade_logs(bot_id: str):
+    """특정 봇의 거래 기록 조회"""
+    bots = load_bots_data()
+    if bot_id not in bots:
+        return []
+        
+    db_path, _, _ = get_bot_paths(bot_id, bots[bot_id]['strategy'])
+    
+    if not os.path.exists(db_path):
         return []
 
     try:
+        conn = sqlite3.connect(db_path)
+        
         query = """
             SELECT 
                 id, pair, is_open, open_date, close_date, 
@@ -235,29 +285,20 @@ def get_trade_logs(strategy: str = "MyStrategy"): # Query Parameter로 전략 �
                 strategy
             FROM trades 
             WHERE is_open = 0 
-            ORDER BY close_date DESC -- 최신순 정렬
-            LIMIT 50
+            ORDER BY close_date ASC
         """
         df = pd.read_sql_query(query, conn)
+        conn.close()
         
         if df.empty:
             return []
 
-        # 최신순 정렬 상태에서 누적 수익금을 계산하면 그래프가 거꾸로 그려질 수 있음.
-        # 계산을 위해 시간순(오름차순)으로 정렬 후 계산하고, 다시 최신순으로 뒤집어야 함.
-        df = df.sort_values(by='close_date', ascending=True) 
         df['accumulated_profit'] = df['close_profit_abs'].cumsum()
-        
-        # 다시 최신순으로 (화면 표시용)
-        df = df.sort_values(by='close_date', ascending=False)
+        df = df.sort_values(by='close_date', ascending=False).head(50)
 
         result = []
         for _, row in df.iterrows():
             profit_pct = round(row['close_profit'] * 100, 2)
-            is_win = row['close_profit'] >= 0
-
-            # Side 결정 로직 (DB에 컬럼이 없으면 기본값 처리)
-            # strategy 문자열에 'short'가 포함되어 있으면 short로 간주하는 임시 로직 유지
             side = "short" if "short" in (str(row.get('strategy', '')).lower()) else "long"
 
             result.append({
@@ -265,7 +306,7 @@ def get_trade_logs(strategy: str = "MyStrategy"): # Query Parameter로 전략 �
                 "timestamp": str(row['close_date']),
                 "pair": row['pair'].replace("/USDT", ""),
                 "side": side,
-                "is_win": is_win,
+                "is_win": row['close_profit'] >= 0,
                 "close_price": row['close_rate'],
                 "amount": row['amount'],
                 "open_price": row['open_rate'],
@@ -274,10 +315,6 @@ def get_trade_logs(strategy: str = "MyStrategy"): # Query Parameter로 전략 �
                 "accumulated_profit": round(row['accumulated_profit'], 2),
                 "is_open": False
             })
-            
         return result
-    except Exception as e:
-        print(f"Log Error: {e}")
+    except Exception:
         return []
-    finally:
-        if conn: conn.close()

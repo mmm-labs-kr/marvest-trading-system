@@ -1,0 +1,247 @@
+2025-12-29 13:41:48,064 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-12-29 13:41:48,065 - freqtrade.loggers - INFO - Logfile configured
+2025-12-29 13:41:48,065 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-12-29 13:41:48,066 - freqtrade.configuration.configuration - INFO - Parameter --dry-run detected, overriding dry_run to: True ...
+2025-12-29 13:41:48,068 - freqtrade.configuration.configuration - INFO - Runmode set to dry_run.
+2025-12-29 13:41:48,069 - freqtrade.configuration.configuration - INFO - Parameter --db-url detected ...
+2025-12-29 13:41:48,070 - freqtrade.configuration.configuration - INFO - Dry run is enabled
+2025-12-29 13:41:48,070 - freqtrade.configuration.configuration - INFO - Using DB: "sqlite:///C:\Users\sujin\coding\freqtrade\user_data\tradesv3_55b1ea92.sqlite"
+2025-12-29 13:41:48,071 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 5 ...
+2025-12-29 13:41:48,074 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\sujin\coding\freqtrade\user_data ...
+2025-12-29 13:41:48,075 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\sujin\coding\freqtrade\user_data\data\okx ...
+2025-12-29 13:41:48,077 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-12-29 13:41:48,085 - freqtrade.exchange.check_exchange - INFO - Exchange "okx" is officially supported by the Freqtrade development team.
+2025-12-29 13:41:48,086 - freqtrade.configuration.configuration - INFO - Using pairlist from configuration.
+2025-12-29 13:41:48,088 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-12-29 13:41:48,089 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.28
+2025-12-29 13:41:48,112 - freqtrade.exchange.exchange - INFO - Using Exchange "OKX"
+2025-12-29 13:41:49,165 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Okx'...
+2025-12-29 13:41:49,215 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy MyStrategy from 'C:\Users\sujin\coding\freqtrade\user_data\strategies\MyStrategy.py'...
+2025-12-29 13:41:49,217 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2025-12-29 13:41:49,218 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2025-12-29 13:41:49,220 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2025-12-29 13:41:49,221 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2025-12-29 13:41:49,222 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 5.
+2025-12-29 13:41:49,224 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 0.04}
+2025-12-29 13:41:49,226 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2025-12-29 13:41:49,227 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.1
+2025-12-29 13:41:49,228 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2025-12-29 13:41:49,230 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2025-12-29 13:41:49,231 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2025-12-29 13:41:49,233 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: False
+2025-12-29 13:41:49,234 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2025-12-29 13:41:49,234 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 'stoploss_on_exchange_interval': 60}
+2025-12-29 13:41:49,235 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2025-12-29 13:41:49,236 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2025-12-29 13:41:49,237 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2025-12-29 13:41:49,238 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 0
+2025-12-29 13:41:49,239 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2025-12-29 13:41:49,242 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2025-12-29 13:41:49,245 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2025-12-29 13:41:49,246 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2025-12-29 13:41:49,248 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2025-12-29 13:41:49,249 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2025-12-29 13:41:49,249 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2025-12-29 13:41:49,250 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2025-12-29 13:41:49,251 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 5
+2025-12-29 13:41:49,252 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-12-29 13:41:49,388 - freqtrade.wallets - INFO - Wallets synced.
+2025-12-29 13:41:50,148 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 'C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2025-12-29 13:41:50,150 - freqtrade.freqtradebot - INFO - Starting initial pairlist refresh
+2025-12-29 13:41:50,153 - freqtrade.plugins.pairlistmanager - INFO - Whitelist with 1 pairs: ['BTC/USDT']
+2025-12-29 13:41:50,154 - freqtrade.freqtradebot - INFO - Initial Pairlist refresh took 0.00s
+2025-12-29 13:41:50,156 - freqtrade.plugins.protectionmanager - INFO - No protection Handlers defined.
+2025-12-29 13:41:50,157 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': status, 'status': 'running'}
+2025-12-29 13:41:50,158 - freqtrade.worker - INFO - Changing state to: RUNNING
+2025-12-29 13:41:50,170 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': warning, 'status': 'Dry run is enabled. All trades are simulated.'}
+2025-12-29 13:41:50,171 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': startup, 'status': "*Exchange:* `okx`\n*Stake per trade:* `unlimited USDT`\n*Minimum ROI:* `{'0': 0.04}`\n*Stoploss:* `-0.1`\n*Position adjustment:* `Off`\n*Timeframe:* `5m`\n*Strategy:* `MyStrategy`"}
+2025-12-29 13:41:50,172 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': startup, 'status': "Searching for USDT pairs to buy and sell based on [{'StaticPairList': 'StaticPairList'}]"}
+2025-12-29 13:41:55,177 - freqtrade.worker - INFO - Bot heartbeat. PID=27988, version='2025.11.1', state='RUNNING'
+2025-12-29 13:42:55,193 - freqtrade.worker - INFO - Bot heartbeat. PID=27988, version='2025.11.1', state='RUNNING'
+2025-12-29 13:43:55,204 - freqtrade.worker - INFO - Bot heartbeat. PID=27988, version='2025.11.1', state='RUNNING'
+2025-12-29 13:44:55,215 - freqtrade.worker - INFO - Bot heartbeat. PID=27988, version='2025.11.1', state='RUNNING'
+2025-12-29 13:45:06,437 - freqtrade.commands.trade_commands - INFO - worker found ... calling exit
+2025-12-29 13:45:06,439 - freqtrade.rpc.rpc_manager - INFO - Sending rpc message: {'type': status, 'status': 'process died'}
+2025-12-29 13:45:06,440 - freqtrade.freqtradebot - INFO - Cleaning up modules ...
+2025-12-29 13:45:06,442 - freqtrade.rpc.rpc_manager - INFO - Cleaning up rpc modules ...
+2025-12-29 13:45:06,443 - freqtrade.exchange.exchange_ws - INFO - Resetting WS connections.
+2025-12-29 13:45:06,445 - freqtrade.exchange.exchange_ws - INFO - BTC/USDT, 5m, spot - Task finished - cancelled
+2025-12-29 13:45:06,449 - freqtrade.exchange.exchange_ws - ERROR - Exception in _unwatch_ohlcv
+Traceback (most recent call last):
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\exchange\exchange_ws.py", line 144, in _unwatch_ohlcv
+    await self._ccxt_object.un_watch_ohlcv_for_symbols([[pair, timeframe]])
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\ccxt\pro\okx.py", line 1023, in un_watch_ohlcv_for_symbols
+    return await self.watch_multiple(url, messageHashes, request, messageHashes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ccxt.base.errors.NetworkError: Connection closed by remote server, closing code 1006
+2025-12-29 13:45:07,208 - freqtrade - INFO - SIGINT received, aborting ...
+2025-12-29 13:45:26,124 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-12-29 13:45:26,126 - freqtrade.loggers - INFO - Logfile configured
+2025-12-29 13:45:26,126 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-12-29 13:45:26,127 - freqtrade.configuration.configuration - INFO - Parameter --dry-run detected, overriding dry_run to: True ...
+2025-12-29 13:45:26,128 - freqtrade.configuration.configuration - INFO - Runmode set to dry_run.
+2025-12-29 13:45:26,129 - freqtrade.configuration.configuration - INFO - Parameter --db-url detected ...
+2025-12-29 13:45:26,130 - freqtrade.configuration.configuration - INFO - Dry run is enabled
+2025-12-29 13:45:26,131 - freqtrade.configuration.configuration - INFO - Using DB: "sqlite:///C:\Users\sujin\coding\freqtrade\user_data\databases\tradesv3_55b1ea92.sqlite"
+2025-12-29 13:45:26,132 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 5 ...
+2025-12-29 13:45:26,135 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\sujin\coding\freqtrade\user_data ...
+2025-12-29 13:45:26,138 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\sujin\coding\freqtrade\user_data\data\okx ...
+2025-12-29 13:45:26,140 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-12-29 13:45:26,150 - freqtrade.exchange.check_exchange - INFO - Exchange "okx" is officially supported by the Freqtrade development team.
+2025-12-29 13:45:26,151 - freqtrade.configuration.configuration - INFO - Using pairlist from configuration.
+2025-12-29 13:45:26,153 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-12-29 13:45:26,154 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.28
+2025-12-29 13:45:26,178 - freqtrade.exchange.exchange - INFO - Using Exchange "OKX"
+2025-12-29 13:45:27,101 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Okx'...
+2025-12-29 13:45:27,130 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy MyStrategy from 'C:\Users\sujin\coding\freqtrade\user_data\strategies\MyStrategy.py'...
+2025-12-29 13:45:27,131 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2025-12-29 13:45:27,133 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2025-12-29 13:45:27,134 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2025-12-29 13:45:27,136 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2025-12-29 13:45:27,137 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 5.
+2025-12-29 13:45:27,139 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 0.04}
+2025-12-29 13:45:27,140 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2025-12-29 13:45:27,142 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.1
+2025-12-29 13:45:27,144 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2025-12-29 13:45:27,145 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2025-12-29 13:45:27,147 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2025-12-29 13:45:27,149 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: False
+2025-12-29 13:45:27,149 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2025-12-29 13:45:27,150 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 'stoploss_on_exchange_interval': 60}
+2025-12-29 13:45:27,152 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2025-12-29 13:45:27,154 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2025-12-29 13:45:27,155 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2025-12-29 13:45:27,156 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 0
+2025-12-29 13:45:27,157 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2025-12-29 13:45:27,158 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2025-12-29 13:45:27,160 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2025-12-29 13:45:27,161 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2025-12-29 13:45:27,163 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2025-12-29 13:45:27,164 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2025-12-29 13:45:27,165 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2025-12-29 13:45:27,166 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2025-12-29 13:45:27,167 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 5
+2025-12-29 13:45:27,168 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-12-29 13:45:27,194 - freqtrade - ERROR - Fatal exception!
+Traceback (most recent call last):
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3309, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    with util.safe_reraise():
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 899, in __connect
+    with util.safe_reraise():
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 661, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: unable to open database file
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\main.py", line 53, in main
+    return_code = args["func"](args)
+                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\commands\trade_commands.py", line 24, in start_trading
+    worker = Worker(args)
+             ^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\worker.py", line 39, in __init__
+    self._init(False)
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\worker.py", line 55, in _init
+    self.freqtrade = FreqtradeBot(self._config)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\freqtradebot.py", line 107, in __init__
+    init_db(self.config["db_url"])
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\freqtrade\persistence\models.py", line 95, in init_db
+    previous_tables = inspect(engine).get_table_names()
+                      ^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\inspection.py", line 140, in inspect
+    ret = reg(subject)
+          ^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\reflection.py", line 313, in _engine_insp
+    return Inspector._construct(Inspector._init_engine, bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\reflection.py", line 246, in _construct
+    init(self, bind)
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\reflection.py", line 257, in _init_engine
+    engine.connect().close()
+    ^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3285, in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 145, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2448, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3309, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    with util.safe_reraise():
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 899, in __connect
+    with util.safe_reraise():
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 661, in connect
+    return dialect.connect(*cargs, **cparams)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sujin\coding\freqtrade\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
