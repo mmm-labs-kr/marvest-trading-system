@@ -11,14 +11,16 @@ function PaperTrading() {
     // --- API 호출 함수들 ---
     const fetchStatus = async () => {
         try {
-            const res = await axios.get("http://127.0.0.1:8000/paper/status");
+            // [수정] 전략 이름을 쿼리 파라미터로 전달
+            const res = await axios.get(`http://127.0.0.1:8000/paper/status?strategy=${strategy}`);
             setStatusData(res.data);
         } catch (error) { console.error(error); }
     };
 
     const fetchLogs = async () => {
         try {
-            const res = await axios.get("http://127.0.0.1:8000/paper/trades");
+            // [수정] 전략 이름을 쿼리 파라미터로 전달
+            const res = await axios.get(`http://127.0.0.1:8000/paper/trades?strategy=${strategy}`);
             setLogs(res.data);
         } catch (error) { console.error(error); }
     };
@@ -27,27 +29,36 @@ function PaperTrading() {
         try {
             await axios.post("http://127.0.0.1:8000/paper/start", { strategy, pairs: [pair] });
             alert("시스템 가동 시작"); fetchStatus();
-        } catch (e) { alert("에러: " + e.message); }
+        } catch (e) { 
+            // 에러 메시지 상세 출력
+            alert("에러: " + (e.response?.data?.detail || e.message)); 
+        }
     };
 
+    // ▼▼▼ [핵심 수정 부분] ▼▼▼
     const handleStop = async () => {
         try {
-            await axios.post("http://127.0.0.1:8000/paper/stop");
-            alert("시스템 강제 종료"); fetchStatus();
-        } catch (e) { console.error(e); }
+            // 백엔드가 어떤 봇을 끌지 알아야 하므로 { strategy: strategy } 를 바디에 실어 보냄
+            await axios.post("http://127.0.0.1:8000/paper/stop", { strategy: strategy });
+            alert("시스템 강제 종료"); 
+            fetchStatus();
+        } catch (e) { 
+            console.error(e);
+            alert("종료 실패: " + (e.response?.data?.detail || e.message));
+        }
     };
+    // ▲▲▲ [수정 끝] ▲▲▲
 
     useEffect(() => {
         fetchStatus();
         fetchLogs();
         const interval = setInterval(() => { fetchStatus(); fetchLogs(); }, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [strategy]); // 전략이 바뀔 때마다 갱신
 
     const isRunning = statusData?.status === "RUNNING";
 
     return (
-        // [테마 적용] bg-black, text-gray-300, 폰트 적용
         <div className="flex h-screen bg-black text-gray-300 overflow-hidden font-mono selection:bg-green-500 selection:text-black" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
             
             {/* ================================================= */}
@@ -206,12 +217,10 @@ function PaperTrading() {
     );
 }
 
-// 미니 카드 스타일 (매트릭스 테마 적용)
+// 미니 카드 스타일
 const MiniStatusCard = ({ title, value, color, icon, subtext, unit }) => (
     <div className="bg-black p-3 border border-green-900/30 flex flex-col justify-center h-20 relative overflow-hidden group hover:border-green-500/50 hover:shadow-[0_0_10px_rgba(34,197,94,0.1)] transition-all">
-        {/* 배경 장식선 */}
         <div className="absolute top-0 right-0 w-8 h-8 bg-green-900/10 transform rotate-45 translate-x-4 -translate-y-4"></div>
-        
         <div className="absolute right-2 top-2 opacity-20 group-hover:opacity-100 group-hover:text-green-500 transition-all">
             {icon}
         </div>

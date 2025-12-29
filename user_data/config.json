@@ -49,7 +49,7 @@
         "token": "",
         "chat_id": ""
     },"api_server": {
-        "enabled": true,
+        "enabled": false,
         "username": "freqtrader",
         "password": "021210",
         "listen_ip_address": "0.0.0.0",
