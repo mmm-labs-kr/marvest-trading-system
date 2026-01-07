@@ -1,9 +1,10 @@
 venv/
 .venv/
 
-.env
 
-user_data/config_live.json
+## 프로젝트 완성 후 삭제 필요
+#.env
+#user_data/config_live.json 
 user_data/databases/*.sqlite
 user_data/logs/
 user_data/backtest_results/
