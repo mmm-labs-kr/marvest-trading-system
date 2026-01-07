@@ -4,9 +4,10 @@ import os
 import pyotp
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+env_file = find_dotenv()
+load_dotenv(env_file)
 
 router = APIRouter()
 
