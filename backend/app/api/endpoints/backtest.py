@@ -8,7 +8,7 @@ from typing import List
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from app.schemas.backtest import BackTestRequest
 from app.schemas.backtest import BacktestResultSummary
-
+from .score_calculator import calculate_score
 
 router = APIRouter()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
@@ -94,14 +94,21 @@ def get_backtest_results():
                         total_trades = main_stat.get("trades",0)
                         profit_pct = main_stat.get("profit_total_pct",0.0)
                         win_rate = main_stat.get("winrate",0.0)*100
-                        
+
+                        full_stats = data.get("strategy",{}).get(strategy_name,{})
+
+                        score = None
+                        if full_stats:
+                            score = calculate_score(full_stats)
+
                         summary = BacktestResultSummary(
                             filename = filename,
                             strategy = strategy_name,
                             run_id = data.get("run_id","N/A"),
                             total_trades = total_trades,
                             total_profit_pct = round(float(profit_pct),2),
-                            win_rate = round(float(win_rate),2)
+                            win_rate = round(float(win_rate),2),
+                            score = score
                         )
                         
                         results.append(summary)
@@ -129,6 +136,34 @@ def get_backtest_detail(filename: str):
             target_json = json_files[0]
             with z.open(target_json) as f:
                 data = json.load(f)
+                # =======================================================
+                # ★ [수정됨] 상세 데이터에 점수(Marvest Score) 추가하기
+                # =======================================================
+                try:
+                    # 1. 전략 데이터 찾기 ('strategy' 키 안에 있음)
+                    strategy_dict = data.get("strategy", {})
+                    
+                    if strategy_dict:
+                        # 보통 파일 하나엔 전략 하나만 들어있으므로 첫 번째 키를 가져옴
+                        strategy_name = list(strategy_dict.keys())[0]
+                        full_stats = strategy_dict[strategy_name]
+                        
+                        # 2. 점수 계산기 돌리기
+                        # (calculate_marvest_score가 import 되어 있어야 함)
+                        score = calculate_score(full_stats)
+                        
+                        # 3. 원본 데이터에 'marvest_score'라는 이름으로 끼워넣기
+                        data["m_score"] = score
+                    else:
+                        # 전략 데이터가 없는 경우 null 처리
+                        data["m_score"] = None
+                        
+                except Exception as calc_error:
+                    # 계산 중 에러가 나도 전체 데이터는 보여줘야 하므로 로그만 찍고 넘어감
+                    print(f"[Warning] Score calculation failed for {filename}: {calc_error}")
+                    data["m_score"] = None
+
+                # 수정된 data 반환 (이제 프론트에서 data.marvest_score로 접근 가능!)
                 return data
     except Exception as e:
         raise HTTPException(status_code = 500, detail=str(e))
