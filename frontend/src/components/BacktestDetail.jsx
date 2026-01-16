@@ -7,10 +7,10 @@ import { ArrowLeft, FileText, Terminal, Activity, AlertTriangle, TrendingUp, Shi
 const ScoreProgressBar = ({ label, value, score, maxScore, target }) => (
     <div className="mb-4">
         <div className="flex justify-between items-end mb-1">
-            <span className="text-xs text-gray-400 font-bold">{label}</span>
+            <span className="text-xs text-gray-300 font-bold">{label}</span>
             <div className="text-right">
                 <span className="text-xs text-white font-mono mr-2">{value}</span>
-                <span className="text-[10px] text-gray-500">({score}/{maxScore}pts)</span>
+                <span className="text-[10px] text-gray-300">({score}/{maxScore}pts)</span>
             </div>
         </div>
         <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
@@ -19,7 +19,7 @@ const ScoreProgressBar = ({ label, value, score, maxScore, target }) => (
                 style={{ width: `${Math.min((score / maxScore) * 100, 100)}%` }}
             />
         </div>
-        <div className="text-[9px] text-gray-600 mt-0.5 text-right font-mono">Target: {target}</div>
+        <div className="text-[9px] text-gray-300 mt-0.5 text-right font-mono">Target: {target}</div>
     </div>
 );
 
@@ -47,9 +47,9 @@ function BacktestDetail() {
     }, [filename]);
 
     if (loading) return (
-        <div className="min-h-screen bg-black text-gray-400 flex items-center justify-center font-mono">
+        <div className="min-h-screen bg-black text-gray-300 flex items-center justify-center font-mono">
             <div className="flex flex-col items-center gap-4">
-                <Terminal size={48} className="animate-pulse text-gray-600" />
+                <Terminal size={48} className="animate-pulse text-gray-300" />
                 <span className="text-sm tracking-widest">LOADING SYSTEM...</span>
             </div>
         </div>
@@ -71,24 +71,30 @@ function BacktestDetail() {
 
     const strategyName = Object.keys(data.strategy || {})[0] || "Unknown Strategy";
     const stat = data.strategy[strategyName] || {};
-
-    // ★ 점수 데이터 추출 (백엔드에서 계산된 값이 없으면 null)
     const scoreData = data.m_score;
-
     const avgWin = stat.wins > 0 ? stat.profit_total_abs / stat.wins : 0;
     const totalLoss = Math.abs(stat.loss_total_abs || 0);
     const avgLoss = stat.losses > 0 ? totalLoss / stat.losses : 0;
     const riskRewardRatio = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : "∞";
-
-    const fmtPct = (val) => val == null || isNaN(Number(val)) ? "N/A" : `${(val * 100).toFixed(2)}%`;
-    const fmtNum = (val) => val ? val.toLocaleString() : "0";
-    const fmtMoney = (val) => val ? val.toFixed(2) : "0.00";
+    const fmtPct = (val) => {
+        if (val == null || isNaN(Number(val))) return "N/A";
+        return `${(Number(val) * 100).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}%`;
+    };
+    const fmtNum = (val) => val ? Number(val).toLocaleString() : "0";
+    const fmtMoney = (val) => {
+        if (val == null || isNaN(Number(val))) return "0.00";
+        return Number(val).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    };
 
     const tableClass = "w-full border-collapse text-sm";
-    const thClass = "py-4 px-6 text-left font-bold text-gray-400 bg-[#161616] border-b border-gray-800 uppercase text-xs tracking-wider w-1/3";
+    const thClass = "py-4 px-6 text-left font-bold text-gray-300 bg-[#161616] border-b border-gray-800 uppercase text-xs tracking-wider w-1/3";
     const tdClass = "py-4 px-6 border-b border-gray-800 text-gray-200 font-mono text-base";
-
-    // 등급 색상
     const gradeColors = {
         'S': 'text-purple-400 border-purple-500 bg-purple-900/10',
         'A': 'text-green-400 border-green-500 bg-green-900/10',
@@ -104,7 +110,7 @@ function BacktestDetail() {
             <div className="max-w-6xl mx-auto mb-10 border-b border-gray-800 pb-6">
                 <button
                     onClick={() => navigate('/')}
-                    className="flex items-center text-gray-500 hover:text-white mb-6 transition-colors text-sm font-bold group"
+                    className="flex items-center text-gray-300 hover:text-white mb-6 transition-colors text-sm font-bold group"
                 >
                     <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" /> 
                     Back to List
@@ -115,14 +121,14 @@ function BacktestDetail() {
                             <FileText className="text-green-500" size={32} />
                             {strategyName}
                         </h1>
-                        <p className="mt-2 text-sm text-gray-500 font-mono ml-1">
+                        <p className="mt-2 text-sm text-gray-300 font-mono ml-1">
                             SOURCE FILE: <span className="text-gray-300">{filename}</span>
                         </p>
                     </div>
                     <div className="text-right bg-[#111] border border-gray-800 px-4 py-2 rounded-lg">
                         <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Backtest Period</div>
                         <div className="text-sm text-gray-200 font-mono font-bold">
-                            {stat.backtest_start} <span className="text-gray-600 mx-2">→</span> {stat.backtest_end}
+                            {stat.backtest_start} <span className="text-gray-300 mx-2">→</span> {stat.backtest_end}
                         </div>
                     </div>
                 </div>
@@ -136,9 +142,9 @@ function BacktestDetail() {
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-[#0a0a0a]">
                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Award className="text-yellow-500" size={24} /> 
-                                Marvest Score Analysis
+                                Score Analysis
                             </h2>
-                            <div className={`px-4 py-2 rounded-lg border ${gradeColors[scoreData.grade] || 'text-gray-400 border-gray-600'} flex items-center gap-3`}>
+                            <div className={`px-4 py-2 rounded-lg border ${gradeColors[scoreData.grade] || 'text-gray-300 border-gray-600'} flex items-center gap-3`}>
                                 <div className="text-right">
                                     <div className="text-[10px] uppercase font-bold tracking-widest opacity-70">Total Score</div>
                                     <div className="text-2xl font-black leading-none">{scoreData.total_score}</div>
@@ -154,9 +160,9 @@ function BacktestDetail() {
                             <div className="p-6">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="font-bold text-gray-300 flex items-center gap-2">
-                                        <Shield size={18} className="text-blue-500" /> 1단계: 리스크 관리
+                                        <Shield size={18} className="text-blue-500" /> Risk
                                     </h3>
-                                    <span className="text-sm font-mono text-blue-400 font-bold">{scoreData.details.phase1.score} / 60</span>
+                                    <span className="text-sm font-mono text-blue-400 font-bold">{(Number(scoreData.details?.phase1?.score) * 0.667).toFixed(1)} / 66.7</span>
                                 </div>
                                 
                                 {scoreData.details.phase1.items.map((item, idx) => (
@@ -175,9 +181,9 @@ function BacktestDetail() {
                             <div className="p-6">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="font-bold text-gray-300 flex items-center gap-2">
-                                        <BarChart3 size={18} className="text-purple-500" /> 2단계: 성과 평가
+                                        <BarChart3 size={18} className="text-purple-500" /> Profit
                                     </h3>
-                                    <span className="text-sm font-mono text-purple-400 font-bold">{scoreData.details.phase2.score} / 40</span>
+                                    <span className="text-sm font-mono text-purple-400 font-bold">{(Number(scoreData.details?.phase2?.score) * 0.333).toFixed(1)} / 33.3</span>
                                 </div>
 
                                 {scoreData.details.phase2.items.map((item, idx) => (
@@ -193,12 +199,12 @@ function BacktestDetail() {
 
                                 {/* Filters */}
                                 <div className="mt-8 pt-6 border-t border-gray-800">
-                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Qualification Filters</h4>
+                                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-3">Minimum Filter</h4>
                                     <div className="flex gap-4">
                                         {Object.entries(scoreData.details.filters).map(([key, filter]) => (
                                             <div key={key} className={`flex-1 p-3 rounded border ${filter.pass ? 'bg-green-900/10 border-green-900/50' : 'bg-red-900/10 border-red-900/50'} flex justify-between items-center`}>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] uppercase font-bold text-gray-500">{key}</span>
+                                                    <span className="text-[10px] uppercase font-bold text-gray-300">{key}</span>
                                                     <span className="font-mono text-sm font-bold text-gray-200">{filter.value}</span>
                                                 </div>
                                                 {filter.pass ? <CheckCircle2 size={16} className="text-green-500" /> : <XCircle size={16} className="text-red-500" />}
@@ -216,7 +222,7 @@ function BacktestDetail() {
                         )}
                     </section>
                 ) : (
-                    <div className="bg-gray-900/50 border border-dashed border-gray-700 rounded-xl p-8 text-center text-gray-500">
+                    <div className="bg-gray-900/50 border border-dashed border-gray-700 rounded-xl p-8 text-center text-gray-300">
                         <Activity className="mx-auto mb-2 opacity-50" size={32} />
                         <p>Score data is not available for this backtest.</p>
                         <p className="text-xs mt-1">Please update your backend API to calculate scores for detailed view.</p>
@@ -225,122 +231,53 @@ function BacktestDetail() {
 
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* 2. Performance Metrics (기존 코드) */}
                     <section className="lg:col-span-2">
-                        <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
-                            <TrendingUp size={20} className="text-green-500" /> Performance Summary
-                        </h2>
                         <div className="overflow-hidden rounded-lg border border-gray-800 bg-[#0a0a0a]">
                             <table className={tableClass}>
                                 <tbody>
                                     <tr>
-                                        <th className={thClass}>시작 원금 (Start Balance)</th>
+                                        <th className={thClass}>Start Balance</th>
                                         <td className={tdClass}>
-                                            {fmtMoney(stat.starting_balance)} <span className="text-xs text-gray-600">USDT</span>
+                                            {fmtMoney(stat.starting_balance)} <span className="text-xs text-gray-300">USDT</span>
                                         </td>
-                                        <th className={thClass}>최종 금액 (Final Balance)</th>
+                                        <th className={thClass}>Final Balance</th>
                                         <td className={tdClass}>
                                             <span className={(stat.starting_balance+(stat.profit_total_abs||0)) >= stat.starting_balance ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>
                                                 {fmtMoney(stat.starting_balance+(stat.profit_total_abs||0))}
                                             </span> 
-                                            <span className="text-xs text-gray-600 ml-1">USDT</span>
+                                            <span className="text-xs text-gray-300 ml-1">USDT</span>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th className={thClass}>순이익 (Net Profit)</th>
+                                        <th className={thClass}>Net Profit</th>
                                         <td className={tdClass}>
                                             <span className={stat.profit_total_abs >= 0 ? 'text-green-400' : 'text-red-400'}>
                                                 {stat.profit_total_abs >= 0 ? '+' : ''}{fmtMoney(stat.profit_total_abs)}
                                             </span>
                                         </td>
-                                        <th className={thClass}>총 수익률 (Return)</th>
+                                        <th className={thClass}>Return</th>
                                         <td className={tdClass}>
                                             <span className={`px-2 py-1 rounded text-sm font-bold ${stat.profit_total_abs >= 0 ? 'bg-green-900/20 text-green-400' : 'bg-red-900/20 text-red-400'}`}>
                                                 {fmtPct(stat.profit_total_abs/stat.starting_balance)}
                                             </span>
                                         </td>
                                     </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                    {/* 3. Advanced Metrics (기존 코드) */}
-                    <section>
-                        <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
-                            <Activity size={20} className="text-green-500" /> Advanced Stats
-                        </h2>
-                        <div className="overflow-hidden rounded-lg border border-gray-800 bg-[#0a0a0a]">
-                            <table className={tableClass}>
-                                <tbody>
-                                    <tr>
-                                        <th className={thClass}>CAGR</th>
-                                        <td className={tdClass}>
-                                            <span className={stat.cagr >= 0 ? 'text-green-400' : 'text-red-400'}>{fmtPct(stat.cagr)}</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th className={thClass}>Profit Factor</th>
-                                        <td className={tdClass}>
-                                            {stat.profit_factor ? stat.profit_factor.toFixed(2) : "N/A"}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th className={thClass}>Sharpe Ratio</th>
-                                        <td className={tdClass}>
-                                            {stat.sharpe ? stat.sharpe.toFixed(2) : "N/A"}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th className={thClass}>Sortino Ratio</th>
-                                        <td className={tdClass}>
-                                            {stat.sortino ? stat.sortino.toFixed(2) : "N/A"}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                    {/* 4. Risk & Trade Info (기존 코드) */}
-                    <section>
-                        <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
-                            <AlertTriangle size={20} className="text-orange-500" /> Risk & Trades
-                        </h2>
-                        <div className="overflow-hidden rounded-lg border border-gray-800 bg-[#0a0a0a]">
-                            <table className={tableClass}>
-                                <tbody>
-                                    <tr>
-                                        <th className={thClass}>Max Drawdown (MDD)</th>
-                                        <td className={tdClass}>
-                                            <span className="text-red-400 font-bold">{fmtPct(stat.max_drawdown_account)}</span>
-                                        </td>
-                                    </tr>
                                     <tr>
                                         <th className={thClass}>Win Rate</th>
                                         <td className={tdClass}>
                                             <span className="text-green-400 font-bold">{fmtPct(stat.winrate)}</span>
-                                            <span className="text-xs text-gray-500 ml-2 block sm:inline">
+                                            <span className="text-xs text-gray-300 block">
                                                 ({stat.wins}W / {stat.draws}D / {stat.losses}L)
                                             </span>
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <th className={thClass}>Total Trades</th>
-                                        <td className={tdClass}>{stat.total_trades}</td>
-                                    </tr>
-                                    <tr>
-                                        <th className={thClass}>Risk-Reward Ratio</th>
-                                        <td className={tdClass}>{riskRewardRatio}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </section>
                 </div>
-
                 {/* Raw Data Debug */}
-                <details className="mt-12 bg-[#111] border border-gray-800 rounded-lg group">
+                <details className="bg-[#111] border border-gray-800 rounded-lg group">
                     <summary className="cursor-pointer p-4 font-bold text-gray-500 text-xs uppercase tracking-widest group-hover:text-gray-300 transition-colors">
                         View Raw JSON Data
                     </summary>

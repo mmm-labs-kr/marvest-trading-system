@@ -66,12 +66,12 @@ function BacktestList() {
       'C': 'bg-yellow-900/30 text-yellow-400 border-yellow-500/50',
       'Fail': 'bg-red-900/30 text-red-400 border-red-500/50',
     };
-    const defaultStyle = 'bg-gray-800 text-gray-400 border-gray-700';
+    const defaultStyle = 'bg-gray-800 text-gray-300 border-gray-700';
     return styles[grade] || defaultStyle;
   };
 
   if (loading) return (
-    <div className="flex h-full items-center justify-center text-gray-500 font-mono text-sm">
+    <div className="flex h-full items-center justify-center text-gray-300 font-mono text-sm">
       <Loader2 className="animate-spin mr-2 text-green-500" /> LOADING DATA...
     </div>
   );
@@ -99,12 +99,12 @@ function BacktestList() {
           <thead className="bg-[#050505] border-b border-gray-800">
             <tr>
               {/* ★ 컬럼 추가: Score */}
-              <th className="py-4 px-6 font-bold text-gray-500 text-[10px] uppercase tracking-widest w-24 text-center">Score</th>
-              <th className="py-4 px-6 font-bold text-gray-500 text-[10px] uppercase tracking-widest">Strategy Class</th>
-              <th className="py-4 px-6 font-bold text-gray-500 text-[10px] uppercase tracking-widest">Filename</th>
-              <th className="py-4 px-6 text-right font-bold text-gray-500 text-[10px] uppercase tracking-widest">Trades</th>
-              <th className="py-4 px-6 text-right font-bold text-gray-500 text-[10px] uppercase tracking-widest">Win Rate</th>
-              <th className="py-4 px-6 text-right font-bold text-gray-500 text-[10px] uppercase tracking-widest">Net Profit</th>
+              <th className="py-4 px-6 font-bold text-gray-300 text-[10px] uppercase tracking-widest w-24 text-center">Score</th>
+              <th className="py-4 px-6 font-bold text-gray-300 text-[10px] uppercase tracking-widest">Strategy Class</th>
+              <th className="py-4 px-6 font-bold text-gray-300 text-[10px] uppercase tracking-widest">Filename</th>
+              <th className="py-4 px-6 text-right font-bold text-gray-300 text-[10px] uppercase tracking-widest">Trades</th>
+              <th className="py-4 px-6 text-right font-bold text-gray-300 text-[10px] uppercase tracking-widest">Win Rate</th>
+              <th className="py-4 px-6 text-right font-bold text-gray-300 text-[10px] uppercase tracking-widest">Net Profit</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800/50">
@@ -132,7 +132,7 @@ function BacktestList() {
                     </span>
                   </td>
                   <td className="py-4 px-6">
-                     <div className="flex items-center gap-2 text-gray-500 text-xs font-mono group-hover:text-gray-400">
+                     <div className="flex items-center gap-2 text-gray-300 text-xs font-mono group-hover:text-gray-300">
                       <FileText size={14} />
                       {item.filename}
                      </div>
@@ -158,7 +158,7 @@ function BacktestList() {
         </table>
         
         {results.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-600 gap-3">
+          <div className="flex flex-col items-center justify-center py-20 text-gray-300 gap-3">
             <FileText size={48} strokeWidth={1} className="opacity-20" />
             <p className="text-sm font-mono uppercase tracking-widest">No Backtest Data Found</p>
           </div>
@@ -175,7 +175,7 @@ function BacktestList() {
                 <Play size={16} className="text-green-500" /> Execute Strategy
               </h3>
               {!isRunning && (
-                <button onClick={closeModal} className="text-gray-500 hover:text-white transition-colors">
+                <button onClick={closeModal} className="text-gray-300 hover:text-white transition-colors">
                   <X size={20} />
                 </button>
               )}
@@ -185,7 +185,7 @@ function BacktestList() {
             <div className="p-6">
               {!isRunning && !runLog ? (
                 <div>
-                  <label className="block text-gray-400 text-xs font-bold mb-2 uppercase tracking-wide">
+                  <label className="block text-gray-300 text-xs font-bold mb-2 uppercase tracking-wide">
                     Strategy Class Name
                   </label>
                   <input 
@@ -195,7 +195,7 @@ function BacktestList() {
                     placeholder="e.g. MyStrategy"
                     className="w-full bg-black border border-gray-700 rounded px-4 py-3 text-white focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all font-mono text-sm placeholder-gray-700"
                   />
-                  <p className="text-[10px] text-gray-500 mt-2 flex items-center gap-1">
+                  <p className="text-[10px] text-gray-300 mt-2 flex items-center gap-1">
                      * Enter the exact class name defined in your strategy file.
                   </p>
                 </div>
@@ -203,7 +203,7 @@ function BacktestList() {
                 <div className="text-center py-8">
                   <Loader2 size={40} className="animate-spin text-green-500 mx-auto mb-4" />
                   <p className="text-base font-bold text-gray-200">Processing Simulation...</p>
-                  <p className="text-xs text-gray-500 mt-2 font-mono">THIS MAY TAKE A FEW MINUTES</p>
+                  <p className="text-xs text-gray-300 mt-2 font-mono">THIS MAY TAKE A FEW MINUTES</p>
                 </div>
               ) : (
                 <div>
@@ -223,7 +223,7 @@ function BacktestList() {
                 <>
                   <button 
                     onClick={closeModal}
-                    className="px-4 py-2 text-gray-500 hover:text-gray-300 text-xs font-bold uppercase tracking-wide transition-colors"
+                    className="px-4 py-2 text-gray-300 hover:text-gray-300 text-xs font-bold uppercase tracking-wide transition-colors"
                   >
                     Cancel
                   </button>

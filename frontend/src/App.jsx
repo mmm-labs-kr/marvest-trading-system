@@ -57,10 +57,10 @@ function AppContent() {
           <div className="flex flex-col font-mono">
             <h1 className="font-bold text-xl text-green-500 flex items-center gap-2 tracking-wider">
               <Terminal size={20} strokeWidth={3} /> 
-              <span>MMM_SYSTEM</span>
+              <span>MARVEST</span>
             </h1>
-            <div className='text-[10px] text-green-700 font-bold tracking-[0.2em] pl-7'>
-              MONEY MAKES MONEY
+            <div className='text-[10px] text-green-500 font-bold tracking-[0.2em] pl-7'>
+              Auto Trading Bot System
             </div>
           </div>
         </header>
@@ -111,7 +111,7 @@ function AppContent() {
           </nav>
 
           <div className="absolute bottom-0 w-full p-4 border-t border-gray-800">
-            <div className="text-[10px] text-gray-500 font-mono flex justify-between uppercase">
+            <div className="text-[10px] text-gray-300 font-mono flex justify-between uppercase">
               <span>Status: Online</span>
               <span className="text-green-500 animate-pulse">●</span>
             </div>

@@ -1,4 +1,5 @@
 {
+    "timerange": "20250101-20251231",
     "max_open_trades": 3,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
@@ -24,7 +25,7 @@
             "BNB/.*"
         ]
     },
-    "timeframe": "5m",
+    "timeframe": "1h",
     "entry_pricing": {
         "price_side": "same",
         "use_order_book": true,
