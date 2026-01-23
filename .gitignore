@@ -6,7 +6,6 @@ ENV/
 env/
 
 ### Python Cache ###
-# 컴파일된 파이썬 파일 및 캐시
 __pycache__/
 *.py[cod]
 *$py.class
@@ -14,6 +13,12 @@ backend/app/__pycache__/
 
 ### Project Specific (Freqtrade/Backtest) ###
 # 데이터베이스 및 로그 파일 (사용자 데이터)
+user_data/databases/*.sqlite
+user_data/logs/*.log
+
+## 프로젝트 완성 후 삭제 필요
+# .env
+# user_data/config_live.json
 user_data/databases/*.sqlite
 user_data/logs/
 user_data/backtest_results/
