@@ -11,6 +11,7 @@ class MarvestScore(BaseModel):
     is_qualified: bool
     fail_reason: Optional[str] = None
     details: Dict[str, Any]
+    mc_analysis: Optional[Dict[str, Any]] = None
 
 class BacktestResultSummary(BaseModel):
     filename: str

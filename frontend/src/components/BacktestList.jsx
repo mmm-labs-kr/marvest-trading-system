@@ -42,7 +42,7 @@ function BacktestList() {
         setRunLog(response.data.output);
         fetchResults();
       } else {
-        setRunLog(`[Error] ${response.data.message}\n${response.data.error}`);
+        setRunLog(`[Error] ${response.data.message}\n${response.data.output}`);
       }
     } catch (err) {
       setRunLog(`[System Error] 서버 통신 실패: ${err.message}`);
