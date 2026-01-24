@@ -17,7 +17,7 @@ user_data/databases/*.sqlite
 user_data/logs/*.log
 
 ## 프로젝트 완성 후 삭제 필요
-# .env
+.env
 # user_data/config_live.json
 user_data/databases/*.sqlite
 user_data/logs/
