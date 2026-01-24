@@ -21,7 +21,7 @@ frontend/node_modules/
 dist/
 build/
 .npm
-package-lock.json  # 팀 정책에 따라 제외 여부 결정
+package-lock.json
 
 ### Freqtrade / User Data ###
 user_data/databases/*.sqlite
