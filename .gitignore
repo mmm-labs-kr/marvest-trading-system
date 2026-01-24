@@ -1,39 +1,37 @@
-### Python / Virtual Environments ###
-# 가상환경 폴더 (venv, .venv 등 모든 형태 포함)
+### OS / IDE ###
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
+
+### Python & Virtual Environments ###
 venv/
 .venv/
-ENV/
 env/
-
-### Python Cache ###
 __pycache__/
 *.py[cod]
 *$py.class
 backend/app/__pycache__/
 
-### Project Specific (Freqtrade/Backtest) ###
-# 데이터베이스 및 로그 파일 (사용자 데이터)
-user_data/databases/*.sqlite
-user_data/logs/*.log
-
-## 프로젝트 완성 후 삭제 필요
-.env
-# user_data/config_live.json
-user_data/databases/*.sqlite
-user_data/logs/
-user_data/backtest_results/
-user_data/plots/
-
-### Frontend (Node.js) ###
-# 의존성 패키지 및 빌드 결과물
+### Node.js (Frontend) ###
 node_modules/
 frontend/node_modules/
 dist/
 build/
 .npm
+package-lock.json  # 팀 정책에 따라 제외 여부 결정
 
-### IDE / Editor ###
-# 편집기 설정 파일
-.vscode/
-.idea/
-*.swp
+### Freqtrade / User Data ###
+user_data/databases/*.sqlite
+user_data/logs/
+user_data/backtest_results/
+user_data/plots/
+user_data/hyperopts/
+.history/
+
+### Security / Environment ###
+.env
+.env.local
+.env.*.local

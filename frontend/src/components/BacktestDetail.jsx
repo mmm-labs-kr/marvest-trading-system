@@ -6,6 +6,8 @@ import {
     CheckCircle2, XCircle, Award, Zap 
 } from 'lucide-react';
 import MonteCarloSection from './MonteCarloSection';
+import AIFeedbackSection from './AIFeedbackSection';
+
 
 // ============================================
 // 점수 게이지바 컴포넌트
@@ -279,6 +281,11 @@ function BacktestDetail() {
 
                     </section>
                 )}
+                {/* AI Feedback Section */}
+                <AIFeedbackSection 
+                    strategyName={strategyName}
+                    backtestStats={stat}
+                />
             </div>
         </div>
     );

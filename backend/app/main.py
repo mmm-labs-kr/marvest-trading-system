@@ -1,9 +1,8 @@
-from app.api.endpoints import trading
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from app.api.endpoints import configs, backtest,auth
+from app.api.endpoints import configs, backtest, auth, trading, ai_feedback
 import os
 
 app = FastAPI(title="Freqtrade Manager")
@@ -27,6 +26,8 @@ app.include_router(configs.router, prefix="/configs",tags=["configs"])
 app.include_router(backtest.router, prefix="/backtest",tags=["backtest"])
 app.include_router(trading.router, prefix="/trading",tags=["trading"])
 app.include_router(auth.router, prefix="/auth",tags=["auth"])
+app.include_router(ai_feedback.router, prefix="/ai", tags=["ai"]) 
+
 if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
 

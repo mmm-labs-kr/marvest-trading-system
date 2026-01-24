@@ -1,0 +1,50 @@
+{
+  "strategy": "NewStrategy_v6",
+  "backtest_file": "backtest-result-2026-01-24_20-19-04.zip",
+  "created_at": "2026-01-24T20:19:04.935225",
+  "total_trades": 2,
+  "mc_data": {
+    "ruin_probability": 0.0,
+    "stats": {
+      "median_final_balance": 10100.1,
+      "worst_mdd": 0.0,
+      "avg_mdd": 0.0
+    },
+    "chart_data": [
+      {
+        "trade_num": 1,
+        "upper": 10049.93,
+        "median": 10049.93,
+        "lower": 10049.93
+      },
+      {
+        "trade_num": 2,
+        "upper": 10100.1,
+        "median": 10100.1,
+        "lower": 10100.1
+      }
+    ],
+    "mdd_histogram": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5000,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}
