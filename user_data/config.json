@@ -12,7 +12,7 @@
     "margin_mode": "isolated",
     "unidirectional_trades": true,
     "exchange": {
-        "name": "okx",
+        "name": "binance",
         "key": "",
         "secret": "",
         "ccxt_config": {},

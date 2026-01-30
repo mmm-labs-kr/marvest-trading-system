@@ -1,0 +1,60 @@
+name: Deploy Marvest Direct Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. 소스 코드를 서버로 전송 (SCP)
+      # .git, node_modules 등은 제외하고 필요한 폴더만 콕 집어서 보냅니다.
+      - name: Copy files to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          # 전송할 파일 및 폴더 목록
+          source: "backend/,frontend/,docker-compose.yml,.dockerignore"
+          target: "/home/${{ secrets.USERNAME }}/marvest/"
+          # 덮어쓰기 허용
+          overwrite: true
+
+      # 2. 서버 접속 후 빌드 및 실행
+      - name: Build and Run on Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Docker 설치 확인 (없으면 설치)
+            if ! command -v docker &> /dev/null; then
+                curl -fsSL https://get.docker.com -o get-docker.sh
+                sudo sh get-docker.sh
+                sudo usermod -aG docker ${{ secrets.USERNAME }}
+            fi
+            
+            # Docker Compose 플러그인 설치
+            sudo apt-get update && sudo apt-get install -y docker-compose-plugin
+
+            cd /home/${{ secrets.USERNAME }}/marvest/
+            
+            # 안전장치: .env가 없으면 빈 파일 생성 (에러 방지용)
+            touch .env
+
+            echo "Starting Build on Server..."
+            
+            # 기존 컨테이너 내리고 -> 소스 기반으로 다시 빌드(--build) -> 실행
+            docker compose down
+            docker compose up -d --build --remove-orphans
+            
+            # 빌드 후 남은 임시 이미지 정리 (용량 확보 필수)
+            docker image prune -f
+            
+            echo "Deployment Finished!"

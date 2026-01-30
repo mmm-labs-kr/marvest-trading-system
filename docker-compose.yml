@@ -1,11 +1,34 @@
 services:
-  mmm:
-    build: .
-    container_name: mmm
-    restart: always  # 서버 재부팅 시 자동 실행 (24시간 가동 핵심)
+  # 1. 백엔드 (FastAPI + Freqtrade)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: marvest-backend
+    restart: always
     ports:
       - "8000:8000"
     volumes:
-      - "./user_data:/app/user_data"  # NAS의 데이터 폴더와 컨테이너 연결
-    environment:
-      - TZ=Asia/Seoul
+      - ./user_data:/app/user_data
+    env_file:
+      - .env
+    networks:
+      - marvest-net
+
+  # 2. 프론트엔드 (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: marvest-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    networks:
+      - marvest-net
+    depends_on:
+      - backend
+
+networks:
+  marvest-net:
+    driver: bridge
