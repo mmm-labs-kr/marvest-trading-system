@@ -1,4 +1,4 @@
-name: Deploy Marvest (Final Fix)
+name: Deploy Marvest
 
 on:
   push:
@@ -11,11 +11,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. 파일 누락 방지를 위해 전체 압축
+      # 1. 필요한 파일 압축
       - name: Make Tarball
-        run: tar -czf project.tar.gz backend frontend docker-compose.yml .dockerignore
+        run: |
+          tar -czf project.tar.gz \
+            backend \
+            frontend \
+            Dockerfile \
+            docker-compose.yml \
+            .dockerignore
 
-      # 2. 압축파일을 서버로 전송 (Docker Hub 안 씀!)
+      # 2. 서버로 전송
       - name: Copy Tarball to Server
         uses: appleboy/scp-action@master
         with:
@@ -23,11 +29,10 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "project.tar.gz"
-          # 위치를 킬로스톤 옆(apps)으로 정리
           target: "/home/${{ secrets.USERNAME }}/apps/marvest/"
           overwrite: true
 
-      # 3. 서버에서 직접 빌드 (킬로스톤과 동일 방식)
+      # 3. 서버에서 빌드 및 실행
       - name: Build and Run on Server
         uses: appleboy/ssh-action@master
         with:
@@ -35,23 +40,24 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # 폴더 정리 및 생성
-            rm -rf /home/${{ secrets.USERNAME }}/marvest
-            mkdir -p /home/${{ secrets.USERNAME }}/apps/marvest
             cd /home/${{ secrets.USERNAME }}/apps/marvest
 
             # 압축 해제
             tar -xzf project.tar.gz
             rm project.tar.gz
 
-            # .env 파일 생성 (빈 파일이라도 있어야 에러 안 남)
-            touch .env
+            # .env 파일 확인
+            if [ ! -f .env ]; then
+              touch .env
+            fi
 
-            echo "🚀 Building Image on Server..."
+            echo "🚀 Building and starting marvest..."
             
-            # 서버가 직접 빌드해서 실행
             docker compose down
             docker compose up -d --build --remove-orphans
             
-            # 찌꺼기 정리
+            # 정리
             docker image prune -f
+            
+            echo "✅ Done!"
+            docker ps | grep marvest

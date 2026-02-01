@@ -1,34 +1,20 @@
 services:
-  # 1. 백엔드 (FastAPI + Freqtrade)
-  backend:
+  marvest:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: marvest-backend
+    container_name: marvest-app
     restart: always
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - ./user_data:/app/user_data
     env_file:
       - .env
     networks:
-      - marvest-net
-
-  # 2. 프론트엔드 (React + Nginx)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: marvest-frontend
-    restart: always
-    ports:
-      - "3000:80"
-    networks:
-      - marvest-net
-    depends_on:
-      - backend
+      - kilostone-network
 
 networks:
-  marvest-net:
-    driver: bridge
+  kilostone-network:
+    external: true
+    name: kilostone-dashboard_kilostone-network
