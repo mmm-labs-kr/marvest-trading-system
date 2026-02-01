@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: marvest-app:latest
     container_name: marvest-app
     restart: always
     expose:
