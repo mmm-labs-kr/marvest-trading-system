@@ -10,7 +10,7 @@ import {
     Area, ComposedChart, ReferenceLine 
 } from 'recharts';
 
-const API_BASE = "http://127.0.0.1:8000/trading";
+const API_BASE = "/trading";
 
 // ============================================
 // Analysis Section Component (모투용: 95% 신뢰구간)

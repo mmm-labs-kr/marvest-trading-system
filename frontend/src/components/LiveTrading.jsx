@@ -10,7 +10,7 @@ import {
     Area, ComposedChart, ReferenceLine, BarChart, Bar, Cell
 } from 'recharts';
 
-const API_BASE = "http://127.0.0.1:8000/trading";
+const API_BASE = "/trading";
 
 // ============================================
 // Analysis Section Component (실투용: Rolling MDD)
