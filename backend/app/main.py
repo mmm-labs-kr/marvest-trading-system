@@ -22,11 +22,11 @@ if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
 
 
-app.include_router(configs.router, prefix="/configs",tags=["configs"])
-app.include_router(backtest.router, prefix="/backtest",tags=["backtest"])
-app.include_router(trading.router, prefix="/trading",tags=["trading"])
-app.include_router(auth.router, prefix="/auth",tags=["auth"])
-app.include_router(ai_feedback.router, prefix="/ai", tags=["ai"]) 
+app.include_router(configs.router, prefix="/api/configs", tags=["configs"])
+app.include_router(backtest.router, prefix="/api/backtest", tags=["backtest"])
+app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(ai_feedback.router, prefix="/api/ai", tags=["ai"])
 
 if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")

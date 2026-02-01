@@ -10,7 +10,7 @@ const Login = () => {
   const handleLogin = async () => {
     // ... (로그인 로직은 기존과 동일) ...
     try {
-        const response = await fetch("/auth/login", {
+        const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_id: userId, otp_code: otp }),
