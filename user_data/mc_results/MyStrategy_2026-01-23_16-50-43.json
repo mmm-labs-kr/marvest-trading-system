@@ -1,0 +1,86 @@
+{
+  "strategy": "MyStrategy",
+  "backtest_file": "backtest-result-2026-01-23_16-50-43.zip",
+  "created_at": "2026-01-24T15:19:48.371060",
+  "total_trades": 8,
+  "mc_data": {
+    "ruin_probability": 0.0,
+    "stats": {
+      "median_final_balance": 9471.97,
+      "worst_mdd": -19.13,
+      "avg_mdd": -6.73
+    },
+    "chart_data": [
+      {
+        "trade_num": 1,
+        "upper": 10217.5,
+        "median": 9932.85,
+        "lower": 9618.42
+      },
+      {
+        "trade_num": 2,
+        "upper": 10425.79,
+        "median": 9857.39,
+        "lower": 9419.13
+      },
+      {
+        "trade_num": 3,
+        "upper": 10430.28,
+        "median": 9801.24,
+        "lower": 9189.28
+      },
+      {
+        "trade_num": 4,
+        "upper": 10507.43,
+        "median": 9732.67,
+        "lower": 9054.33
+      },
+      {
+        "trade_num": 5,
+        "upper": 10524.03,
+        "median": 9669.15,
+        "lower": 8930.51
+      },
+      {
+        "trade_num": 6,
+        "upper": 10550.06,
+        "median": 9602.96,
+        "lower": 8788.31
+      },
+      {
+        "trade_num": 7,
+        "upper": 10577.57,
+        "median": 9535.18,
+        "lower": 8677.65
+      },
+      {
+        "trade_num": 8,
+        "upper": 10582.14,
+        "median": 9471.97,
+        "lower": 8568.85
+      }
+    ],
+    "mdd_histogram": [
+      2,
+      3,
+      8,
+      23,
+      53,
+      68,
+      111,
+      151,
+      234,
+      301,
+      402,
+      476,
+      492,
+      614,
+      542,
+      445,
+      493,
+      427,
+      133,
+      22
+    ]
+  }
+}
