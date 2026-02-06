@@ -1,9 +1,9 @@
 services:
-  marvest:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: marvest-app:latest
+    image: marvest:latest
     container_name: marvest-app
     restart: always
     expose:
@@ -13,9 +13,8 @@ services:
     env_file:
       - .env
     networks:
-      - kilostone-network
+      - proxy-network
 
 networks:
-  kilostone-network:
+  proxy-network:
     external: true
-    name: kilostone-dashboard_kilostone-network
