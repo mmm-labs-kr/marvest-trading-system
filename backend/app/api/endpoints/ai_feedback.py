@@ -5,10 +5,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from dotenv import load_dotenv
+from app.core.config import USER_DATA_DIR, STRATEGIES_DIR, DOTENV_PATH
 
-# .env 로드 (프로젝트 루트에서)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+# .env 로드
+load_dotenv(DOTENV_PATH)
 
 import google.generativeai as genai
 
@@ -18,10 +18,6 @@ if api_key:
     genai.configure(api_key=api_key)
 
 router = APIRouter()
-
-# 전략 파일 경로
-USER_DATA_DIR = os.path.join(BASE_DIR, "user_data")
-STRATEGIES_DIR = os.path.join(USER_DATA_DIR, "strategies")
 
 
 # ============================================

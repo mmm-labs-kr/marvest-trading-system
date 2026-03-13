@@ -2,8 +2,8 @@
 
 ## 현재 상태
 - 단계: Phase 1 진행 중
-- 마지막 완료 작업: Phase 1 - Task 1 (`configs.py` 오타 수정)
-- 다음 작업: Phase 1 - Task 2 (하드코딩된 경로 중앙 집중화)
+- 마지막 완료 작업: Phase 1 - Task 2 (하드코딩된 경로 중앙 집중화)
+- 다음 작업: Phase 1 - Task 3 (`main.py` 중복 mount 및 CORS 설정 정리)
 
 ---
 
@@ -12,7 +12,7 @@
 | # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
 | 1 | `configs.py`의 `.fson` 오타 수정 | 소 | ✅ | - |
-| 2 | 하드코딩된 경로 중앙 집중화 (Config 모듈) | 중 | ⬜ | TASK-002.md |
+| 2 | 하드코딩된 경로 중앙 집중화 (Config 모듈) | 중 | ✅ | `backend/app/core/config.py` |
 | 3 | `main.py` 중복 mount 및 CORS 설정 정리 | 소 | ⬜ | - |
 | 4 | `vite.config.js` proxy 설정 최종 확인 | 소 | ⬜ | - |
 | 5 | `.env.example` 생성 및 환경변수 로드 방식 통일 | 소 | ⬜ | - |

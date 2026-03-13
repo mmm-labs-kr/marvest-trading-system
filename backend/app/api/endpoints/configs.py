@@ -1,21 +1,20 @@
 import os
 from fastapi import APIRouter, HTTPException
+from app.core.config import USER_DATA_DIR
 
 router = APIRouter()
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-CONFIGS_DIR = os.path.join(BASE_DIR, "user_data")
 
 @router.get("/")
 def get_config_list():
     try:
-        if not os.path.exists(CONFIGS_DIR):
-            os.makedirs(CONFIGS_DIR)
+        if not os.path.exists(USER_DATA_DIR):
+            os.makedirs(USER_DATA_DIR)
 
-        files = os.listdir(CONFIGS_DIR)
+        files = os.listdir(USER_DATA_DIR)
         json_files = [f for f in files if f.endswith(".json")]
 
         return{
-            "path" : CONFIGS_DIR,
+            "path" : USER_DATA_DIR,
             "files" : json_files
         }
     except Exception as e:
@@ -23,7 +22,7 @@ def get_config_list():
     
 @router.get("/{filename}")
 def read_config_file(filename: str):
-    file_path = os.path.join(CONFIGS_DIR, filename)
+    file_path = os.path.join(USER_DATA_DIR, filename)
     if not os.path.exists(file_path):
         raise HTTPException(status_code =404, detail="File not found")
     try:
@@ -32,5 +31,5 @@ def read_config_file(filename: str):
             content = json.load(f)
             return content
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = "Error reading file: {str(e)}")
+        raise HTTPException(status_code = 500, detail = f"Error reading file: {str(e)}")
     

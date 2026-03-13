@@ -9,13 +9,9 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.backtest import BackTestRequest, BacktestResultSummary
 from .score_calculator import calculate_score
 from .monte_carlo import perform_monte_carlo
+from app.core.config import USER_DATA_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR
 
 router = APIRouter()
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-USER_DATA_DIR = os.path.join(BASE_DIR, "user_data")
-BACKTEST_RESULTS_DIR = os.path.join(USER_DATA_DIR, "backtest_results")
-MC_RESULTS_DIR = os.path.join(USER_DATA_DIR, "mc_results")
 
 # MC 결과 폴더 생성
 if not os.path.exists(MC_RESULTS_DIR):

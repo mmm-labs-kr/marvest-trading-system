@@ -9,16 +9,9 @@ import zipfile
 import numpy as np
 import pandas as pd
 from typing import List, Optional, Dict
+from app.core.config import USER_DATA_DIR, BOTS_FILE, DB_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR, LOGS_DIR, PAPER_CONFIGS_DIR, STRATEGIES_DIR
 
 router = APIRouter()
-
-# --- [경로 설정] ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-USER_DATA_DIR = os.path.join(BASE_DIR, "user_data")
-BOTS_FILE = os.path.join(USER_DATA_DIR, "bots.json")
-DB_DIR = os.path.join(USER_DATA_DIR, "databases")
-BACKTEST_RESULTS_DIR = os.path.join(USER_DATA_DIR, "backtest_results")
-MC_RESULTS_DIR = os.path.join(USER_DATA_DIR, "mc_results")
 
 # 실행 중인 봇 프로세스 관리
 running_processes: Dict[str, subprocess.Popen] = {}
@@ -43,11 +36,20 @@ def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
         os.makedirs(DB_DIR)
 
     db_path = os.path.join(DB_DIR, f"tradesv3_{bot_id}.sqlite")
-    log_path = os.path.join(USER_DATA_DIR, "logs", f"{mode}_{bot_id}.log")
+    log_path = os.path.join(LOGS_DIR, f"{mode}_{bot_id}.log")
     
-    strategy_config = os.path.join(USER_DATA_DIR, "paper_configs", f"config_{mode}_{strategy_name}.json")
+    # paper_configs 폴더 확인
+    if not os.path.exists(PAPER_CONFIGS_DIR):
+        os.makedirs(PAPER_CONFIGS_DIR)
+
+    strategy_config = os.path.join(PAPER_CONFIGS_DIR, f"config_{mode}_{strategy_name}.json")
     
-    if os.path.exists(strategy_config):
+    # 만약 config_paper_MyStrategy.json 처럼 기존 형식이 있으면 그걸 사용 (하위 호환)
+    legacy_config = os.path.join(PAPER_CONFIGS_DIR, f"config_{mode}_{strategy_name}.json")
+    if not os.path.exists(strategy_config) and os.path.exists(legacy_config):
+        strategy_config = legacy_config
+
+    return db_path, log_path, strategy_config
         config_path = strategy_config
     else:
         if mode == 'live':
