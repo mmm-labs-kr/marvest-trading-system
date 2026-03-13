@@ -1,9 +1,9 @@
 # Marvest 작업 계획서
 
 ## 현재 상태
-- 단계: Phase 1 진행 중
-- 마지막 완료 작업: Phase 1 - Task 4 (`vite.config.js` proxy 설정 확인)
-- 다음 작업: Phase 1 - Task 5 (`.env.example` 생성 및 환경변수 로드 방식 통일)
+- 단계: Phase 2 시작 (코드 정리 및 로직 개선)
+- 마지막 완료 작업: Phase 1 전체 완료 (설정 및 연결 구조 최적화)
+- 다음 작업: Phase 2 - Task 6 (중복 로직 통합)
 
 ---
 
@@ -15,7 +15,7 @@
 | 2 | 하드코딩된 경로 중앙 집중화 (Config 모듈) | 중 | ✅ | `backend/app/core/config.py` |
 | 3 | `main.py` 중복 mount 및 CORS 설정 정리 | 소 | ✅ | `backend/app/main.py` |
 | 4 | `vite.config.js` proxy 설정 최종 확인 | 소 | ✅ | `frontend/vite.config.js` |
-| 5 | `.env.example` 생성 및 환경변수 로드 방식 통일 | 소 | ⬜ | - |
+| 5 | `.env.example` 생성 및 환경변수 로드 방식 통일 | 소 | ✅ | 루트 `.env.example` |
 
 ## Phase 2: 코드 정리 및 로직 개선
 
@@ -43,6 +43,7 @@
 - [x] vite rewrite가 /api 제거 → 404 (rewrite 삭제로 해결)
 - [x] 백테스트 No data → download-data 필요
 - [x] Strategy not found → 클래스명으로 입력해야 함
+- [x] 모든 백엔드 엔드포인트의 하드코딩된 경로를 `app.core.config`로 통합
 
 ### 미해결
 - [ ] taskkill Windows 전용 (Linux 배포 시 문제)

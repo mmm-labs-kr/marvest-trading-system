@@ -4,18 +4,13 @@ import re
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-from dotenv import load_dotenv
-from app.core.config import USER_DATA_DIR, STRATEGIES_DIR, DOTENV_PATH
-
-# .env 로드
-load_dotenv(DOTENV_PATH)
+from app.core.config import STRATEGIES_DIR, GOOGLE_API_KEY
 
 import google.generativeai as genai
 
 # Gemini API 설정
-api_key = os.getenv("GOOGLE_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
 
 router = APIRouter()
 

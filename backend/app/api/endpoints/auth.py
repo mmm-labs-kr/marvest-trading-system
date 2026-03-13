@@ -1,19 +1,15 @@
 # backend/app/api/endpoints/auth.py
 
-import os
 import pyotp
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from dotenv import load_dotenv, find_dotenv
-
-env_file = find_dotenv()
-load_dotenv(env_file)
+from app.core.config import OTP_SECRET_SB, OTP_SECRET_JS
 
 router = APIRouter()
 
 VALID_USERS = {
-    "sb": os.getenv("OTP_SECRET_SB"),
-    "js": os.getenv("OTP_SECRET_JS")
+    "sb": OTP_SECRET_SB,
+    "js": OTP_SECRET_JS
 }
 
 class LoginRequest(BaseModel):

@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 # .env file path (루트 경로)
 DOTENV_PATH = os.path.join(BASE_DIR, ".env")
 
-# 환경 변수 로드 (이게 있어야 .env 파일 내용을 읽을 수 있습니다!)
+# 환경 변수 로드
 load_dotenv(DOTENV_PATH)
 
 USER_DATA_DIR = os.path.join(BASE_DIR, "user_data")
@@ -28,5 +28,10 @@ DATA_DIR = os.path.join(USER_DATA_DIR, "data")
 # Frontend dist path
 FRONTEND_DIST_PATH = os.path.join(BASE_DIR, "frontend", "dist")
 
-# CORS Settings (이제 .env에서 읽어온 값을 사용합니다)
+# CORS Settings
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
+# [Secrets]
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+OTP_SECRET_JS = os.getenv("OTP_SECRET_JS")
+OTP_SECRET_SB = os.getenv("OTP_SECRET_SB")
