@@ -6,6 +6,7 @@ import os
 import json
 import uuid
 import zipfile
+import signal
 import numpy as np
 import pandas as pd
 from typing import List, Optional, Dict
@@ -14,10 +15,23 @@ from .monte_carlo import get_latest_mc_for_strategy
 
 router = APIRouter()
 
-# 실행 중인 봇 프로세스 관리
+# 실행 중인 봇 프로세스 관리 (메모리 상 캐시)
+# key: bot_id, value: subprocess.Popen
 running_processes: Dict[str, subprocess.Popen] = {}
 
 # --- [Helper Functions] ---
+
+def is_process_running(pid: int) -> bool:
+    """PID를 사용하여 프로세스가 실제로 실행 중인지 확인 (OS 호환)"""
+    if pid is None:
+        return False
+    try:
+        # signal 0은 프로세스가 존재하는지만 확인 (실제 신호 안 보냄)
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
 
 def load_bots_data():
     if not os.path.exists(BOTS_FILE):
@@ -39,30 +53,24 @@ def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
     db_path = os.path.join(DB_DIR, f"tradesv3_{bot_id}.sqlite")
     log_path = os.path.join(LOGS_DIR, f"{mode}_{bot_id}.log")
     
-    # paper_configs 폴더 확인
     if not os.path.exists(PAPER_CONFIGS_DIR):
         os.makedirs(PAPER_CONFIGS_DIR)
 
     strategy_config = os.path.join(PAPER_CONFIGS_DIR, f"config_{mode}_{strategy_name}.json")
     
-    # 만약 config_paper_MyStrategy.json 처럼 기존 형식이 있으면 그걸 사용 (하위 호환)
-    legacy_config = os.path.join(PAPER_CONFIGS_DIR, f"config_{mode}_{strategy_name}.json")
-    if not os.path.exists(strategy_config) and os.path.exists(legacy_config):
-        strategy_config = legacy_config
-
-    return db_path, log_path, strategy_config
-        config_path = strategy_config
-    else:
+    # 하위 호환성 체크
+    if not os.path.exists(strategy_config):
         if mode == 'live':
             config_path = os.path.join(USER_DATA_DIR, "config_live.json")
         else:
             config_path = os.path.join(USER_DATA_DIR, "config.json")
+    else:
+        config_path = strategy_config
          
     return db_path, log_path, config_path
 
 
 def get_equity_curve_from_db(db_path: str, starting_balance: float = 10000) -> list:
-    """DB에서 누적 수익 곡선 계산"""
     if not os.path.exists(db_path):
         return []
     
@@ -96,7 +104,6 @@ def get_equity_curve_from_db(db_path: str, starting_balance: float = 10000) -> l
 
 
 def calculate_rolling_mdd(equity_curve: list, window: int = 30) -> float:
-    """최근 N개 거래의 MDD 계산"""
     if not equity_curve or len(equity_curve) < 2:
         return 0
     
@@ -110,7 +117,6 @@ def calculate_rolling_mdd(equity_curve: list, window: int = 30) -> float:
 
 
 def check_confidence_breach(equity_curve: list, mc_baseline: dict) -> dict:
-    """현재 자산이 95% 신뢰구간을 이탈했는지 확인"""
     if not equity_curve or not mc_baseline:
         return None
     
@@ -161,7 +167,7 @@ class BotCreateRequest(BaseModel):
     strategy: str      
     pair: str          
     mode: str = "paper"
-    backtest_file: Optional[str] = None  # ★ 추가: 백테스트 연결
+    backtest_file: Optional[str] = None
 
 class BotControlRequest(BaseModel):
     bot_id: str
@@ -174,20 +180,26 @@ class BotResponse(BaseModel):
     mode: str
     status: str
     pid: Optional[int] = None
-    backtest_file: Optional[str] = None  # ★ 추가
+    backtest_file: Optional[str] = None
 
 
 # --- [API 1: 봇 관리 (CRUD)] ---
 
 @router.get("/bots", response_model=List[BotResponse])
 def list_bots():
-    """저장된 모든 봇 목록 반환"""
+    """저장된 모든 봇 목록 반환 및 상태 동기화"""
     bots = load_bots_data()
     result = []
     
     for bot_id, bot_info in bots.items():
+        # 1. 메모리 상의 프로세스 확인
         proc = running_processes.get(bot_id)
         is_alive = proc is not None and proc.poll() is None
+        
+        # 2. 메모리에 없으면 bots.json의 PID로 OS 레벨 확인 (서버 재시작 대비)
+        saved_pid = bot_info.get("pid")
+        if not is_alive and saved_pid:
+            is_alive = is_process_running(saved_pid)
         
         result.append({
             "id": bot_id,
@@ -196,19 +208,17 @@ def list_bots():
             "pair": bot_info.get("pair"),
             "mode": bot_info.get("mode", "paper"),
             "status": "RUNNING" if is_alive else "STOPPED",
-            "pid": proc.pid if is_alive else None,
-            "backtest_file": bot_info.get("backtest_file")  # ★ 추가
+            "pid": saved_pid if is_alive else None,
+            "backtest_file": bot_info.get("backtest_file")
         })
     return result
 
 
 @router.post("/bots")
 def create_bot(req: BotCreateRequest):
-    """새로운 봇 생성"""
     bots = load_bots_data()
     bot_id = str(uuid.uuid4())[:8]
     
-    # MC 기준값 로드 (백테스트 결과에서)
     mc_baseline = None
     if req.backtest_file:
         mc_baseline = get_latest_mc_for_strategy(req.strategy)
@@ -219,8 +229,9 @@ def create_bot(req: BotCreateRequest):
         "strategy": req.strategy,
         "pair": req.pair,
         "mode": req.mode,
-        "backtest_file": req.backtest_file,  # ★ 저장
-        "mc_baseline": mc_baseline,           # ★ MC 기준값 저장
+        "pid": None, # 아직 시작 안 함
+        "backtest_file": req.backtest_file,
+        "mc_baseline": mc_baseline,
         "created_at": str(pd.Timestamp.now())
     }
     
@@ -232,23 +243,25 @@ def create_bot(req: BotCreateRequest):
 
 @router.delete("/bots/{bot_id}")
 def delete_bot(bot_id: str):
-    """봇 삭제"""
-    if bot_id in running_processes:
+    bots = load_bots_data()
+    if bot_id not in bots:
+        raise HTTPException(status_code=404, detail="Bot not found")
+
+    # 봇이 실행 중이면 먼저 정지
+    bot_info = bots[bot_id]
+    saved_pid = bot_info.get("pid")
+    if saved_pid and is_process_running(saved_pid):
         stop_bot(BotControlRequest(bot_id=bot_id))
         
-    bots = load_bots_data()
-    if bot_id in bots:
-        del bots[bot_id]
-        save_bots_data(bots)
-        return {"message": "Bot deleted"}
-    raise HTTPException(status_code=404, detail="Bot not found")
+    del bots[bot_id]
+    save_bots_data(bots)
+    return {"message": "Bot deleted"}
 
 
 # --- [API 2: 봇 제어 (Start/Stop)] ---
 
 @router.post("/start")
 def start_bot(req: BotControlRequest):
-    """봇 실행"""
     global running_processes
     bots = load_bots_data()
     
@@ -258,8 +271,10 @@ def start_bot(req: BotControlRequest):
     bot_info = bots[req.bot_id]
     mode = bot_info.get("mode", "paper")
     
-    if req.bot_id in running_processes and running_processes[req.bot_id].poll() is None:
-        return {"message": "Bot is already running"}
+    # 이미 실행 중인지 확인
+    current_pid = bot_info.get("pid")
+    if current_pid and is_process_running(current_pid):
+        return {"message": "Bot is already running", "pid": current_pid}
 
     try:
         db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'], mode)
@@ -279,15 +294,24 @@ def start_bot(req: BotControlRequest):
         if mode == "paper":
             command.append("--dry-run")
         
+        # Popen 사용 시 shell=True는 지양하는 것이 좋으나, freqtrade 명령어 특성상 필요한 경우 유지
+        # 단, Windows/Linux 호환성을 위해 리스트 형태로 전달
         proc = subprocess.Popen(
             command, 
-            shell=True,
-            cwd=os.path.join(os.getcwd(), ".."),
+            cwd=os.path.dirname(USER_DATA_DIR), # 프로젝트 루트에서 실행
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
         )
         
+        # 메모리에 저장
         running_processes[req.bot_id] = proc
+        
+        # 파일(봇 정보)에 PID 업데이트
+        bot_info["pid"] = proc.pid
+        bots[req.bot_id] = bot_info
+        save_bots_data(bots)
+        
         return {"message": f"[{mode.upper()}] Bot {bot_info['name']} started", "pid": proc.pid}
         
     except Exception as e:
@@ -296,28 +320,45 @@ def start_bot(req: BotControlRequest):
 
 @router.post("/stop")
 def stop_bot(req: BotControlRequest):
-    """봇 중지"""
     global running_processes
+    bots = load_bots_data()
     
-    proc = running_processes.get(req.bot_id)
+    if req.bot_id not in bots:
+        raise HTTPException(status_code=404, detail="Bot ID not found")
     
-    if proc:
-        try:
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], 
+    bot_info = bots[req.bot_id]
+    pid = bot_info.get("pid")
+    
+    if not pid or not is_process_running(pid):
+        return {"message": "Bot is not running"}
+
+    try:
+        # OS별 종료 신호 전달 (더 안전한 방식)
+        if os.name == 'nt': # Windows
+            # Windows에서는 taskkill을 쓰는 게 사실 가장 확실함 (프로세스 그룹 전체 종료)
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], 
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else: # Linux/Mac
+            os.kill(pid, signal.SIGTERM) # 먼저 정중하게 종료 요청
+            
+        # 메모리 캐시 삭제
+        if req.bot_id in running_processes:
             del running_processes[req.bot_id]
-            return {"message": "Bot stopped"}
-        except Exception as e:
-            return {"message": f"Error stopping bot: {e}"}
-    
-    return {"message": "Bot is not running"}
+            
+        # 파일의 PID 정보 초기화
+        bot_info["pid"] = None
+        bots[req.bot_id] = bot_info
+        save_bots_data(bots)
+        
+        return {"message": "Bot stopped successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error stopping bot: {str(e)}")
 
 
 # --- [API 3: 모니터링 (Status/Logs)] ---
 
 @router.get("/status")
 def get_bot_status(bot_id: str):
-    """현황 조회"""
     bots = load_bots_data()
     if bot_id not in bots:
         raise HTTPException(status_code=404, detail="Bot not found")
@@ -325,23 +366,29 @@ def get_bot_status(bot_id: str):
     bot_info = bots[bot_id]
     strategy_name = bot_info['strategy']
     mode = bot_info.get('mode', 'paper')
+    pid = bot_info.get('pid')
     
-    proc = running_processes.get(bot_id)
-    is_running = proc is not None and proc.poll() is None
+    is_running = is_process_running(pid)
     status_str = "RUNNING" if is_running else "STOPPED"
     
     db_path, _, _ = get_bot_paths(bot_id, strategy_name, mode)
     
+    # 기본 통계 정보 초기화
+    default_stats = {
+        "status": status_str,
+        "name": bot_info['name'],
+        "strategy": strategy_name,
+        "mode": mode,
+        "total_roi": 0.0, 
+        "total_trade_count": 0, 
+        "win_count": 0, 
+        "loss_count": 0, 
+        "active_trade_count": 0,
+        "pid": pid if is_running else None
+    }
+
     if not os.path.exists(db_path):
-        return {
-            "status": status_str,
-            "name": bot_info['name'],
-            "total_roi": 0.0, 
-            "total_trade_count": 0, 
-            "win_count": 0, 
-            "loss_count": 0, 
-            "active_trade_count": 0
-        }
+        return default_stats
 
     try:
         conn = sqlite3.connect(db_path)
@@ -364,33 +411,21 @@ def get_bot_status(bot_id: str):
 
         total_profit = stats['total_profit'] if stats['total_profit'] else 0.0
         
-        return {
-            "status": status_str,
-            "name": bot_info['name'],
-            "strategy": strategy_name,
-            "mode": mode,
+        default_stats.update({
             "total_roi": round(total_profit * 100, 2),
             "total_trade_count": stats['total_count'] if stats['total_count'] else 0,
             "win_count": stats['wins'] if stats['wins'] else 0,
             "loss_count": stats['losses'] if stats['losses'] else 0,
-            "active_trade_count": active['active'],
-            "pid": proc.pid if is_running else None
-        }
-    except Exception:
-        return {
-            "status": status_str,
-            "name": bot_info['name'],
-            "total_roi": 0.0, 
-            "total_trade_count": 0, 
-            "win_count": 0, 
-            "loss_count": 0, 
-            "active_trade_count": 0
-        }
+            "active_trade_count": active['active'] if active['active'] else 0
+        })
+        return default_stats
+    except Exception as e:
+        print(f"[ERROR] get_bot_status database error: {e}")
+        return default_stats
 
 
 @router.get("/trades")
 def get_trade_logs(bot_id: str):
-    """거래 기록 조회"""
     bots = load_bots_data()
     if bot_id not in bots:
         return []
@@ -431,11 +466,10 @@ def get_trade_logs(bot_id: str):
         return []
 
 
-# --- [★ NEW API 4: 백테스트 옵션 및 분석] ---
+# --- [API 4: 백테스트 옵션 및 분석] ---
 
 @router.get("/backtest-options")
 def get_backtest_options():
-    """봇 생성 시 선택할 수 있는 백테스트 결과 목록"""
     if not os.path.exists(BACKTEST_RESULTS_DIR):
         return []
     
@@ -452,7 +486,6 @@ def get_backtest_options():
                             strategy_dict = data.get("strategy", {})
                             strategy_name = list(strategy_dict.keys())[0] if strategy_dict else "Unknown"
                             
-                            # 요약 정보
                             stats = data.get("strategy_comparison", [{}])[0]
                             
                             options.append({
@@ -475,7 +508,6 @@ def get_backtest_options():
 
 @router.get("/analysis/{bot_id}")
 def get_bot_analysis(bot_id: str):
-    """봇의 실시간 분석 데이터 (MC 비교 포함)"""
     bots = load_bots_data()
     if bot_id not in bots:
         raise HTTPException(status_code=404, detail="Bot not found")
@@ -484,16 +516,13 @@ def get_bot_analysis(bot_id: str):
     mode = bot_info.get("mode", "paper")
     strategy = bot_info.get("strategy")
     
-    # 저장된 MC 기준값 또는 최신 MC 로드
     mc_baseline = bot_info.get("mc_baseline")
     if not mc_baseline:
         mc_baseline = get_latest_mc_for_strategy(strategy)
     
-    # DB에서 현재 equity curve 로드
     db_path, _, _ = get_bot_paths(bot_id, strategy, mode)
     equity_curve = get_equity_curve_from_db(db_path)
     
-    # 분석 결과
     analysis = {
         "confidence_breach": None,
         "mdd_breach": None,
@@ -504,23 +533,20 @@ def get_bot_analysis(bot_id: str):
     if mc_baseline:
         mc_data = mc_baseline.get("mc_data", mc_baseline)
         
-        # 모의투자: 신뢰구간 이탈 체크
         if mode == "paper":
             analysis["confidence_breach"] = check_confidence_breach(equity_curve, mc_baseline)
             if analysis["confidence_breach"] and analysis["confidence_breach"].get("is_breach"):
                 analysis["status"] = "WARNING" if analysis["confidence_breach"]["breach_type"] == "above" else "DANGER"
         
-        # 실전투자: Rolling MDD 체크
         if mode == "live":
             rolling_mdd = calculate_rolling_mdd(equity_curve, window=30)
             analysis["rolling_mdd_30d"] = rolling_mdd
             
-            # 백테스트 상위 5% MDD와 비교
             worst_5pct_mdd = mc_data.get("stats", {}).get("worst_mdd", -100)
             analysis["mdd_breach"] = {
                 "current_mdd": rolling_mdd,
                 "threshold": worst_5pct_mdd,
-                "is_breach": rolling_mdd < worst_5pct_mdd  # MDD는 음수이므로
+                "is_breach": rolling_mdd < worst_5pct_mdd
             }
             
             if analysis["mdd_breach"]["is_breach"]:
@@ -539,24 +565,10 @@ def get_bot_analysis(bot_id: str):
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-# ============================================
-# ★ TEST API (개발용 - 배포 시 제거)
-# ============================================
+# --- [TEST API (개발용 - 배포 시 제거 권장)] ---
 
 @router.post("/test/add-fake-trade")
 def add_fake_trade(bot_id: str, profit_pct: float = 0.02):
-    """테스트용: 가짜 거래 1개 삽입"""
     from datetime import datetime, timedelta
     
     bots = load_bots_data()
@@ -569,7 +581,6 @@ def add_fake_trade(bot_id: str, profit_pct: float = 0.02):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # 테이블 생성
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS trades (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -586,12 +597,10 @@ def add_fake_trade(bot_id: str, profit_pct: float = 0.02):
         )
     """)
     
-    # 마지막 거래 시간
     cursor.execute("SELECT MAX(close_date) FROM trades WHERE is_open = 0")
     last_date = cursor.fetchone()[0]
     new_date = datetime.fromisoformat(last_date) + timedelta(hours=1) if last_date else datetime.now()
     
-    # 거래 데이터
     open_rate = 50000.0
     close_rate = open_rate * (1 + profit_pct)
     amount = 0.1
@@ -618,7 +627,6 @@ def add_fake_trade(bot_id: str, profit_pct: float = 0.02):
 
 @router.post("/test/add-random-trades")
 def add_random_trades(bot_id: str, count: int = 10):
-    """테스트용: 랜덤 거래 여러 개 삽입"""
     import random
     for _ in range(count):
         profit_pct = random.uniform(-0.05, 0.05)
@@ -628,7 +636,6 @@ def add_random_trades(bot_id: str, count: int = 10):
 
 @router.delete("/test/clear-trades")
 def clear_trades(bot_id: str):
-    """테스트용: 거래 기록 전체 삭제"""
     bots = load_bots_data()
     if bot_id not in bots:
         raise HTTPException(status_code=404, detail="Bot not found")

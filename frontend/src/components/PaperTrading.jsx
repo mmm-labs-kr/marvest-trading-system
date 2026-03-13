@@ -10,7 +10,7 @@ import {
     Area, ComposedChart, ReferenceLine 
 } from 'recharts';
 
-const API_BASE = "/trading";
+const API_BASE = "/api/trading";
 
 // ============================================
 // Analysis Section Component (모투용: 95% 신뢰구간)

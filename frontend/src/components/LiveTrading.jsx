@@ -10,7 +10,7 @@ import {
     Area, ComposedChart, ReferenceLine, BarChart, Bar, Cell
 } from 'recharts';
 
-const API_BASE = "/trading";
+const API_BASE = "/api/trading";
 
 // ============================================
 // Analysis Section Component (실투용: Rolling MDD)
