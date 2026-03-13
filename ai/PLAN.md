@@ -2,8 +2,8 @@
 
 ## 현재 상태
 - 단계: Phase 1 진행 중
-- 마지막 완료 작업: Phase 1 - Task 3 (`main.py` 중복 mount 및 CORS 설정 정리)
-- 다음 작업: Phase 1 - Task 4 (`vite.config.js` proxy 설정 최종 확인)
+- 마지막 완료 작업: Phase 1 - Task 4 (`vite.config.js` proxy 설정 확인)
+- 다음 작업: Phase 1 - Task 5 (`.env.example` 생성 및 환경변수 로드 방식 통일)
 
 ---
 
@@ -14,7 +14,7 @@
 | 1 | `configs.py`의 `.fson` 오타 수정 | 소 | ✅ | - |
 | 2 | 하드코딩된 경로 중앙 집중화 (Config 모듈) | 중 | ✅ | `backend/app/core/config.py` |
 | 3 | `main.py` 중복 mount 및 CORS 설정 정리 | 소 | ✅ | `backend/app/main.py` |
-| 4 | `vite.config.js` proxy 설정 최종 확인 | 소 | ⬜ | - |
+| 4 | `vite.config.js` proxy 설정 최종 확인 | 소 | ✅ | `frontend/vite.config.js` |
 | 5 | `.env.example` 생성 및 환경변수 로드 방식 통일 | 소 | ⬜ | - |
 
 ## Phase 2: 코드 정리 및 로직 개선
