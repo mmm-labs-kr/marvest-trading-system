@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from typing import List, Optional, Dict
 from app.core.config import USER_DATA_DIR, BOTS_FILE, DB_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR, LOGS_DIR, PAPER_CONFIGS_DIR, STRATEGIES_DIR
+from .monte_carlo import get_latest_mc_for_strategy
 
 router = APIRouter()
 
@@ -58,26 +59,6 @@ def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
             config_path = os.path.join(USER_DATA_DIR, "config.json")
          
     return db_path, log_path, config_path
-
-
-def get_latest_mc_for_strategy(strategy_name: str) -> dict:
-    """특정 전략의 가장 최신 MC 결과 가져오기"""
-    if not os.path.exists(MC_RESULTS_DIR):
-        return None
-    
-    matching_files = [
-        f for f in os.listdir(MC_RESULTS_DIR) 
-        if f.startswith(f"{strategy_name}_") and f.endswith(".json")
-    ]
-    
-    if not matching_files:
-        return None
-    
-    matching_files.sort(reverse=True)
-    latest_file = matching_files[0]
-    
-    with open(os.path.join(MC_RESULTS_DIR, latest_file), "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def get_equity_curve_from_db(db_path: str, starting_balance: float = 10000) -> list:
@@ -486,7 +467,7 @@ def get_backtest_options():
                                 ))
                             })
             except Exception as e:
-                print(f"[WARN] Failed to read {filename}: {e}")
+                print(f"[ERROR] Failed to read {filename}: {e}")
                 continue
     
     return sorted(options, key=lambda x: x["date"], reverse=True)

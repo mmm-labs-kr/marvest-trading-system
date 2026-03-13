@@ -8,7 +8,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from app.schemas.backtest import BackTestRequest, BacktestResultSummary
 from .score_calculator import calculate_score
-from .monte_carlo import perform_monte_carlo
+from .monte_carlo import perform_monte_carlo, get_latest_mc_for_strategy
 from app.core.config import USER_DATA_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR
 
 router = APIRouter()
@@ -50,21 +50,6 @@ def load_mc_results(strategy_name: str, backtest_filename: str) -> dict:
             print(f"[INFO] MC results loaded from cache: {cache_path}")
             return data.get("mc_data")
     return None
-
-
-def get_latest_mc_for_strategy(strategy_name: str) -> dict:
-    if not os.path.exists(MC_RESULTS_DIR):
-        return None
-    matching_files = [
-        f for f in os.listdir(MC_RESULTS_DIR) 
-        if f.startswith(f"{strategy_name}_") and f.endswith(".json")
-    ]
-    if not matching_files:
-        return None
-    matching_files.sort(reverse=True)
-    latest_file = matching_files[0]
-    with open(os.path.join(MC_RESULTS_DIR, latest_file), "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 # ============================================

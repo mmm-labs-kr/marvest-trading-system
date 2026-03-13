@@ -1,4 +1,31 @@
 import numpy as np
+import os
+import json
+from app.core.config import MC_RESULTS_DIR
+
+def get_latest_mc_for_strategy(strategy_name: str) -> dict:
+    """특정 전략의 가장 최신 MC 결과 가져오기 (공통 유틸리티)"""
+    if not os.path.exists(MC_RESULTS_DIR):
+        return None
+    
+    matching_files = [
+        f for f in os.listdir(MC_RESULTS_DIR) 
+        if f.startswith(f"{strategy_name}_") and f.endswith(".json")
+    ]
+    
+    if not matching_files:
+        return None
+    
+    # 파일명 기반 정렬 (최신순)
+    matching_files.sort(reverse=True)
+    latest_file = matching_files[0]
+    
+    try:
+        with open(os.path.join(MC_RESULTS_DIR, latest_file), "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"[ERROR] Failed to load MC result {latest_file}: {e}")
+        return None
 
 def perform_monte_carlo(trades_profit_pct, iterations=5000, starting_balance=10000):
     """
