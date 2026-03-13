@@ -1,140 +1,279 @@
-# 프로젝트 명: MMM
+# 📊 Marvest Trading System
 
-## 1. 개요
+## AI 기반 암호화폐 자동매매 전략 최적화 플랫폼
 
-### 1.1. 프로젝트 목표
-
-이 프로젝트는 이용하여 사용자가 사전에 등록한 전략으로 자동 매매 봇을 구현하는 것을 목표로 함
-
-- 사용자는 감정을 배제하고 뇌동매매가 아닌 매매를 함으로써 적절한 수입을 창출 가능
-- TP/SL 을 기본적으로 설정하여 안정적인 수입 창출 가능
-- 하지만 큰 수익(인생 성공)은 기대하는 것이 불가능
+> **Freqtrade** 백테스팅 + **Gemini AI** 전략 분석 + **몬테카를로** 리스크 평가를 통합한 올인원 트레이딩 시스템
 
 ---
 
-## 2. 주요 기능
+## 🎯 프로젝트 개요
 
-### 2.1. 백테스팅 자동화 및 결과 분석
+**Marvest**는 단순한 자동매매 시스템을 넘어, **AI가 백테스트 결과를 분석하고 개선된 전략을 자동 생성**하는 플랫폼입니다.
 
-- **원클릭 백테스팅 실행:** 터미널 명령어 없이, UI에서 전략 이름만 입력하면 백테스팅 수행.
-- **실시간 로그 확인:** 실행 중인 백테스팅 프로세스의 로그를 모달창에서 실시간 모니터링.
-- **이력 관리:** 과거 실행한 백테스팅 결과 파일(`user_data/backtest_results`)을 자동으로 목록화하여 관리.
-- **상세 분석 리포트:**
-    - 기본 지표: 승률, 총 거래 횟수, 순이익.
-    - 리스크 지표: MDD, 샤프 비율, 손익비 자동 계산.
-    - 자산 변동: 시작 원금 대비 최종 금액 및 총 수익률(CAGR 포함) 표시.
+### 핵심 차별점
 
-### 2.2. 모의투자/실전투자 모니터링
-
-- **봇 제어:** 웹에서 봇 프로세스 시작/중지/재시작 제어.
-- **실시간 대시보드:** 현재 보유 중인 자산, 오픈된 거래(Open Trades), 실시간 수익률 조회.
-- **거래 로그:** 체결 내역 및 봇 상태 로그 실시간 조회.
+| 기능 | 설명 |
+|------|------|
+| 🤖 **AI 전략 개선** | Gemini 2.5-Flash가 백테스트 결과를 분석해 문제점을 진단하고 개선안 제시 |
+| 📈 **M-Score 시스템** | 리스크(67%) + 성과(33%) 가중치 기반 전략 평가 (S~C 등급) |
+| 🎲 **몬테카를로 분석** | 5,000회 시뮬레이션으로 파산 확률 및 95% 신뢰구간 계산 |
+| 🔍 **실시간 리스크 감지** | 모의투자 시 신뢰구간 이탈, 실전투자 시 Rolling MDD 초과 경고 |
 
 ---
 
-## 3. 기술 스택
+## 🏗️ 시스템 아키텍처
 
-| **구분** | **기술** | **설명** |
-| --- | --- | --- |
-| **Frontend** | **React** (Vite) | 빠르고 반응성 높은 SPA(Single Page Application) 구축 |
-|  | **Tailwind CSS** | 유틸리티 퍼스트 CSS 프레임워크로 모던한 UI 디자인 구현 |
-|  | **Axios** | 백엔드 API와의 비동기 통신 처리 |
-| **Backend** | **Python FastAPI** | 고성능 비동기 API 서버 구축 |
-|  | **Subprocess** | Freqtrade CLI 명령어를 제어하고 실행 결과 캡처 |
-|  | **Pydantic** | 엄격한 데이터 유효성 검사 및 타입 관리 |
-| **Core** | **Freqtrade** | 암호화폐 알고리즘 트레이딩 엔진 |
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         AWS EC2 (t3.micro)                          │
+│                         Docker Compose                              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────────┐          REST API         ┌──────────────────┐   │
+│  │  Frontend    │◄─────────────────────────►│    Backend       │   │
+│  │              │                           │                  │   │
+│  │  React       │   /api/backtest           │    FastAPI       │   │
+│  │  + Vite      │   /api/ai                 │    + uvicorn     │   │
+│  │  + Tailwind  │   /api/trading            │                  │   │
+│  │  + Recharts  │                           └────────┬─────────┘   │
+│  └──────────────┘                                    │             │
+│                                          ┌───────────┼────────┐    │
+│                                          ▼           ▼        ▼    │
+│                                    ┌──────────┐ ┌──────┐ ┌────────┐│
+│                                    │Freqtrade │ │SQLite│ │ Gemini ││
+│                                    │  Engine  │ │  DB  │ │  API   ││
+│                                    └──────────┘ └──────┘ └────────┘│
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 4. 현재 진행 상황 (Current Status)
+## ✨ 주요 기능
 
-### 4.1. 개발 완료 (백테스팅 시스템)
+### 1️⃣ 백테스팅 & AI 분석
 
-- [x]  **프로젝트 환경 구축:** Vite(React) + FastAPI 연동 및 Proxy 설정 완료.
-- [x]  **백테스팅 목록 조회:** 결과 폴더의 JSON/ZIP 파싱 및 요약 리스트 UI 구현.
-- [x]  **백테스팅 상세 조회:** 승률, 손익비, MDD 등 핵심 지표 계산 로직 구현 및 상세 페이지 디자인.
-- [x]  **백테스팅 실행 기능:** 프론트엔드에서 전략명을 입력받아 백엔드 `subprocess`로 Freqtrade 실행 및 로그 연동.
+```
+전략 선택 → 백테스트 실행 → AI 분석 → 개선안 적용 → 새 전략 생성
+     ▲                                                        │
+     └────────────────────────────────────────────────────────┘
+                         반복 개선 루프
+```
 
-### 4.2. 개발 진행 중 (모의투자 시스템)
+- **원클릭 백테스트**: UI에서 전략 선택만으로 Freqtrade 실행
+- **M-Score 자동 계산**: 
+  - **Phase 1 (67%)**: MDD, 복구기간, 보유시간
+  - **Phase 2 (33%)**: 칼마 비율, 소르티노 비율
+  - **필터링**: 최소 거래 수(150회), 기대 수익(0.5%), MC 파산 확률(0%)
+- **AI 피드백**:
+  - 전략 구조 요약 (사용 지표, 진입/청산 로직)
+  - 문제점 분석 (high/medium/low 심각도)
+  - 구체적 개선안 제시 (코드 힌트 포함)
 
-- [ ]  **프로세스 매니저:** 백그라운드에서 봇(Dry-run)을 실행하고 관리하는 기능 설계 중.
-- [ ]  **DB 연동:** `tradesv3.sqlite` 데이터베이스를 읽어 실시간 거래 내역 조회 API 개발 예정.
+### 2️⃣ 몬테카를로 시뮬레이션
 
-### 4.3. 향후 계획
+- **파산 확률**: 자산이 원금 50% 미만 떨어질 확률 (5,000회 시뮬레이션)
+- **신뢰 구간**: 각 거래 시점별 97.5%, 50%, 2.5% 퍼센타일
+- **MDD 분포**: 최악/평균 MDD 산출
 
-- [ ]  **실전 투자 모드:** API Key 보안 처리 및 실전 매매 제어 기능.
-- [ ]  **차트 시각화:** Recharts를 활용한 자산 누적 수익률 그래프(Equity Curve) 구현.
+### 3️⃣ 모의투자 (Paper Trading)
 
-→ 메인 화면을 만들어 모든 봇 현황(수익률, 거래 횟수, on/off 여부 등)을 시각화해서 볼 수 있게 구현
+- **신뢰구간 이탈 감지**: 현재 equity가 백테스트 MC 범위를 벗어나면 경고
+- **실시간 대시보드**: 수익률, 승률, 활성 거래 현황
+- **거래 로그**: 최근 50건 거래 내역 및 누적 수익
 
-## 📂 폴더 구조 (Directory Structure)
+### 4️⃣ 실전투자 (Live Trading)
 
-이 프로젝트는 Freqtrade 루트 디렉토리 내에 위치하는 것을 권장합니다.
+- **Rolling MDD 모니터링**: 최근 30거래 MDD가 백테스트 상위 5% MDD 초과 시 경고
+- **봇 관리**: 웹 UI에서 시작/중지/삭제
+- **리스크 상태**: NORMAL / WARNING / DANGER 단계별 표시
 
-freqtrade-dashboard/
-├── user_data/              # Freqtrade 설정 및 전략, 결과 데이터
-│   ├── strategies/         # 전략 파일 (.py)
-│   ├── backtest_results/   # 결과 파일 (.zip, .json)
-│   └── config.json         # 설정 파일
-├── backend/                # FastAPI 서버
+---
+
+## 📁 프로젝트 구조
+
+```
+marvest-trading-system/
+├── backend/
 │   ├── app/
-│   │   ├── main.py
-│   │   └── backtest.py
+│   │   ├── main.py                     # FastAPI 앱 진입점
+│   │   ├── api/endpoints/
+│   │   │   ├── backtest.py             # 백테스트 실행 및 결과 조회
+│   │   │   ├── ai_feedback.py          # Gemini AI 분석/전략 생성
+│   │   │   ├── trading.py              # 봇 관리 및 모니터링
+│   │   │   ├── monte_carlo.py          # MC 시뮬레이션 로직
+│   │   │   ├── score_calculator.py     # M-Score 계산
+│   │   │   └── auth.py                 # OTP 인증
+│   │   └── schemas/
+│   │       └── backtest.py             # Pydantic 모델
 │   └── requirements.txt
-└── frontend/               # React 클라이언트
-    ├── src/
-    ├── public/
-    └── vite.config.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── BacktestList.jsx        # 백테스트 결과 목록
+│   │   │   ├── BacktestDetail.jsx      # 상세 분석 페이지
+│   │   │   ├── AIFeedbackSection.jsx   # AI 분석 결과 UI
+│   │   │   ├── MonteCarloSection.jsx   # MC 차트 시각화
+│   │   │   ├── PaperTrading.jsx        # 모의투자 대시보드
+│   │   │   └── LiveTrading.jsx         # 실전투자 대시보드
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── package.json
+│
+├── user_data/                           # Freqtrade 데이터
+│   ├── strategies/                      # 전략 파일 (.py)
+│   ├── backtest_results/                # 백테스트 결과 (.zip)
+│   ├── mc_results/                      # MC 결과 캐시 (.json)
+│   ├── databases/                       # 봇별 SQLite DB
+│   ├── config.json                      # 백테스트/모의투자 설정
+│   └── config_live.json                 # 실전투자 설정
+│
+├── docker-compose.yml
+├── Dockerfile
+└── .github/workflows/deploy.yml         # CI/CD
+```
 
+---
 
-## 설치 및 실행 방법 (Getting Started)
+## 🛠️ 기술 스택
 
-1. 사전 요구사항 (Prerequisites)
-Python 3.8 이상
-Node.js 16 이상
-Freqtrade가 설치되어 있어야 함
+### Backend
+| 기술 | 용도 |
+|------|------|
+| FastAPI | 고성능 비동기 API 서버 |
+| Freqtrade | 암호화폐 백테스팅/자동매매 엔진 |
+| google-generativeai | Gemini 2.5-Flash API 연동 |
+| NumPy/Pandas | 몬테카를로 시뮬레이션 및 통계 분석 |
+| SQLite | 봇별 거래 데이터 저장 |
 
-2. 프로젝트 클론 (Clone)
+### Frontend
+| 기술 | 용도 |
+|------|------|
+| React 19 | UI 라이브러리 |
+| Vite | 빠른 빌드 도구 |
+| Tailwind CSS 4 | 유틸리티 퍼스트 스타일링 |
+| Recharts | 차트 시각화 |
+| Axios | HTTP 클라이언트 |
 
-git clone [https://github.com/your-username/freqtrade-dashboard.git](https://github.com/your-username/freqtrade-dashboard.git)
-cd freqtrade-dashboard
+### Infrastructure
+| 기술 | 용도 |
+|------|------|
+| Docker Compose | 멀티 컨테이너 오케스트레이션 |
+| AWS EC2 t3.micro | 배포 서버 (스왑 메모리 활용) |
+| GitHub Actions | CI/CD 파이프라인 |
 
-3. 백엔드 설정 (Backend Setup)
+---
 
-1. 백엔드 폴더로 이동
+## 🚀 설치 및 실행
+
+### 사전 요구사항
+
+- Python 3.8+
+- Node.js 16+
+- Freqtrade 설치
+- Gemini API Key ([Google AI Studio](https://aistudio.google.com/app/apikey)에서 발급)
+
+### 1️⃣ 저장소 클론
+
+```bash
+git clone https://github.com/your-username/marvest-trading-system.git
+cd marvest-trading-system
+```
+
+### 2️⃣ 환경 변수 설정
+
+루트 디렉토리에 `.env` 파일 생성:
+
+```
+GOOGLE_API_KEY=your_gemini_api_key_here
+OTP_SECRET_JS=your_otp_secret_for_auth
+```
+
+### 3️⃣ 백엔드 실행
+
+```bash
 cd backend
 
-2. 가상환경 활성화 (Freqtrade 가상환경 사용 권장)
-source ../.venv/bin/activate  # Mac/Linux
-또는
-..\.venv\Scripts\activate     # Windows
+# 가상환경 생성 (선택)
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-3. 필수 패키지 설치
-pip install fastapi uvicorn pydantic
+# 의존성 설치
+pip install -r requirements.txt
 
-4. 프론트엔드 설정 (Frontend Setup)
-새로운 터미널을 열고 진행하세요.
-
-1. 프론트엔드 폴더로 이동
-cd frontend
-
-2. 패키지 설치
-npm install
-▶️ 실행하기 (Running the App)
-서버와 클라이언트를 각각 다른 터미널에서 실행해야 합니다.
-
-터미널 1: 백엔드 실행 (Backend)
-cd backend
+# 서버 실행
 uvicorn app.main:app --reload
-실행 성공 시: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+```
 
-터미널 2: 프론트엔드 실행 (Frontend)
+✅ 확인: http://127.0.0.1:8000
+
+### 4️⃣ 프론트엔드 실행
+
+새 터미널에서:
+
+```bash
 cd frontend
+npm install
 npm run dev
-실행 성공 시: http://localhost:5173
-이제 브라우저에서 http://localhost:5173 으로 접속하면 대시보드를 사용할 수 있습니다!
+```
 
-⚙️ 설정 (Configuration)
-포트 변경: 백엔드 포트가 8000이 아닌 경우 frontend/vite.config.js의 proxy 설정을 수정하세요.
+✅ 확인: http://localhost:5173
 
-전략 폴더: 백엔드는 상위 폴더의 user_data를 참조합니다. 경로가 다르다면 backend/app/backtest.py의 BASE_DIR 설정을 변경하세요.
+### 🐳 Docker로 실행 (권장)
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+## 📊 API 엔드포인트
+
+### Backtest
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| POST | `/api/backtest/run` | 백테스트 실행 |
+| GET | `/api/backtest/results` | 결과 목록 (M-Score 포함) |
+| GET | `/api/backtest/results/{filename}` | 상세 결과 + MC 데이터 |
+
+### AI Feedback
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| POST | `/api/ai/analyze` | 백테스트 결과 AI 분석 |
+| POST | `/api/ai/apply` | 개선안 적용 → 새 전략 생성 |
+| GET | `/api/ai/strategies` | 전략 파일 목록 |
+
+### Trading
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| POST | `/api/trading/bots` | 봇 생성 |
+| POST | `/api/trading/start` | 봇 시작 |
+| POST | `/api/trading/stop` | 봇 중지 |
+| GET | `/api/trading/status?bot_id=` | 봇 현황 조회 |
+| GET | `/api/trading/analysis/{bot_id}` | MC 비교 분석 |
+
+---
+
+## 📈 사용 워크플로우
+
+### 전략 개선 사이클
+
+1. **백테스트 실행** - 전략 선택 후 실행
+2. **M-Score 확인** - S~C 등급 확인
+3. **AI 분석 요청** - 문제점 + 개선안 생성
+4. **개선안 적용** - 원하는 제안 선택
+5. **새 전략 생성** - `NewStrategy_vX.py` 자동 생성
+6. **반복** - 1번으로 돌아가 테스트
+
+### 투자 실행
+
+1. **봇 생성** - 백테스트 결과 선택 (MC 기준값 연결)
+2. **모의투자** - 신뢰구간 이탈 모니터링
+3. **실전투자** - Rolling MDD 모니터링
+
+---
+
+## 🐛 알려진 이슈
+
+- AI가 생성한 전략에 가끔 문법 오류 포함 (수동 수정 필요)
+- 프롬프트 최적화 진행 중 (개선안 품질 향상 목표)

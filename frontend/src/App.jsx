@@ -19,12 +19,16 @@ const MENU_ITEMS = [
   { path: '/live', name: 'LIVE TRADING', icon: <Activity size={20} /> },
 ];
 
-// ★ 추가: 로그인 여부를 확인하는 가드 컴포넌트
+//// ★ 추가: 로그인 여부를 확인하는 가드 컴포넌트
+//const PrivateRoute = ({ children }) => {
+//  // localStorage에서 토큰 확인
+//  const isAuthenticated = localStorage.getItem("user_token");
+//  // 토큰이 있으면 통과, 없으면 로그인 페이지로 강제 이동
+//  return isAuthenticated ? children : <Navigate to="/login" />;
+//};
+
 const PrivateRoute = ({ children }) => {
-  // localStorage에서 토큰 확인
-  const isAuthenticated = localStorage.getItem("user_token");
-  // 토큰이 있으면 통과, 없으면 로그인 페이지로 강제 이동
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return children;
 };
 
 function AppContent() {

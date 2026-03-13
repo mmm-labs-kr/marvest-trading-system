@@ -12,7 +12,7 @@ def get_config_list():
             os.makedirs(CONFIGS_DIR)
 
         files = os.listdir(CONFIGS_DIR)
-        json_files = [f for f in files if f.endswith(".fson")]
+        json_files = [f for f in files if f.endswith(".json")]
 
         return{
             "path" : CONFIGS_DIR,
