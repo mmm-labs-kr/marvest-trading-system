@@ -8,7 +8,6 @@ const Login = () => {
   const [otp, setOtp] = useState("");
 
   const handleLogin = async () => {
-    // ... (로그인 로직은 기존과 동일) ...
     try {
         const response = await fetch("/api/auth/login", {
           method: "POST",
@@ -19,7 +18,9 @@ const Login = () => {
         const data = await response.json();
   
         if (response.ok && data.status === "success") {
-          localStorage.setItem("user_token", "access_granted"); 
+          // 서버에서 받은 토큰과 유저 정보 저장
+          localStorage.setItem("user_token", data.token); 
+          localStorage.setItem("user_id", data.user);
           window.location.href = "/";
         } else {
           alert("로그인 실패: OTP 번호를 확인해주세요.");

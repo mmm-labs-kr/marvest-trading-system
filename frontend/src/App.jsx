@@ -21,6 +21,10 @@ const MENU_ITEMS = [
 ];
 
 const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("user_token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
   return children;
 };
 
