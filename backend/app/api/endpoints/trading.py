@@ -11,12 +11,16 @@ import numpy as np
 import pandas as pd
 import time
 import ctypes
+import threading
 from typing import List, Optional, Dict
 from app.core.config import USER_DATA_DIR, BOTS_FILE, DB_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR, LOGS_DIR, PAPER_CONFIGS_DIR, STRATEGIES_DIR
-from app.core.exceptions import BotNotFoundException, ConfigFileNotFoundException, InternalServerException
+from app.core.exceptions import BotNotFoundException, ConfigFileNotFoundException, InternalServerException, MarvestException
 from .monte_carlo import get_latest_mc_for_strategy
 
 router = APIRouter()
+
+# 전역 락 설정 (bots.json 동시성 제어)
+bots_file_lock = threading.Lock()
 
 # 실행 중인 봇 프로세스 관리 (메모리 상 캐시)
 # key: bot_id, value: subprocess.Popen
@@ -50,6 +54,7 @@ def is_process_running(pid: int) -> bool:
             return True
 
 def load_bots_data():
+    """bots.json 파일 로드"""
     if not os.path.exists(BOTS_FILE):
         return {}
     with open(BOTS_FILE, "r", encoding="utf-8") as f:
@@ -59,8 +64,21 @@ def load_bots_data():
             return {}
 
 def save_bots_data(data):
-    with open(BOTS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    """bots.json 파일 저장 (Atomic Write 적용)"""
+    temp_file = f"{BOTS_FILE}.tmp"
+    try:
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+        
+        # Windows/Linux 모두 호환되는 파일 교체
+        if os.path.exists(BOTS_FILE):
+            os.replace(temp_file, BOTS_FILE)
+        else:
+            os.rename(temp_file, BOTS_FILE)
+    except Exception as e:
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+        raise e
 
 def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
     if not os.path.exists(DB_DIR):
@@ -204,6 +222,8 @@ class BotResponse(BaseModel):
 @router.get("/bots", response_model=List[BotResponse])
 def list_bots():
     """저장된 모든 봇 목록 반환 및 상태 동기화"""
+    # 읽기 작업은 최신 데이터를 보장하기 위해 락을 사용할 수 있지만, 
+    # 성능을 위해 락 없이 읽고 각 항목 처리 시 필요하면 확인
     bots = load_bots_data()
     result = []
     
@@ -232,45 +252,55 @@ def list_bots():
 
 @router.post("/bots")
 def create_bot(req: BotCreateRequest):
-    bots = load_bots_data()
-    bot_id = str(uuid.uuid4())[:8]
-    
-    mc_baseline = None
-    if req.backtest_file:
-        mc_baseline = get_latest_mc_for_strategy(req.strategy)
-    
-    new_bot = {
-        "id": bot_id,
-        "name": req.name,
-        "strategy": req.strategy,
-        "pair": req.pair,
-        "mode": req.mode,
-        "pid": None, # 아직 시작 안 함
-        "backtest_file": req.backtest_file,
-        "mc_baseline": mc_baseline,
-        "created_at": str(pd.Timestamp.now())
-    }
-    
-    bots[bot_id] = new_bot
-    save_bots_data(bots)
+    with bots_file_lock:
+        bots = load_bots_data()
+        bot_id = str(uuid.uuid4())[:8]
+        
+        mc_baseline = None
+        if req.backtest_file:
+            mc_baseline = get_latest_mc_for_strategy(req.strategy)
+        
+        new_bot = {
+            "id": bot_id,
+            "name": req.name,
+            "strategy": req.strategy,
+            "pair": req.pair,
+            "mode": req.mode,
+            "pid": None, # 아직 시작 안 함
+            "backtest_file": req.backtest_file,
+            "mc_baseline": mc_baseline,
+            "created_at": str(pd.Timestamp.now())
+        }
+        
+        bots[bot_id] = new_bot
+        save_bots_data(bots)
     
     return {"message": "Bot created successfully", "bot_id": bot_id}
 
 
 @router.delete("/bots/{bot_id}")
 def delete_bot(bot_id: str):
-    bots = load_bots_data()
-    if bot_id not in bots:
-        raise BotNotFoundException(bot_id)
+    with bots_file_lock:
+        bots = load_bots_data()
+        if bot_id not in bots:
+            raise BotNotFoundException(bot_id)
 
-    # 봇이 실행 중이면 먼저 정지
-    bot_info = bots[bot_id]
-    saved_pid = bot_info.get("pid")
-    if saved_pid and is_process_running(saved_pid):
-        stop_bot(BotControlRequest(bot_id=bot_id))
+        # 봇이 실행 중이면 먼저 정지 (락 안에서 처리)
+        bot_info = bots[bot_id]
+        saved_pid = bot_info.get("pid")
+        if saved_pid and is_process_running(saved_pid):
+            try:
+                if os.name == 'nt':
+                    subprocess.run(["taskkill", "/F", "/T", "/PID", str(saved_pid)], 
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                else:
+                    os.kill(saved_pid, signal.SIGTERM)
+            except:
+                pass
+            
+        del bots[bot_id]
+        save_bots_data(bots)
         
-    del bots[bot_id]
-    save_bots_data(bots)
     return {"message": "Bot deleted"}
 
 
@@ -279,115 +309,115 @@ def delete_bot(bot_id: str):
 @router.post("/start")
 def start_bot(req: BotControlRequest):
     global running_processes
-    bots = load_bots_data()
     
-    if req.bot_id not in bots:
-        raise BotNotFoundException(req.bot_id)
+    with bots_file_lock:
+        bots = load_bots_data()
         
-    bot_info = bots[req.bot_id]
-    mode = bot_info.get("mode", "paper")
-    
-    # 이미 실행 중인지 확인
-    current_pid = bot_info.get("pid")
-    if current_pid and is_process_running(current_pid):
-        return {"message": "Bot is already running", "pid": current_pid}
+        if req.bot_id not in bots:
+            raise BotNotFoundException(req.bot_id)
+            
+        bot_info = bots[req.bot_id]
+        mode = bot_info.get("mode", "paper")
+        
+        # 이미 실행 중인지 확인
+        current_pid = bot_info.get("pid")
+        if current_pid and is_process_running(current_pid):
+            return {"message": "Bot is already running", "pid": current_pid}
 
-    try:
-        db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'], mode)
-        
-        if not os.path.exists(config_path):
-             raise ConfigFileNotFoundException(config_path)
+        try:
+            db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'], mode)
+            
+            if not os.path.exists(config_path):
+                 raise ConfigFileNotFoundException(config_path)
 
-        command = [
-            "freqtrade", "trade", 
-            "--strategy", bot_info['strategy'], 
-            "--config", config_path,
-            "--userdir", USER_DATA_DIR,
-            "--db-url", f"sqlite:///{db_path}",
-            "--logfile", log_path
-        ]
-        
-        if mode == "paper":
-            command.append("--dry-run")
-        
-        # Popen 사용 시 shell=True는 지양하는 것이 좋으나, freqtrade 명령어 특성상 필요한 경우 유지
-        # 단, Windows/Linux 호환성을 위해 리스트 형태로 전달
-        proc = subprocess.Popen(
-            command, 
-            cwd=os.path.dirname(USER_DATA_DIR), # 프로젝트 루트에서 실행
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
-        )
-        
-        # 메모리에 저장
-        running_processes[req.bot_id] = proc
-        
-        # 파일(봇 정보)에 PID 업데이트
-        bot_info["pid"] = proc.pid
-        bots[req.bot_id] = bot_info
-        save_bots_data(bots)
-        
-        return {"message": f"[{mode.upper()}] Bot {bot_info['name']} started", "pid": proc.pid}
-        
-    except MarvestException:
-        raise
-    except Exception as e:
-        raise InternalServerException(message=str(e))
+            command = [
+                "freqtrade", "trade", 
+                "--strategy", bot_info['strategy'], 
+                "--config", config_path,
+                "--userdir", USER_DATA_DIR,
+                "--db-url", f"sqlite:///{db_path}",
+                "--logfile", log_path
+            ]
+            
+            if mode == "paper":
+                command.append("--dry-run")
+            
+            proc = subprocess.Popen(
+                command, 
+                cwd=os.path.dirname(USER_DATA_DIR), # 프로젝트 루트에서 실행
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
+            )
+            
+            # 메모리에 저장
+            running_processes[req.bot_id] = proc
+            
+            # 파일(봇 정보)에 PID 업데이트
+            bot_info["pid"] = proc.pid
+            bots[req.bot_id] = bot_info
+            save_bots_data(bots)
+            
+            return {"message": f"[{mode.upper()}] Bot {bot_info['name']} started", "pid": proc.pid}
+            
+        except MarvestException:
+            raise
+        except Exception as e:
+            raise InternalServerException(message=str(e))
 
 
 @router.post("/stop")
 def stop_bot(req: BotControlRequest):
     global running_processes
-    bots = load_bots_data()
     
-    if req.bot_id not in bots:
-        raise BotNotFoundException(req.bot_id)
-    
-    bot_info = bots[req.bot_id]
-    pid = bot_info.get("pid")
-    
-    if not pid or not is_process_running(pid):
-        # 이미 종료된 경우에도 상태 동기화
-        if bot_info.get("pid") is not None:
+    with bots_file_lock:
+        bots = load_bots_data()
+        
+        if req.bot_id not in bots:
+            raise BotNotFoundException(req.bot_id)
+        
+        bot_info = bots[req.bot_id]
+        pid = bot_info.get("pid")
+        
+        if not pid or not is_process_running(pid):
+            # 이미 종료된 경우에도 상태 동기화
+            if bot_info.get("pid") is not None:
+                bot_info["pid"] = None
+                bots[req.bot_id] = bot_info
+                save_bots_data(bots)
+            return {"message": "Bot is not running"}
+
+        try:
+            # OS별 종료 신호 전달
+            if os.name == 'nt': # Windows
+                subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], 
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else: # Linux/Mac
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                    # 정중하게 종료될 때까지 최대 2초 대기
+                    for _ in range(20):
+                        if not is_process_running(pid):
+                            break
+                        time.sleep(0.1)
+                    
+                    if is_process_running(pid):
+                        os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                
+            # 메모리 캐시 삭제
+            if req.bot_id in running_processes:
+                del running_processes[req.bot_id]
+                
+            # 파일의 PID 정보 초기화
             bot_info["pid"] = None
             bots[req.bot_id] = bot_info
             save_bots_data(bots)
-        return {"message": "Bot is not running"}
-
-    try:
-        # OS별 종료 신호 전달
-        if os.name == 'nt': # Windows
-            # Windows에서는 taskkill /F /T가 가장 확실함 (프로세스 그룹 전체 종료)
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], 
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else: # Linux/Mac
-            try:
-                os.kill(pid, signal.SIGTERM)
-                # 정중하게 종료될 때까지 최대 2초 대기
-                for _ in range(20):
-                    if not is_process_running(pid):
-                        break
-                    time.sleep(0.1)
-                
-                # 여전히 살아있으면 SIGKILL
-                if is_process_running(pid):
-                    os.kill(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass # 이미 종료됨
             
-        # 메모리 캐시 삭제
-        if req.bot_id in running_processes:
-            del running_processes[req.bot_id]
-            
-        # 파일의 PID 정보 초기화
-        bot_info["pid"] = None
-        bots[req.bot_id] = bot_info
-        save_bots_data(bots)
-        
-        return {"message": "Bot stopped successfully"}
-    except Exception as e:
-        raise InternalServerException(message=f"Error stopping bot: {str(e)}")
+            return {"message": "Bot stopped successfully"}
+        except Exception as e:
+            raise InternalServerException(message=f"Error stopping bot: {str(e)}")
 
 
 # --- [API 3: 모니터링 (Status/Logs)] ---
