@@ -22,7 +22,7 @@
 | # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
 | 6 | 중복 로직(`get_latest_mc_for_strategy`) 통합 | 소 | ✅ | `backend/app/api/endpoints/monte_carlo.py` |
-| 7 | `trading.py` OS 호환성 및 프로세스 관리 개선 | 중 | ⬜ | TASK-007.md |
+| 7 | `trading.py` OS 호환성 및 프로세스 관리 개선 | 중 | ✅ | TASK-007.md |
 | 8 | 에러 응답 형식 및 예외 처리 강화 | 중 | ⬜ | TASK-008.md |
 | 9 | `bots.json` 동시성 제어 방안 검토 (Locking) | 중 | ⬜ | - |
 | 10 | 불필요한 import 및 미사용 코드 제거 | 소 | ⬜ | - |

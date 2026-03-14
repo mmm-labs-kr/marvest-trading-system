@@ -9,6 +9,8 @@ import zipfile
 import signal
 import numpy as np
 import pandas as pd
+import time
+import ctypes
 from typing import List, Optional, Dict
 from app.core.config import USER_DATA_DIR, BOTS_FILE, DB_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR, LOGS_DIR, PAPER_CONFIGS_DIR, STRATEGIES_DIR
 from .monte_carlo import get_latest_mc_for_strategy
@@ -25,13 +27,26 @@ def is_process_running(pid: int) -> bool:
     """PID를 사용하여 프로세스가 실제로 실행 중인지 확인 (OS 호환)"""
     if pid is None:
         return False
-    try:
-        # signal 0은 프로세스가 존재하는지만 확인 (실제 신호 안 보냄)
-        os.kill(pid, 0)
-    except OSError:
+    
+    if os.name == 'nt': # Windows
+        # Windows에서는 os.kill(pid, 0)이 지원되지 않으므로 kernel32 사용
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if handle:
+            exit_code = ctypes.c_ulong()
+            ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code))
+            ctypes.windll.kernel32.CloseHandle(handle)
+            # STILL_ACTIVE = 259
+            return exit_code.value == 259
         return False
-    else:
-        return True
+    else: # Linux/Mac
+        try:
+            # signal 0은 프로세스가 존재하는지만 확인 (실제 신호 안 보냄)
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
 
 def load_bots_data():
     if not os.path.exists(BOTS_FILE):
@@ -330,16 +345,33 @@ def stop_bot(req: BotControlRequest):
     pid = bot_info.get("pid")
     
     if not pid or not is_process_running(pid):
+        # 이미 종료된 경우에도 상태 동기화
+        if bot_info.get("pid") is not None:
+            bot_info["pid"] = None
+            bots[req.bot_id] = bot_info
+            save_bots_data(bots)
         return {"message": "Bot is not running"}
 
     try:
-        # OS별 종료 신호 전달 (더 안전한 방식)
+        # OS별 종료 신호 전달
         if os.name == 'nt': # Windows
-            # Windows에서는 taskkill을 쓰는 게 사실 가장 확실함 (프로세스 그룹 전체 종료)
+            # Windows에서는 taskkill /F /T가 가장 확실함 (프로세스 그룹 전체 종료)
             subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], 
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else: # Linux/Mac
-            os.kill(pid, signal.SIGTERM) # 먼저 정중하게 종료 요청
+            try:
+                os.kill(pid, signal.SIGTERM)
+                # 정중하게 종료될 때까지 최대 2초 대기
+                for _ in range(20):
+                    if not is_process_running(pid):
+                        break
+                    time.sleep(0.1)
+                
+                # 여전히 살아있으면 SIGKILL
+                if is_process_running(pid):
+                    os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass # 이미 종료됨
             
         # 메모리 캐시 삭제
         if req.bot_id in running_processes:
