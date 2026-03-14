@@ -12,10 +12,9 @@ import Login from './components/Login';
 
 import './App.css';
 
-// 사이드바 메뉴 항목 정의 (순서 조정: 개발 -> 분석 -> 운영)
+// 사이드바 메뉴 항목 정의 (순서 조정: 개발 -> 운영)
 const MENU_ITEMS = [
   { path: '/', name: '전략 개발', icon: <Code size={18} /> },
-  { path: '/backtest', name: '백테스트', icon: <BarChart2 size={18} /> },
   { path: '/paper', name: '모의 투자', icon: <PlayCircle size={18} /> },
   { path: '/live', name: '실전 투자', icon: <Activity size={18} /> },
 ];

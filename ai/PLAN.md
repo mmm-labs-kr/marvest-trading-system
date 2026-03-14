@@ -47,12 +47,12 @@
 | 19 | 에디터-백테스트 연동 (쿼리 파라미터 자동 바인딩) | 중 | ✅ | `StrategyEditor.jsx`, `BacktestList.jsx` |
 
 ## Phase 6: 통합 IDE 환경 및 보안 강화
-| # | Task | 규모 | 상태 | 상세파일 |
+| # # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
-| 20 | UI 애니메이션 정리 및 통일 (출렁임 제거) | 소 | 🔄 | `App.jsx`, `BacktestList.jsx` 등 |
-| 21 | OTP 허용 오차 확대 및 JWT 기반 세션 유지 | 중 | ⬜ | `auth.py`, `Login.jsx` |
-| 22 | 전략 에디터 내 백테스트 히스토리 통합 (IDE화) | 대 | ⬜ | `StrategyEditor.jsx` |
-| 23 | AI 분석 결과 반영 후 에디터 자동 로드 흐름 개선 | 중 | ⬜ | `AIFeedbackSection.jsx`, `StrategyEditor.jsx` |
+| 20 | UI 애니메이션 정리 및 통일 (출렁임 제거) | 소 | ✅ | `App.jsx`, `BacktestList.jsx` 등 |
+| 21 | OTP 허용 오차 확대 및 JWT 기반 세션 유지 | 중 | ✅ | `auth.py`, `Login.jsx`, `App.jsx` |
+| 22 | 전략 에디터 내 백테스트 히스토리 통합 (IDE화) | 대 | ✅ | `StrategyEditor.jsx`, `App.jsx` |
+| 23 | AI 분석 결과 반영 후 에디터 자동 로드 흐름 개선 | 중 | 🔄 | `AIFeedbackSection.jsx`, `StrategyEditor.jsx` |
 
 ---
 

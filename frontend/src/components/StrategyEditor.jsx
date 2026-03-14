@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Editor from '@monaco-editor/react';
 import { 
     FileCode, Plus, Save, Trash2, Search, 
     ChevronRight, Loader2, AlertCircle, CheckCircle2,
-    FileText, Terminal, Download, Play, X
+    FileText, Terminal, Download, Play, X, BarChart2,
+    Clock, Award
 } from 'lucide-react';
 
 const API_BASE = "/api/configs";
@@ -21,6 +22,11 @@ function StrategyEditor() {
     
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newStrategyName, setNewStrategyName] = useState("");
+
+    // --- [Backtest History State] ---
+    const [history, setHistory] = useState([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [isRunning, setIsRunning] = useState(false);
 
     // --- [Data Fetching] ---
 
@@ -38,6 +44,19 @@ function StrategyEditor() {
             setLoading(false);
         }
     };
+
+    const fetchHistory = useCallback(async () => {
+        setHistoryLoading(true);
+        try {
+            const res = await axios.get('/api/backtest/results');
+            // 최근 10개만 표시
+            setHistory(res.data.slice(0, 10));
+        } catch (e) {
+            console.error("히스토리 로드 실패:", e);
+        } finally {
+            setHistoryLoading(false);
+        }
+    }, []);
 
     const loadStrategy = async (name) => {
         setLoading(true);
@@ -67,10 +86,26 @@ function StrategyEditor() {
         }
     };
 
-    const handleRunBacktest = () => {
+    const handleRunBacktest = async () => {
         if (!selectedName) return;
-        // 저장 여부 확인 후 이동
-        navigate(`/backtest?strategy=${selectedName}`);
+        if (isRunning) return;
+
+        if (!window.confirm(`'${selectedName}' 전략으로 백테스트를 실행하시겠습니까?`)) return;
+
+        setIsRunning(true);
+        try {
+            const response = await axios.post('/api/backtest/run', { strategy: selectedName });
+            if (response.data.status === "success") {
+                alert("백테스트 완료!");
+                fetchHistory();
+            } else {
+                alert("백테스트 실패: " + response.data.message);
+            }
+        } catch (err) {
+            alert("백테스트 요청 실패");
+        } finally {
+            setIsRunning(false);
+        }
     };
 
     const handleCreate = async () => {
@@ -125,9 +160,21 @@ class ${newStrategyName}(IStrategy):
         }
     };
 
+    const getGradeStyle = (grade) => {
+        const styles = {
+            'S': 'text-purple-400',
+            'A': 'text-stealth-accent',
+            'B': 'text-blue-400',
+            'C': 'text-amber-400',
+            'Fail': 'text-red-400',
+        };
+        return styles[grade] || 'text-slate-500';
+    };
+
     useEffect(() => {
         fetchStrategies();
-    }, []);
+        fetchHistory();
+    }, [fetchHistory]);
 
     const filteredStrategies = strategies.filter(s => 
         s.toLowerCase().includes(searchTerm.toLowerCase())
@@ -136,63 +183,113 @@ class ${newStrategyName}(IStrategy):
     return (
         <div className="flex h-[calc(100vh-73px)] overflow-hidden">
             
-            {/* [좌측] 전략 탐색기 */}
-            <div className="w-72 border-r border-stealth-border flex flex-col bg-stealth-card/30">
-                <div className="p-6 border-b border-stealth-border flex flex-col gap-4">
-                    <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Strategy Explorer</span>
-                        <button 
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="p-1.5 rounded bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-                            title="새 전략 생성"
-                        >
-                            <Plus size={16} />
-                        </button>
+            {/* [좌측 사이드바] 2단 구조 */}
+            <div className="w-80 border-r border-stealth-border flex flex-col bg-stealth-card/30">
+                
+                {/* 1단: 전략 탐색기 (Top) */}
+                <div className="flex-[3] flex flex-col min-h-0 border-b border-stealth-border">
+                    <div className="p-5 flex flex-col gap-4">
+                        <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Strategy Explorer</span>
+                            <button 
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="p-1.5 rounded bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                                title="새 전략 생성"
+                            >
+                                <Plus size={14} />
+                            </button>
+                        </div>
+                        <div className="relative">
+                            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
+                            <input 
+                                type="text"
+                                placeholder="전략 검색..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchFilter(e.target.value)}
+                                className="w-full bg-black/40 border border-stealth-border rounded py-1.5 pl-9 pr-3 text-[11px] text-white focus:outline-none focus:border-white/20 transition-all font-medium"
+                            />
+                        </div>
                     </div>
-                    <div className="relative">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
-                        <input 
-                            type="text"
-                            placeholder="전략 검색..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchFilter(e.target.value)}
-                            className="w-full bg-black/40 border border-stealth-border rounded py-2 pl-9 pr-3 text-xs text-white focus:outline-none focus:border-white/20 transition-all font-medium"
-                        />
+
+                    <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
+                        {filteredStrategies.map(name => (
+                            <div 
+                                key={name}
+                                onClick={() => loadStrategy(name)}
+                                className={`group flex items-center justify-between px-3 py-2 rounded-sm cursor-pointer transition-all ${
+                                    selectedName === name 
+                                        ? 'bg-white/10 text-white' 
+                                        : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2.5 overflow-hidden">
+                                    <FileCode size={13} className={selectedName === name ? 'text-stealth-accent' : 'text-slate-600'} />
+                                    <span className="text-[12px] font-bold truncate">
+                                        {name}
+                                    </span>
+                                </div>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(name); }}
+                                    className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-all"
+                                >
+                                    <Trash2 size={11} />
+                                </button>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-3 space-y-1">
-                    {filteredStrategies.map(name => (
-                        <div 
-                            key={name}
-                            onClick={() => loadStrategy(name)}
-                            className={`group flex items-center justify-between px-4 py-3 rounded cursor-pointer transition-all ${
-                                selectedName === name 
-                                    ? 'bg-white/5 border border-white/10 shadow-lg' 
-                                    : 'hover:bg-white/[0.02] border border-transparent'
-                            }`}
+                {/* 2단: 백테스트 히스토리 (Bottom) */}
+                <div className="flex-[2] flex flex-col min-h-0 bg-black/20">
+                    <div className="p-5 flex justify-between items-center bg-white/[0.02]">
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Clock size={12} /> Recent Reports
+                        </span>
+                        <button 
+                            onClick={fetchHistory}
+                            disabled={historyLoading}
+                            className="text-slate-600 hover:text-white transition-colors"
                         >
-                            <div className="flex items-center gap-3 overflow-hidden">
-                                <FileCode size={14} className={selectedName === name ? 'text-stealth-accent' : 'text-slate-600'} />
-                                <span className={`text-[13px] font-semibold truncate ${selectedName === name ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
-                                    {name}
-                                </span>
-                            </div>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); handleDelete(name); }}
-                                className="opacity-0 group-hover:opacity-100 p-1 text-slate-600 hover:text-red-500 transition-all"
-                            >
-                                <Trash2 size={12} />
-                            </button>
-                        </div>
-                    ))}
-                    {filteredStrategies.length === 0 && (
-                        <div className="text-center py-20 text-[10px] font-black text-slate-700 uppercase tracking-widest">검색 결과가 없습니다</div>
-                    )}
+                            <Loader2 size={12} className={historyLoading ? 'animate-spin' : ''} />
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+                        {history.map((item, idx) => {
+                            const grade = item.score?.grade || 'N/A';
+                            return (
+                                <div 
+                                    key={idx}
+                                    onClick={() => navigate(`/result/${item.filename}`)}
+                                    className="p-3 bg-white/[0.03] border border-white/5 rounded-sm hover:border-white/20 transition-all cursor-pointer group"
+                                >
+                                    <div className="flex justify-between items-start mb-1.5">
+                                        <span className="text-[11px] font-bold text-slate-300 group-hover:text-white truncate pr-2">
+                                            {item.strategy}
+                                        </span>
+                                        <span className={`text-[11px] font-black ${getGradeStyle(grade)}`}>
+                                            {grade}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[9px] font-mono text-slate-600 uppercase">
+                                            {item.filename.split('_').slice(1, 3).join(' ')}
+                                        </span>
+                                        <span className={`text-[10px] font-black ${item.total_profit_pct >= 0 ? 'text-stealth-accent' : 'text-red-500'}`}>
+                                            {item.total_profit_pct >= 0 ? '+' : ''}{item.total_profit_pct}%
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {history.length === 0 && !historyLoading && (
+                            <div className="text-center py-10 text-[9px] font-black text-slate-700 uppercase tracking-widest">No History</div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* [우측] 코드 에디터 */}
+            {/* [우측] 코드 에디터 영역 */}
             <div className="flex-1 flex flex-col min-w-0 bg-stealth-bg">
                 {selectedName ? (
                     <>
@@ -209,10 +306,15 @@ class ${newStrategyName}(IStrategy):
                             <div className="flex items-center gap-3">
                                 <button 
                                     onClick={handleRunBacktest}
-                                    className="cyber-button flex items-center gap-2 text-[11px] py-1.5 h-auto bg-white/5 border-white/10 text-white hover:bg-white hover:text-black hover:border-white transition-all"
+                                    disabled={isRunning}
+                                    className={`cyber-button flex items-center gap-2 text-[11px] py-1.5 h-auto transition-all ${
+                                        isRunning 
+                                            ? 'bg-white/5 border-white/5 text-slate-600 cursor-not-allowed' 
+                                            : 'bg-white/5 border-white/10 text-white hover:bg-white hover:text-black hover:border-white'
+                                    }`}
                                 >
-                                    <Play size={14} fill="currentColor" />
-                                    백테스트 실행 (Run)
+                                    {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} fill="currentColor" />}
+                                    {isRunning ? '시뮬레이션 중...' : '백테스트 실행 (Run)'}
                                 </button>
                                 <button 
                                     onClick={handleSave}
