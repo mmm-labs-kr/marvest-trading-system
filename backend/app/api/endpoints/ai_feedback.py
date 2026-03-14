@@ -55,16 +55,21 @@ def load_strategy_code(strategy_name: str) -> str:
     strategy_file = os.path.join(STRATEGIES_DIR, f"{strategy_name}.py")
     
     if not os.path.exists(strategy_file):
-        for f in os.listdir(STRATEGIES_DIR):
-            if f.lower() == f"{strategy_name.lower()}.py":
-                strategy_file = os.path.join(STRATEGIES_DIR, f)
-                break
+        # 대소문자 구분 없이 찾기 시도
+        if os.path.exists(STRATEGIES_DIR):
+            for f in os.listdir(STRATEGIES_DIR):
+                if f.lower() == f"{strategy_name.lower()}.py":
+                    strategy_file = os.path.join(STRATEGIES_DIR, f)
+                    break
     
     if not os.path.exists(strategy_file):
-        raise FileNotFoundError(f"Strategy file not found: {strategy_name}.py")
+        raise ConfigFileNotFoundException(file_path=f"{strategy_name}.py")
     
-    with open(strategy_file, 'r', encoding='utf-8') as f:
-        return f.read()
+    try:
+        with open(strategy_file, 'r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        raise InternalServerException(message=f"전략 파일 읽기 실패: {str(e)}")
 
 
 def build_analysis_prompt(strategy_code: str, backtest_stats: dict) -> str:
@@ -171,9 +176,7 @@ def parse_ai_response(response_text: str) -> dict:
         json_str = cleaned[start_idx:end_idx]
         return json.loads(json_str)
         
-    except json.JSONDecodeError as e:
-        print(f"[ERROR] JSON parsing failed: {e}")
-        print(f"[DEBUG] Response text: {response_text[:500]}")
+    except json.JSONDecodeError:
         return None
 
 def build_apply_prompt(original_code: str, selected_suggestions: List[dict], new_strategy_name: str) -> str:
@@ -398,8 +401,8 @@ def get_ai_status():
                      if f.endswith('.py') and not f.startswith('__')]
     
     return {
-        "available": api_key is not None,
-        "model": "gemini-2.5-flash" if api_key else None,
+        "available": GOOGLE_API_KEY is not None,
+        "model": "gemini-2.5-flash" if GOOGLE_API_KEY else None,
         "strategies_dir": STRATEGIES_DIR,
         "strategies_found": strategies
     }
@@ -409,16 +412,16 @@ def get_ai_status():
 async def analyze_strategy(req: AnalyzeRequest):
     """전략 분석 및 피드백 생성"""
     
-    if not api_key:
-        raise HTTPException(
+    if not GOOGLE_API_KEY:
+        raise MarvestException(
             status_code=503, 
-            detail="Gemini API key not configured. Add GEMINI_API_KEY to .env file."
+            code="CONFIG_ERROR",
+            message="Gemini API 키가 설정되지 않았습니다. .env 파일을 확인하세요."
         )
     
     try:
         # 1. 전략 코드 로드
         strategy_code = load_strategy_code(req.strategy_name)
-        print(f"[INFO] Loaded strategy: {req.strategy_name} ({len(strategy_code)} chars)")
         
         # 2. 프롬프트 생성
         prompt = build_analysis_prompt(strategy_code, req.backtest_stats)
@@ -427,15 +430,13 @@ async def analyze_strategy(req: AnalyzeRequest):
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         
-        print(f"[INFO] AI response received ({len(response.text)} chars)")
-        
         # 4. 응답 파싱
         parsed = parse_ai_response(response.text)
         
         if not parsed:
             return AnalyzeResponse(
                 success=False,
-                error="Failed to parse AI response. Please try again."
+                error="AI 응답을 파싱하는 데 실패했습니다. 다시 시도해 주세요."
             )
         
         return AnalyzeResponse(
@@ -445,34 +446,38 @@ async def analyze_strategy(req: AnalyzeRequest):
             suggestions=parsed.get("suggestions")
         )
         
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except MarvestException:
+        raise
     except Exception as e:
-        print(f"[ERROR] Analysis failed: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        raise InternalServerException(message=f"전략 분석 실패: {str(e)}")
 
 
 @router.get("/strategies")
 def list_strategies():
     """사용 가능한 전략 파일 목록"""
-    if not os.path.exists(STRATEGIES_DIR):
-        return {"strategies": []}
-    
-    strategies = []
-    for f in os.listdir(STRATEGIES_DIR):
-        if f.endswith('.py') and not f.startswith('__'):
-            strategies.append(f.replace('.py', ''))
-    
-    return {"strategies": strategies}
+    try:
+        if not os.path.exists(STRATEGIES_DIR):
+            return {"strategies": []}
+        
+        strategies = []
+        for f in os.listdir(STRATEGIES_DIR):
+            if f.endswith('.py') and not f.startswith('__'):
+                strategies.append(f.replace('.py', ''))
+        
+        return {"strategies": strategies}
+    except Exception as e:
+        raise InternalServerException(message=str(e))
 
 @router.post("/apply", response_model=ApplyResponse)
 async def apply_suggestions(req: ApplyRequest):
     """선택된 제안을 적용하여 새 전략 파일 생성"""
     
-    if not api_key:
-        raise HTTPException(status_code=503, detail="Gemini API key not configured")
+    if not GOOGLE_API_KEY:
+        raise MarvestException(
+            status_code=503, 
+            code="CONFIG_ERROR",
+            message="Gemini API 키가 설정되지 않았습니다."
+        )
     
     # 전략 이름 유효성 검사
     if not req.new_strategy_name.isidentifier():
@@ -492,7 +497,6 @@ async def apply_suggestions(req: ApplyRequest):
     try:
         # 1. 원본 전략 코드 로드
         original_code = load_strategy_code(req.original_strategy_name)
-        print(f"[INFO] Loaded original strategy: {req.original_strategy_name}")
         
         # 2. 프롬프트 생성
         prompt = build_apply_prompt(original_code, req.selected_suggestions, req.new_strategy_name)
@@ -503,23 +507,16 @@ async def apply_suggestions(req: ApplyRequest):
         
         # 4. 코드 추출
         new_code = extract_python_code(response.text)
-        print(f"[INFO] Generated new strategy code ({len(new_code)} chars)")
         
-        # ★ 4.5 한글/비-ASCII 문자 제거 (안전장치) ★
+        # 4.5 한글/비-ASCII 문자 제거 (안전장치)
         new_code = remove_non_ascii_from_comments(new_code)
-        print(f"[INFO] Cleaned non-ASCII characters from comments")
         
-        # 5. 코드 유효성 검사
+        # 5. 코드 유효성 검사 (실패해도 일단 저장)
         is_valid, errors = validate_strategy_code(new_code, req.new_strategy_name)
-        if not is_valid:
-            print(f"[WARN] Code validation failed: {errors}")
-            # 유효성 검사 실패해도 일단 저장 (사용자가 수동 수정 가능)
         
         # 6. 파일 저장
         with open(new_file_path, 'w', encoding='utf-8') as f:
             f.write(new_code)
-        
-        print(f"[INFO] Saved new strategy: {new_file_path}")
         
         return ApplyResponse(
             success=True,
@@ -527,12 +524,9 @@ async def apply_suggestions(req: ApplyRequest):
             file_path=new_file_path
         )
         
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except MarvestException:
+        raise
     except Exception as e:
-        print(f"[ERROR] Apply failed: {e}")
-        import traceback
-        traceback.print_exc()
         return ApplyResponse(
             success=False,
             error=f"전략 생성 실패: {str(e)}"
@@ -545,5 +539,7 @@ def get_strategy_code(strategy_name: str):
     try:
         code = load_strategy_code(strategy_name)
         return {"strategy_name": strategy_name, "code": code}
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except MarvestException:
+        raise
+    except Exception as e:
+        raise InternalServerException(message=str(e))
