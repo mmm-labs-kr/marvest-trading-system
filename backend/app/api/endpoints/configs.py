@@ -1,10 +1,11 @@
 import os
 import json
+import re
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.config import USER_DATA_DIR, STRATEGIES_DIR
-from app.core.exceptions import ConfigFileNotFoundException, InternalServerException
+from app.core.exceptions import ConfigFileNotFoundException, InternalServerException, MarvestException
 
 router = APIRouter()
 
@@ -20,6 +21,30 @@ class StrategyUpdateRequest(BaseModel):
 class StrategyResponse(BaseModel):
     name: str
     code: str
+
+# --- [Helper Functions] ---
+
+def validate_strategy_name(name: str):
+    """
+    전략 이름이 유효한지 검증합니다.
+    - 영문, 숫자, 언더바(_)만 허용
+    - 영문자로 시작해야 함
+    - 경로 탐색 방지를 위해 basename만 추출하여 비교
+    """
+    if not name:
+        raise MarvestException(status_code=400, code="INVALID_NAME", message="전략 이름이 비어있습니다.")
+    
+    # 경로 탐색 방지: 입력된 이름과 basename이 다르면 잘못된 입력
+    if os.path.basename(name) != name:
+        raise MarvestException(status_code=400, code="INVALID_NAME", message="전략 이름에 경로를 포함할 수 없습니다.")
+
+    # 정규표현식 검증: 영문자로 시작하고 영문/숫자/_ 만 포함
+    if not re.match(r"^[a-zA-Z][a-zA-Z0-9_]*$", name):
+        raise MarvestException(
+            status_code=400, 
+            code="INVALID_NAME", 
+            message="전략 이름은 영문자로 시작해야 하며, 영문, 숫자, 언더바(_)만 사용할 수 있습니다."
+        )
 
 # --- [JSON Configuration Endpoints] ---
 
@@ -37,13 +62,18 @@ def get_config_list():
             "path" : USER_DATA_DIR,
             "files" : json_files
         }
+    except MarvestException:
+        raise
     except Exception as e:
         raise InternalServerException(message=str(e))
 
 @router.get("/{filename}")
 def read_config_file(filename: str):
     """특정 JSON 설정 파일의 내용을 읽어 반환"""
-    file_path = os.path.join(USER_DATA_DIR, filename)
+    # 경로 탐색 방지
+    safe_filename = os.path.basename(filename)
+    file_path = os.path.join(USER_DATA_DIR, safe_filename)
+    
     if not os.path.exists(file_path):
         raise ConfigFileNotFoundException(file_path)
     try:
@@ -60,17 +90,20 @@ def list_strategies():
     """user_data/strategies 폴더 내의 .py 파일 목록 반환 (클래스명 기준)"""
     try:
         if not os.path.exists(STRATEGIES_DIR):
+            os.makedirs(STRATEGIES_DIR, exist_ok=True)
             return []
         
         files = [f for f in os.listdir(STRATEGIES_DIR) if f.endswith(".py") and f != "__init__.py"]
-        return [f.replace(".py", "") for f in files]
+        return sorted([f.replace(".py", "") for f in files])
     except Exception as e:
         raise InternalServerException(message=str(e))
 
 @router.get("/strategies/{name}", response_model=StrategyResponse)
 def get_strategy_code(name: str):
     """특정 전략 파일의 소스코드를 읽어 반환"""
+    validate_strategy_name(name)
     file_path = os.path.join(STRATEGIES_DIR, f"{name}.py")
+    
     if not os.path.exists(file_path):
         raise ConfigFileNotFoundException(file_path)
     
@@ -84,9 +117,11 @@ def get_strategy_code(name: str):
 @router.post("/strategies", response_model=StrategyResponse)
 def create_strategy(req: StrategyCreateRequest):
     """새로운 전략 파일을 생성"""
+    validate_strategy_name(req.name)
     file_path = os.path.join(STRATEGIES_DIR, f"{req.name}.py")
+    
     if os.path.exists(file_path):
-        raise InternalServerException(status_code=400, message=f"이미 동일한 이름의 전략이 존재합니다: {req.name}")
+        raise MarvestException(status_code=400, code="ALREADY_EXISTS", message=f"이미 동일한 이름의 전략이 존재합니다: {req.name}")
     
     try:
         with open(file_path, "w", encoding="utf-8") as f:
@@ -98,7 +133,9 @@ def create_strategy(req: StrategyCreateRequest):
 @router.put("/strategies/{name}", response_model=StrategyResponse)
 def update_strategy(name: str, req: StrategyUpdateRequest):
     """기존 전략 파일의 소스코드를 수정"""
+    validate_strategy_name(name)
     file_path = os.path.join(STRATEGIES_DIR, f"{name}.py")
+    
     if not os.path.exists(file_path):
         raise ConfigFileNotFoundException(file_path)
     
@@ -112,7 +149,9 @@ def update_strategy(name: str, req: StrategyUpdateRequest):
 @router.delete("/strategies/{name}")
 def delete_strategy(name: str):
     """특정 전략 파일을 삭제"""
+    validate_strategy_name(name)
     file_path = os.path.join(STRATEGIES_DIR, f"{name}.py")
+    
     if not os.path.exists(file_path):
         raise ConfigFileNotFoundException(file_path)
     

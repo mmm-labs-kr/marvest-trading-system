@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { TrendingUp, TrendingDown, FileText, Play, X, Loader2, List, Plus, ChevronDown } from 'lucide-react';
 
 function BacktestList() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -29,9 +30,18 @@ function BacktestList() {
   const fetchAvailableStrategies = async () => {
     try {
       const response = await axios.get('/api/configs/strategies/list');
-      setAvailableStrategies(response.data);
-      if (response.data.length > 0) {
-        setStrategyName(response.data[0]);
+      const strategies = response.data;
+      setAvailableStrategies(strategies);
+      
+      // 쿼리 파라미터 확인
+      const params = new URLSearchParams(location.search);
+      const queryStrategy = params.get('strategy');
+      
+      if (queryStrategy && strategies.includes(queryStrategy)) {
+        setStrategyName(queryStrategy);
+        setIsModalOpen(true);
+      } else if (strategies.length > 0) {
+        setStrategyName(strategies[0]);
       }
     } catch (err) {
       console.error("전략 목록 로드 실패:", err);
@@ -41,7 +51,7 @@ function BacktestList() {
   useEffect(() => {
     fetchResults();
     fetchAvailableStrategies();
-  }, []);
+  }, [location.search]); // location.search가 바뀌면 다시 로드 (에디터에서 다시 올 때 대비)
 
   const handleRunBacktest = async () => {
     if (!strategyName) {
@@ -68,6 +78,10 @@ function BacktestList() {
   const closeModal = () => {
     setIsModalOpen(false);
     setRunLog(null);
+    // 모달 닫을 때 쿼리 파라미터 제거 (선택 사항: 깔끔한 URL을 위해)
+    if (location.search) {
+      navigate('/backtest', { replace: true });
+    }
   };
 
   const getGradeStyle = (grade) => {
@@ -88,7 +102,7 @@ function BacktestList() {
   );
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
+    <div className="space-y-10">
       
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center border-b border-stealth-border pb-8">

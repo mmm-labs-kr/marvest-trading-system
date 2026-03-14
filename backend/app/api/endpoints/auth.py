@@ -1,6 +1,7 @@
 # backend/app/api/endpoints/auth.py
 
 import pyotp
+import secrets
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.core.config import OTP_SECRET_SB, OTP_SECRET_JS
@@ -24,8 +25,14 @@ def login(request: LoginRequest):
         raise AuthException("Invalid User ID")
 
     totp = pyotp.TOTP(secret_key)
-    if totp.verify(request.otp_code, valid_window=1):
-        # 성공 시 메시지 반환 (나중에 JWT 토큰으로 교체 권장)
-        return {"status": "success", "user": request.user_id}
+    # valid_window=3 으로 확장 (서버-클라이언트 시간 오차 허용 범위 증가)
+    if totp.verify(request.otp_code, valid_window=3):
+        # 성공 시 세션용 임시 토큰 생성
+        session_token = secrets.token_urlsafe(32)
+        return {
+            "status": "success", 
+            "user": request.user_id,
+            "token": session_token
+        }
     else:
         raise AuthException("Invalid OTP Code")

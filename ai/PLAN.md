@@ -1,9 +1,9 @@
 # Marvest 작업 계획서
 
 ## 현재 상태
-- 단계: Phase 4 진행 중 (UI/UX 테마 및 기능 고도화)
-- 마지막 완료 작업: Phase 3 완료 (문서화 및 리팩토링 마무리)
-- 다음 작업: Phase 4 - Task 13 (디자인 테마 시안 A: Cyber Blue 적용)
+- 단계: Phase 6 진행 중 (IDE 고도화 및 보안 강화)
+- 마지막 완료 작업: Phase 5 완료 (전략 관리 IDE 시스템 기초 구현)
+- 다음 작업: Phase 6 - Task 20 (UI 애니메이션 정리 및 통일)
 
 ---
 
@@ -39,12 +39,20 @@
 | 15 | 디자인 테마 시안 적용 (Option C: Vivid Neon) | 중 | ✅ | `index.css`, `App.jsx`, `BacktestList.jsx`, `BacktestDetail.jsx`, `AIFeedbackSection.jsx` |
 | 16 | UI 텍스트 한글화 및 시안 B 최종 확정 및 레이아웃 수정 | 소 | ✅ | 모든 컴포넌트, TASK-016.md |
 
-## Phase 5: 전략 관리 IDE 시스템 구현
+## Phase 5: 전략 관리 IDE 시스템 구현 및 고도화
 | # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
-| 17 | 전략 파일 CRUD 백엔드 API 구현 | 중 | 🔄 | `configs.py` 보강 |
-| 18 | 전략 목록 브라우저 및 코드 에디터 통합 | 대 | ⬜ | `StrategyEditor.jsx` |
-| 19 | 에디터-백테스트 연동 (파일명 자동 바인딩) | 중 | ⬜ | - |
+| 17 | 전략 파일 CRUD 백엔드 API 보강 (검증 로직 추가) | 중 | ✅ | `configs.py` |
+| 18 | 전략 에디터 UI 버그 수정 및 개선 (X 아이콘, 실행 버튼) | 소 | ✅ | `StrategyEditor.jsx` |
+| 19 | 에디터-백테스트 연동 (쿼리 파라미터 자동 바인딩) | 중 | ✅ | `StrategyEditor.jsx`, `BacktestList.jsx` |
+
+## Phase 6: 통합 IDE 환경 및 보안 강화
+| # | Task | 규모 | 상태 | 상세파일 |
+|---|------|------|------|----------|
+| 20 | UI 애니메이션 정리 및 통일 (출렁임 제거) | 소 | 🔄 | `App.jsx`, `BacktestList.jsx` 등 |
+| 21 | OTP 허용 오차 확대 및 JWT 기반 세션 유지 | 중 | ⬜ | `auth.py`, `Login.jsx` |
+| 22 | 전략 에디터 내 백테스트 히스토리 통합 (IDE화) | 대 | ⬜ | `StrategyEditor.jsx` |
+| 23 | AI 분석 결과 반영 후 에디터 자동 로드 흐름 개선 | 중 | ⬜ | `AIFeedbackSection.jsx`, `StrategyEditor.jsx` |
 
 ---
 
@@ -61,6 +69,8 @@
 - [x] 전역 예외 처리기 도입 및 에러 응답 형식 통일
 - [x] `bots.json`에 대한 Thread Lock 및 Atomic Write 적용
 - [x] 주요 로직 함수에 Python Type Hint 및 Docstring 보강
+- [x] 전략 파일명 보안 검증 (Path Traversal 방지 및 정규표현식 검증)
+- [x] 전략 에디터와 백테스트 페이지 간의 유기적 연동 (Run Backtest 버튼)
 
 ---
 

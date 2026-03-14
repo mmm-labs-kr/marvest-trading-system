@@ -12,12 +12,12 @@ import Login from './components/Login';
 
 import './App.css';
 
-// 사이드바 메뉴 항목 정의 (전략 에디터 추가)
+// 사이드바 메뉴 항목 정의 (순서 조정: 개발 -> 분석 -> 운영)
 const MENU_ITEMS = [
-  { path: '/', name: '백테스트 분석', icon: <BarChart2 size={18} /> },
-  { path: '/editor', name: '전략 개발 도구', icon: <Code size={18} /> },
-  { path: '/paper', name: '모의 투자 운영', icon: <PlayCircle size={18} /> },
-  { path: '/live', name: '실전 투자 운영', icon: <Activity size={18} /> },
+  { path: '/', name: '전략 개발', icon: <Code size={18} /> },
+  { path: '/backtest', name: '백테스트', icon: <BarChart2 size={18} /> },
+  { path: '/paper', name: '모의 투자', icon: <PlayCircle size={18} /> },
+  { path: '/live', name: '실전 투자', icon: <Activity size={18} /> },
 ];
 
 const PrivateRoute = ({ children }) => {
@@ -124,21 +124,23 @@ function AppContent() {
       <main className="flex-1 bg-stealth-bg overflow-hidden">
         <Routes>
           <Route path="/login" element={<Login />} />
+          {/* 기본 경로를 전략 에디터로 변경 */}
           <Route 
             path="/" 
+            element={
+              <PrivateRoute>
+                <StrategyEditor />
+              </PrivateRoute>
+            } 
+          />
+          {/* 백테스트 목록을 /backtest 로 변경 */}
+          <Route 
+            path="/backtest" 
             element={
               <PrivateRoute>
                 <div className="max-w-6xl mx-auto w-full py-10 px-6 overflow-auto h-full">
                   <BacktestList />
                 </div>
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/editor" 
-            element={
-              <PrivateRoute>
-                <StrategyEditor />
               </PrivateRoute>
             } 
           />

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Editor from '@monaco-editor/react';
 import { 
     FileCode, Plus, Save, Trash2, Search, 
     ChevronRight, Loader2, AlertCircle, CheckCircle2,
-    FileText, Terminal, Download, Play
+    FileText, Terminal, Download, Play, X
 } from 'lucide-react';
 
 const API_BASE = "/api/configs";
 
 function StrategyEditor() {
+    const navigate = useNavigate();
     const [strategies, setStrategies] = useState([]);
     const [selectedName, setSelectedName] = useState(null);
     const [code, setCode] = useState("");
@@ -63,6 +65,12 @@ function StrategyEditor() {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleRunBacktest = () => {
+        if (!selectedName) return;
+        // 저장 여부 확인 후 이동
+        navigate(`/backtest?strategy=${selectedName}`);
     };
 
     const handleCreate = async () => {
@@ -126,7 +134,7 @@ class ${newStrategyName}(IStrategy):
     );
 
     return (
-        <div className="flex h-[calc(100vh-73px)] overflow-hidden animate-in fade-in duration-500">
+        <div className="flex h-[calc(100vh-73px)] overflow-hidden">
             
             {/* [좌측] 전략 탐색기 */}
             <div className="w-72 border-r border-stealth-border flex flex-col bg-stealth-card/30">
@@ -199,6 +207,13 @@ class ${newStrategyName}(IStrategy):
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
+                                <button 
+                                    onClick={handleRunBacktest}
+                                    className="cyber-button flex items-center gap-2 text-[11px] py-1.5 h-auto bg-white/5 border-white/10 text-white hover:bg-white hover:text-black hover:border-white transition-all"
+                                >
+                                    <Play size={14} fill="currentColor" />
+                                    백테스트 실행 (Run)
+                                </button>
                                 <button 
                                     onClick={handleSave}
                                     disabled={saving}

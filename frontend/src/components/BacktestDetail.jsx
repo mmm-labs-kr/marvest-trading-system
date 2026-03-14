@@ -143,7 +143,7 @@ function BacktestDetail() {
     };
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700">
+        <div className="space-y-12">
             
             {showMC && mcData && (
                 <MonteCarloSection 

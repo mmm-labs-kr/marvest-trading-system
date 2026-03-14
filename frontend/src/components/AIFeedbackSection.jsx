@@ -199,7 +199,7 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
     };
 
     return (
-        <section className="mt-16 space-y-10 animate-in fade-in duration-700">
+        <section className="mt-16 space-y-10">
             <NewStrategyModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
