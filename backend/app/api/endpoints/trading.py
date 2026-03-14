@@ -12,7 +12,7 @@ import pandas as pd
 import time
 import ctypes
 import threading
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any, Tuple
 from app.core.config import USER_DATA_DIR, BOTS_FILE, DB_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR, LOGS_DIR, PAPER_CONFIGS_DIR, STRATEGIES_DIR
 from app.core.exceptions import BotNotFoundException, ConfigFileNotFoundException, InternalServerException, MarvestException
 from .monte_carlo import get_latest_mc_for_strategy
@@ -29,7 +29,15 @@ running_processes: Dict[str, subprocess.Popen] = {}
 # --- [Helper Functions] ---
 
 def is_process_running(pid: int) -> bool:
-    """PID를 사용하여 프로세스가 실제로 실행 중인지 확인 (OS 호환)"""
+    """
+    PID를 사용하여 프로세스가 실제로 실행 중인지 확인합니다. (OS 호환)
+
+    Args:
+        pid (int): 확인할 프로세스 ID
+
+    Returns:
+        bool: 프로세스가 살아있으면 True, 아니면 False
+    """
     if pid is None:
         return False
     
@@ -53,8 +61,13 @@ def is_process_running(pid: int) -> bool:
         else:
             return True
 
-def load_bots_data():
-    """bots.json 파일 로드"""
+def load_bots_data() -> Dict[str, Any]:
+    """
+    bots.json 파일에서 모든 봇 정보를 로드합니다.
+
+    Returns:
+        Dict[str, Any]: 봇 ID를 키로 하는 봇 정보 딕셔너리
+    """
     if not os.path.exists(BOTS_FILE):
         return {}
     with open(BOTS_FILE, "r", encoding="utf-8") as f:
@@ -63,8 +76,13 @@ def load_bots_data():
         except json.JSONDecodeError:
             return {}
 
-def save_bots_data(data):
-    """bots.json 파일 저장 (Atomic Write 적용)"""
+def save_bots_data(data: Dict[str, Any]) -> None:
+    """
+    봇 정보를 bots.json 파일에 저장합니다. (Atomic Write 적용)
+
+    Args:
+        data (Dict[str, Any]): 저장할 전체 봇 정보
+    """
     temp_file = f"{BOTS_FILE}.tmp"
     try:
         with open(temp_file, "w", encoding="utf-8") as f:
@@ -80,7 +98,18 @@ def save_bots_data(data):
             os.remove(temp_file)
         raise e
 
-def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
+def get_bot_paths(bot_id: str, strategy_name: str, mode: str) -> Tuple[str, str, str]:
+    """
+    봇 실행에 필요한 DB, 로그, 설정 파일 경로를 반환합니다.
+
+    Args:
+        bot_id (str): 봇 ID
+        strategy_name (str): 전략 클래스 명
+        mode (str): 실행 모드 ('paper' 또는 'live')
+
+    Returns:
+        Tuple[str, str, str]: (db_path, log_path, config_path)
+    """
     if not os.path.exists(DB_DIR):
         os.makedirs(DB_DIR)
 
@@ -104,7 +133,17 @@ def get_bot_paths(bot_id: str, strategy_name: str, mode: str):
     return db_path, log_path, config_path
 
 
-def get_equity_curve_from_db(db_path: str, starting_balance: float = 10000) -> list:
+def get_equity_curve_from_db(db_path: str, starting_balance: float = 10000) -> List[Dict[str, Any]]:
+    """
+    SQLite DB에서 매매 기록을 읽어 자산 곡선(Equity Curve) 데이터를 생성합니다.
+
+    Args:
+        db_path (str): SQLite DB 파일 경로
+        starting_balance (float): 시작 잔고. 기본값 10000.
+
+    Returns:
+        List[Dict[str, Any]]: 회차별 자산 및 수익률 정보 리스트
+    """
     if not os.path.exists(db_path):
         return []
     
@@ -137,7 +176,17 @@ def get_equity_curve_from_db(db_path: str, starting_balance: float = 10000) -> l
         return []
 
 
-def calculate_rolling_mdd(equity_curve: list, window: int = 30) -> float:
+def calculate_rolling_mdd(equity_curve: List[Dict[str, Any]], window: int = 30) -> float:
+    """
+    자산 곡선 데이터를 기반으로 최근 N회 거래의 최대 낙폭(MDD)을 계산합니다.
+
+    Args:
+        equity_curve (List[Dict[str, Any]]): 자산 곡선 데이터 리스트
+        window (int): 계산할 윈도우 크기 (최근 거래 횟수). 기본값 30.
+
+    Returns:
+        float: 계산된 MDD 퍼센트 (음수)
+    """
     if not equity_curve or len(equity_curve) < 2:
         return 0
     
@@ -150,7 +199,17 @@ def calculate_rolling_mdd(equity_curve: list, window: int = 30) -> float:
     return round(float(np.min(drawdown)) * 100, 2)
 
 
-def check_confidence_breach(equity_curve: list, mc_baseline: dict) -> dict:
+def check_confidence_breach(equity_curve: List[Dict[str, Any]], mc_baseline: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    현재 자산 곡선이 몬테카를로 신뢰 구간(95%)을 벗어났는지 확인합니다.
+
+    Args:
+        equity_curve (List[Dict[str, Any]]): 현재 봇의 자산 곡선 데이터
+        mc_baseline (Dict[str, Any]): 비교 대상이 될 MC 시뮬레이션 결과
+
+    Returns:
+        Optional[Dict[str, Any]]: 침범 정보 (침범하지 않았거나 데이터 부족 시 상세 정보 포함)
+    """
     if not equity_curve or not mc_baseline:
         return None
     

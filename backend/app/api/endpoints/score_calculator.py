@@ -1,4 +1,16 @@
-def calculate_score(stats: dict, mc_results: dict = None) -> dict:
+from typing import Dict, Any, Optional, List
+
+def calculate_score(stats: Dict[str, Any], mc_results: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    백테스트 결과 통계와 몬테카를로 시뮬레이션 결과를 기반으로 전략 점수를 산출합니다.
+
+    Args:
+        stats (Dict[str, Any]): Freqtrade 백테스트 결과의 개별 전략 통계 데이터
+        mc_results (Optional[Dict[str, Any]]): 해당 전략의 몬테카를로 분석 결과 (선택 사항)
+
+    Returns:
+        Dict[str, Any]: 총점, 등급, 통과 여부 및 단계별 상세 점수
+    """
     # ---------------------------------------
     # 1. 데이터 전처리 (단위 변환)
     # ---------------------------------------
@@ -16,7 +28,8 @@ def calculate_score(stats: dict, mc_results: dict = None) -> dict:
     # ---------------------------------------
     # 2. 선형 보간 계산 함수 (Linear Interpolation)
     # ---------------------------------------
-    def get_score(val, min_limit, max_target, weight_ratio, lower_is_better=False):
+    def get_score(val: float, min_limit: float, max_target: float, weight_ratio: float, lower_is_better: bool = False) -> float:
+        """지표별 보간 점수 계산"""
         # 단계별 배점 (100점 만점)에 가중치를 적용한 '만점 점수'
         full_mark = weight_ratio * 100 
         
@@ -85,7 +98,7 @@ def calculate_score(stats: dict, mc_results: dict = None) -> dict:
         fail_reasons.append(f"Monte Carlo Ruin Risk ({mc_results['ruin_probability']}%)")
 
     # 등급 결정 함수
-    def get_grade(score, qualified):
+    def get_grade(score: float, qualified: bool) -> str:
         if not qualified: return "Fail"
         if score >= 90: return "S"
         if score >= 80: return "A"

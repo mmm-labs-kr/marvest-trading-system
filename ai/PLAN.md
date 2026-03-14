@@ -2,8 +2,8 @@
 
 ## 현재 상태
 - 단계: Phase 3 진행 중 (문서화 및 최종 점검)
-- 마지막 완료 작업: Phase 2 완료 (코드 정리 및 로직 개선)
-- 다음 작업: Phase 3 - Task 11 (주요 함수 docstring 및 타입 힌트 보강)
+- 마지막 완료 작업: Phase 3 - Task 11 (주요 함수 docstring 및 타입 힌트 보강)
+- 다음 작업: Phase 3 - Task 12 (README 최종 업데이트)
 
 ---
 
@@ -31,7 +31,7 @@
 
 | # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
-| 11 | 주요 함수 docstring 및 타입 힌트 보강 | 소 | ⬜ | - |
+| 11 | 주요 함수 docstring 및 타입 힌트 보강 | 소 | ✅ | `monte_carlo.py`, `score_calculator.py`, `trading.py` |
 | 12 | README 최종 업데이트 (설치 및 실행 가이드) | 소 | ⬜ | - |
 
 ---
@@ -48,6 +48,7 @@
 - [x] `is_process_running` OS 호환성 개선 (Windows ctypes 사용)
 - [x] 전역 예외 처리기 도입 및 에러 응답 형식 통일
 - [x] `bots.json`에 대한 Thread Lock 및 Atomic Write 적용
+- [x] 주요 로직 함수에 Python Type Hint 및 Docstring 보강
 
 ### 미해결
 - [ ] 서버 재시작 시 실행 중인 프로세스 정보 유실 (PID 영속화로 일부 해결됨)
