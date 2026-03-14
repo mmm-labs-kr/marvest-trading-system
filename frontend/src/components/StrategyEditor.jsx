@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Editor from '@monaco-editor/react';
 import { 
@@ -13,6 +13,7 @@ const API_BASE = "/api/configs";
 
 function StrategyEditor() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [strategies, setStrategies] = useState([]);
     const [selectedName, setSelectedName] = useState(null);
     const [code, setCode] = useState("");
@@ -33,10 +34,19 @@ function StrategyEditor() {
     const fetchStrategies = async () => {
         try {
             const res = await axios.get(`${API_BASE}/strategies/list`);
-            setStrategies(res.data);
-            if (res.data.length > 0 && !selectedName) {
-                // 초기 로드 시 첫 번째 전략 선택
-                loadStrategy(res.data[0]);
+            const strategyList = res.data;
+            setStrategies(strategyList);
+            
+            // 쿼리 파라미터 확인 (AI 결과 반영 후 자동 로드용)
+            const params = new URLSearchParams(location.search);
+            const queryStrategy = params.get('strategy');
+            
+            if (queryStrategy && strategyList.includes(queryStrategy)) {
+                loadStrategy(queryStrategy);
+                // URL 파라미터 제거 (선택 사항: 깔끔한 URL 유지)
+                navigate('/', { replace: true });
+            } else if (strategyList.length > 0 && !selectedName) {
+                loadStrategy(strategyList[0]);
             }
         } catch (e) {
             console.error("전략 목록 로드 실패:", e);
@@ -49,7 +59,6 @@ function StrategyEditor() {
         setHistoryLoading(true);
         try {
             const res = await axios.get('/api/backtest/results');
-            // 최근 10개만 표시
             setHistory(res.data.slice(0, 10));
         } catch (e) {
             console.error("히스토리 로드 실패:", e);
@@ -71,6 +80,8 @@ function StrategyEditor() {
             setLoading(false);
         }
     };
+
+    // ... (rest of the component) ...
 
     const handleSave = async () => {
         if (!selectedName) return;

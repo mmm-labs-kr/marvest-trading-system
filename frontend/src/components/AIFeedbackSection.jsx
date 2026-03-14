@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
     Bot, Lightbulb, AlertTriangle, ChevronDown, ChevronUp, 
@@ -44,7 +45,7 @@ const NewStrategyModal = ({ isOpen, onClose, onConfirm, loading, originalName })
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
             <div className="glass-card w-full max-w-md p-10 border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">새로운 전략 배포</h3>
@@ -93,6 +94,7 @@ const NewStrategyModal = ({ isOpen, onClose, onConfirm, loading, originalName })
 };
 
 const AIFeedbackSection = ({ strategyName, backtestStats }) => {
+    const navigate = useNavigate();
     const [feedback, setFeedback] = useState(null);
     const [loading, setLoading] = useState(false);
     const [applyLoading, setApplyLoading] = useState(false);
@@ -181,6 +183,11 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                     name: response.data.new_strategy_name,
                     path: response.data.file_path
                 });
+
+                // 성공 시 1.5초 후 에디터로 자동 이동 및 해당 파일 로드
+                setTimeout(() => {
+                    navigate(`/?strategy=${response.data.new_strategy_name}`);
+                }, 1500);
             } else {
                 alert(response.data.error || '전략 생성 실패');
             }
@@ -241,9 +248,9 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
 
             {/* Notifications */}
             {successMessage && (
-                <div className="p-6 bg-stealth-accent/5 border border-stealth-accent/20 rounded flex items-center gap-4 animate-in slide-in-from-left-4">
+                <div className="p-6 bg-stealth-accent/5 border border-stealth-accent/20 rounded flex items-center gap-4">
                     <CheckCircle2 size={20} className="text-stealth-accent" />
-                    <span className="text-[10px] text-stealth-accent font-black uppercase tracking-[0.2em]">전략 배포 완료: {successMessage.name}</span>
+                    <span className="text-[10px] text-stealth-accent font-black uppercase tracking-[0.2em]">전략 배포 완료: {successMessage.name} (에디터로 이동 중...)</span>
                 </div>
             )}
 
