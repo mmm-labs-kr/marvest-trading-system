@@ -35,8 +35,8 @@
 | # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
 | 13 | 디자인 테마 시안 적용 (Option A: Cyber Blue) | 중 | ✅ | `index.css`, `App.jsx`, `BacktestList.jsx`, `BacktestDetail.jsx`, `AIFeedbackSection.jsx` |
-| 14 | 디자인 테마 시안 적용 (Option B: Dark Stealth) | 중 | 🔄 | - |
-| 15 | 디자인 테마 시안 적용 (Option C: Vivid Neon) | 중 | ⬜ | - |
+| 14 | 디자인 테마 시안 적용 (Option B: Dark Stealth) | 중 | ✅ | `index.css`, `App.jsx`, `BacktestList.jsx`, `BacktestDetail.jsx`, `AIFeedbackSection.jsx` |
+| 15 | 디자인 테마 시안 적용 (Option C: Vivid Neon) | 중 | 🔄 | - |
 | 16 | UI 텍스트 한글화 (기술 지표 제외) | 소 | ⬜ | 모든 컴포넌트 |
 
 ## Phase 5: 전략 관리 IDE 시스템 구현
