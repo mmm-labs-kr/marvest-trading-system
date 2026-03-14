@@ -2,281 +2,134 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
     Activity, Play, Square, Plus, Trash2, 
-    Server, Cpu, FileText, X, Menu, AlertTriangle,
-    BarChart3, CheckCircle2, XCircle, Shield, TrendingDown
+    Server, Cpu, FileText, X, Menu, BarChart3, AlertTriangle,
+    CheckCircle2, XCircle, ShieldAlert
 } from 'lucide-react';
 import { 
     LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, 
-    Area, ComposedChart, ReferenceLine, BarChart, Bar, Cell
+    ReferenceLine 
 } from 'recharts';
 
 const API_BASE = "/api/trading";
 
 // ============================================
-// Analysis Section Component (실투용: Rolling MDD)
+// 분석 섹션 컴포넌트 (실전투자: Rolling MDD 추적)
 // ============================================
 const LiveAnalysisSection = ({ data, onClose }) => {
     if (!data) return null;
     
-    const { equity_curve, mc_baseline, analysis, mode } = data;
-    const mc_data = mc_baseline?.mc_data || mc_baseline;
-    
-    // MDD 분석 데이터
-    const mddBreach = analysis?.mdd_breach;
-    const rollingMDD = analysis?.rolling_mdd_30d || 0;
-    const thresholdMDD = mddBreach?.threshold || mc_data?.stats?.worst_mdd || -30;
-    
-    // Equity Curve 차트 데이터
-    const equityChartData = equity_curve?.map((e, idx) => ({
-        trade_num: e.trade_num,
-        equity: e.equity,
-        profit_pct: e.profit_pct
-    })) || [];
+    const { equity_curve, analysis } = data;
+    const { rolling_mdd_30d, mdd_breach, status } = analysis;
 
-    // MDD 게이지 계산 (0~100%)
-    const mddPercentage = Math.min(Math.abs(rollingMDD / thresholdMDD) * 100, 150);
-    const isBreached = mddBreach?.is_breach || false;
-
-    const statusColors = {
-        'NORMAL': 'bg-green-900/50 text-green-400 border-green-500',
-        'WARNING': 'bg-yellow-900/50 text-yellow-400 border-yellow-500',
-        'DANGER': 'bg-red-900/50 text-red-400 border-red-500 animate-pulse'
+    const statusStyles = {
+        'NORMAL': 'text-stealth-accent border-stealth-accent/30 bg-stealth-accent/5',
+        'DANGER': 'text-red-400 border-red-500/30 bg-red-500/5'
     };
 
     return (
-        <div className="border border-red-900/50 bg-black/80 p-4 mt-4 rounded-lg">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-red-500 font-bold text-sm flex items-center gap-2">
-                    <Shield size={16} /> RISK MONITOR
-                </h3>
-                <div className="flex items-center gap-2">
-                    <div className={`px-3 py-1 text-[10px] font-bold rounded border ${statusColors[analysis?.status || 'NORMAL']}`}>
-                        {analysis?.status || 'N/A'}
+        <div className="glass-card p-6 mt-6 animate-in slide-in-from-top-4 duration-300">
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/5 rounded text-white">
+                        <ShieldAlert size={16} />
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-white">
-                        <X size={16} />
+                    <div>
+                        <h3 className="text-sm font-black text-white uppercase tracking-wider">실전 리스크 모니터링</h3>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">최근 30일 Rolling MDD 및 한계점 추적</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className={`stealth-badge ${statusStyles[status || 'NORMAL']}`}>
+                        {status || 'N/A'}
+                    </div>
+                    <button onClick={onClose} className="text-slate-500 hover:text-white p-1 transition-colors">
+                        <X size={20} />
                     </button>
                 </div>
             </div>
 
-            {/* MDD 위험 경고 배너 */}
-            {isBreached && (
-                <div className="mb-4 p-3 bg-red-900/30 border border-red-500 rounded-lg flex items-center gap-3 animate-pulse">
-                    <AlertTriangle size={24} className="text-red-500" />
-                    <div>
-                        <div className="text-red-400 font-bold text-sm">⚠️ MDD THRESHOLD EXCEEDED</div>
-                        <div className="text-red-300 text-xs">
-                            Current Rolling MDD ({rollingMDD}%) exceeds backtest worst-case ({thresholdMDD}%)
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* 좌측: MDD 게이지 */}
-                <div className="bg-black border border-red-900/30 rounded-lg p-4">
-                    <h4 className="text-xs text-gray-500 uppercase mb-4 flex items-center gap-2">
-                        <TrendingDown size={14} className="text-red-500" />
-                        Rolling MDD (30 Trades)
-                    </h4>
-                    
-                    {/* 게이지 바 */}
-                    <div className="relative mb-4">
-                        <div className="w-full bg-gray-800 h-6 rounded-full overflow-hidden">
-                            <div 
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                    isBreached ? 'bg-red-500' : 
-                                    mddPercentage > 70 ? 'bg-yellow-500' : 'bg-green-500'
-                                }`}
-                                style={{ width: `${Math.min(mddPercentage, 100)}%` }}
-                            />
-                        </div>
-                        {/* 임계값 마커 */}
-                        <div 
-                            className="absolute top-0 h-6 w-0.5 bg-white"
-                            style={{ left: '100%', transform: 'translateX(-2px)' }}
+            {/* 메인 차트 (Equity Curve) */}
+            <div className="h-64 mb-8 bg-black/40 rounded border border-white/5 p-4 shadow-inner">
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={equity_curve}>
+                        <XAxis dataKey="trade_num" hide />
+                        <YAxis 
+                            stroke="#444" 
+                            fontSize={10} 
+                            domain={['auto', 'auto']}
+                            tickFormatter={(v) => `$${(v/1000).toFixed(1)}k`}
+                            axisLine={false}
+                            tickLine={false}
                         />
-                        <div className="absolute -top-5 right-0 text-[9px] text-gray-500">
-                            Threshold
-                        </div>
-                    </div>
+                        <Tooltip 
+                            contentStyle={{ 
+                                backgroundColor: '#121212', 
+                                border: '1px solid #2e2e2e',
+                                fontSize: '11px',
+                                color: '#fff'
+                            }}
+                            formatter={(value) => [`$${value?.toLocaleString()}`, "현재 자산"]}
+                        />
+                        <Line type="monotone" dataKey="equity" stroke="#10b981" strokeWidth={2} dot={false} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
 
-                    {/* 수치 표시 */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                            <div className="text-[9px] text-gray-500 uppercase mb-1">Current MDD</div>
-                            <div className={`text-2xl font-black font-mono ${
-                                isBreached ? 'text-red-500' : 'text-white'
-                            }`}>
-                                {rollingMDD}%
-                            </div>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-[9px] text-gray-500 uppercase mb-1">Threshold (BT Top 5%)</div>
-                            <div className="text-2xl font-black font-mono text-gray-400">
-                                {thresholdMDD}%
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 상태 메시지 */}
-                    <div className={`mt-4 p-2 rounded text-center text-xs ${
-                        isBreached 
-                            ? 'bg-red-900/30 text-red-400 border border-red-900' 
-                            : 'bg-green-900/30 text-green-400 border border-green-900'
-                    }`}>
-                        {isBreached 
-                            ? '🚨 Strategy is underperforming beyond expected range'
-                            : '✅ MDD within acceptable range'
-                        }
+            {/* 리스크 지표 카드 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-5 bg-white/[0.02] border border-stealth-border rounded">
+                    <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest block mb-2">현재 Rolling MDD</span>
+                    <div className={`text-2xl font-black font-mono ${mdd_breach?.is_breach ? 'text-red-500' : 'text-white'}`}>
+                        {rolling_mdd_30d}%
                     </div>
                 </div>
-
-                {/* 우측: Equity Curve */}
-                <div className="bg-black border border-red-900/30 rounded-lg p-4">
-                    <h4 className="text-xs text-gray-500 uppercase mb-4 flex items-center gap-2">
-                        <Activity size={14} className="text-red-500" />
-                        Equity Curve
-                    </h4>
-                    
-                    {equityChartData.length > 0 ? (
-                        <div className="h-48">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <ComposedChart data={equityChartData}>
-                                    <defs>
-                                        <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    
-                                    <XAxis 
-                                        dataKey="trade_num" 
-                                        stroke="#374151"
-                                        tick={{ fill: '#6B7280', fontSize: 9 }}
-                                    />
-                                    <YAxis 
-                                        stroke="#374151"
-                                        tick={{ fill: '#6B7280', fontSize: 9 }}
-                                        domain={['auto', 'auto']}
-                                        tickFormatter={(v) => `$${(v/1000).toFixed(1)}k`}
-                                    />
-                                    <Tooltip 
-                                        contentStyle={{ 
-                                            backgroundColor: '#000', 
-                                            border: '1px solid #ef4444',
-                                            fontSize: '10px',
-                                            borderRadius: '4px'
-                                        }}
-                                        formatter={(value, name) => [
-                                            name === 'equity' ? `$${value?.toLocaleString()}` : `${value}%`,
-                                            name === 'equity' ? 'Equity' : 'Profit'
-                                        ]}
-                                    />
-                                    
-                                    <Area
-                                        type="monotone"
-                                        dataKey="equity"
-                                        stroke="none"
-                                        fill="url(#equityGradient)"
-                                    />
-                                    
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey="equity" 
-                                        stroke="#ef4444" 
-                                        strokeWidth={2} 
-                                        dot={false}
-                                        name="equity"
-                                    />
-                                </ComposedChart>
-                            </ResponsiveContainer>
-                        </div>
-                    ) : (
-                        <div className="h-48 flex items-center justify-center text-gray-600 text-xs border border-dashed border-gray-800 rounded">
-                            <div className="text-center">
-                                <Activity size={24} className="mx-auto mb-2 opacity-50" />
-                                <p>No trades yet</p>
-                            </div>
-                        </div>
-                    )}
+                <div className="p-5 bg-white/[0.02] border border-stealth-border rounded">
+                    <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest block mb-2">허용 한계치 (MC Worst)</span>
+                    <div className="text-2xl font-black font-mono text-slate-400">
+                        {mdd_breach?.threshold?.toFixed(2)}%
+                    </div>
+                </div>
+                <div className={`p-5 rounded border flex flex-col justify-center items-center text-center ${
+                    mdd_breach?.is_breach ? 'border-red-500/50 bg-red-500/5 animate-pulse' : 'border-stealth-border bg-white/[0.02]'
+                }`}>
+                    <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest mb-1.5">시스템 무결성</span>
+                    <div className={`text-sm font-black flex items-center gap-2 ${
+                        mdd_breach?.is_breach ? 'text-red-500' : 'text-stealth-accent'
+                    }`}>
+                        {mdd_breach?.is_breach ? <><AlertTriangle size={14}/> 한계 돌파 (위험)</> : <><CheckCircle2 size={14}/> 정상 작동 중</>}
+                    </div>
                 </div>
             </div>
 
-            {/* 하단: MC 기준 정보 */}
-            {mc_data && (
-                <div className="mt-4 grid grid-cols-4 gap-2">
-                    <div className="bg-black border border-red-900/30 p-2 text-center rounded">
-                        <div className="text-[9px] text-gray-500 uppercase">BT Trades</div>
-                        <div className="text-sm font-bold text-white font-mono">
-                            {mc_baseline?.total_trades || '-'}
-                        </div>
-                    </div>
-                    <div className="bg-black border border-red-900/30 p-2 text-center rounded">
-                        <div className="text-[9px] text-gray-500 uppercase">BT Avg MDD</div>
-                        <div className="text-sm font-bold text-gray-400 font-mono">
-                            {mc_data?.stats?.avg_mdd || '-'}%
-                        </div>
-                    </div>
-                    <div className="bg-black border border-red-900/30 p-2 text-center rounded">
-                        <div className="text-[9px] text-gray-500 uppercase">BT Worst MDD</div>
-                        <div className="text-sm font-bold text-red-400 font-mono">
-                            {mc_data?.stats?.worst_mdd || '-'}%
-                        </div>
-                    </div>
-                    <div className="bg-black border border-red-900/30 p-2 text-center rounded">
-                        <div className="text-[9px] text-gray-500 uppercase">Ruin Prob</div>
-                        <div className="text-sm font-bold text-yellow-400 font-mono">
-                            {mc_data?.ruin_probability || 0}%
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* MC 연결 안됨 경고 */}
-            {!mc_baseline && (
-                <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-900/50 rounded-lg text-xs text-yellow-400">
-                    ⚠️ No backtest linked. MDD threshold comparison is unavailable.
-                    <br />
-                    <span className="text-yellow-600">Create a new bot with a linked backtest for full risk monitoring.</span>
+            {mdd_breach?.is_breach && (
+                <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-[11px] text-red-400 font-bold leading-relaxed">
+                    ⚠️ 최근 낙폭이 몬테카를로 시뮬레이션의 최악의 시나리오(Worst 5%)를 초과했습니다. 즉시 매매 로직을 점검하고 운용 중단을 검토하십시오.
                 </div>
             )}
         </div>
     );
 };
 
-
 // ============================================
-// Main Component
+// 메인 컴포넌트
 // ============================================
 function LiveTrading() {
-    // --- [State Definitions] ---
     const [bots, setBots] = useState([]);
     const [selectedBotId, setSelectedBotId] = useState(null);
     const [statusData, setStatusData] = useState(null);
     const [logs, setLogs] = useState([]);
-    
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newBotConfig, setNewBotConfig] = useState({ 
-        name: "", 
-        strategy: "", 
-        pair: "BTC/USDT",
-        backtest_file: ""
+        name: "", strategy: "", pair: "BTC/USDT", mode: "live", backtest_file: "" 
     });
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    
-    // ★ 분석 관련 State
     const [showAnalysis, setShowAnalysis] = useState(false);
     const [analysisData, setAnalysisData] = useState(null);
     const [backtestOptions, setBacktestOptions] = useState([]);
 
-    // --- [API Functions] ---
     const fetchBots = async () => {
         try { 
-            const res = await axios.get(`${API_BASE}/bots`); 
-            const liveBots = res.data.filter(bot => bot.mode === 'live');
-            setBots(liveBots); 
+            const res = await axios.get(`${API_BASE}/bots`);
+            setBots(res.data.filter(bot => bot.mode === 'live'));
         } catch (e) { console.error(e); }
     };
 
@@ -292,7 +145,7 @@ function LiveTrading() {
 
     const fetchBacktestOptions = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/backtest-options`);
+            const res = await axios.get(`/api/trading/backtest-options`);
             setBacktestOptions(res.data);
         } catch (e) { console.error(e); }
     };
@@ -306,23 +159,18 @@ function LiveTrading() {
     };
 
     const handleCreateBot = async () => {
-        if (!newBotConfig.name || !newBotConfig.strategy) return alert("빈칸을 확인해주세요.");
-        
-        // ★ 실전 투자 경고
-        if (!window.confirm("⚠️ [경고] 실전 투자 봇을 생성합니다.\n실제 자금이 사용됩니다. 계속하시겠습니까?")) return;
-        
+        if (!newBotConfig.name || !newBotConfig.strategy) return alert("필수 정보를 입력해주세요.");
         try {
-            await axios.post(`${API_BASE}/bots`, { ...newBotConfig, mode: "live" });
-            alert("✅ 실전 투자 봇이 생성되었습니다.");
+            await axios.post(`${API_BASE}/bots`, newBotConfig);
             setShowCreateModal(false);
-            setNewBotConfig({ name: "", strategy: "", pair: "BTC/USDT", backtest_file: "" });
+            setNewBotConfig({ name: "", strategy: "", pair: "BTC/USDT", mode: "live", backtest_file: "" });
             fetchBots();
         } catch (e) { alert("생성 실패: " + e.message); }
     };
 
     const handleDeleteBot = async (e, botId) => {
         e.stopPropagation();
-        if (!window.confirm("⚠️ 경고: 실전 봇을 삭제하시겠습니까?\n거래 기록도 함께 삭제됩니다.")) return;
+        if (!window.confirm("정말 이 봇을 삭제하시겠습니까? 실전 투자 데이터가 유실됩니다.")) return;
         try {
             await axios.delete(`${API_BASE}/bots/${botId}`);
             fetchBots();
@@ -335,8 +183,6 @@ function LiveTrading() {
     };
 
     const handleStart = async () => {
-        if (!window.confirm("⚠️ [경고] 정말로 실전 매매를 시작하시겠습니까?\n실제 자산이 사용되며 손실이 발생할 수 있습니다.")) return;
-        
         try { 
             await axios.post(`${API_BASE}/start`, { bot_id: selectedBotId }); 
             fetchBotDetails(); 
@@ -345,7 +191,6 @@ function LiveTrading() {
     };
 
     const handleStop = async () => {
-        if (!window.confirm("매매를 중단하시겠습니까?")) return;
         try { 
             await axios.post(`${API_BASE}/stop`, { bot_id: selectedBotId }); 
             fetchBotDetails(); 
@@ -353,7 +198,6 @@ function LiveTrading() {
         } catch (e) { alert("정지 실패: " + (e.response?.data?.detail || e.message)); }
     };
 
-    // --- [Effects] ---
     useEffect(() => { 
         fetchBots(); 
         fetchBacktestOptions();
@@ -362,7 +206,7 @@ function LiveTrading() {
     useEffect(() => {
         if (selectedBotId) {
             fetchBotDetails();
-            const interval = setInterval(fetchBotDetails, 1000);
+            const interval = setInterval(fetchBotDetails, 2000);
             return () => clearInterval(interval);
         }
     }, [selectedBotId]);
@@ -378,242 +222,183 @@ function LiveTrading() {
     const selectedBot = bots.find(b => b.id === selectedBotId);
     const isRunning = statusData?.status === "RUNNING";
 
-    // 테마 색상 (Red)
-    const themeColor = "text-red-500";
-    const borderColor = "border-red-900";
-    const hoverBg = "hover:bg-red-900/10";
-
     return (
-        <div className="flex flex-col md:flex-row h-screen w-screen bg-black text-gray-300 font-mono overflow-hidden selection:bg-red-500 selection:text-white" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+        <div className="flex h-[calc(100vh-73px)] animate-in fade-in duration-500">
             
-            <style>{`html, body, #root { margin: 0; padding: 0; height: 100%; overflow: hidden; }`}</style>
-
-            {/* ================================================= */}
-            {/* [좌측 사이드바]                                     */}
-            {/* ================================================= */}
-            <div className={`
-                flex flex-col border-b md:border-b-0 md:border-r ${borderColor}/50 bg-black z-20 transition-all duration-300
-                w-full md:w-[280px] shrink-0
-                ${isSidebarOpen ? 'h-[50vh] md:h-full' : 'h-14 md:h-full'} 
-            `}>
-                <div className={`h-14 flex items-center justify-between px-4 sm:px-6 border-b ${borderColor}/50 shrink-0 bg-black`}>
-                    <div className={`flex items-center gap-2 ${themeColor} font-bold tracking-wider`}>
-                        <Activity size={18} />
-                        <span className="text-sm md:text-base">LIVE_TRADING</span>
-                    </div>
-                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden text-red-700 p-2">
-                        {isSidebarOpen ? <X size={18}/> : <Menu size={18}/>}
-                    </button>
-                </div>
-
-                <div className={`p-3 border-b ${borderColor}/50 shrink-0 bg-black ${!isSidebarOpen && 'hidden md:block'}`}>
+            {/* [사이드바] 봇 레지스트리 */}
+            <div className="w-72 border-r border-stealth-border flex flex-col bg-stealth-card/30">
+                <div className="p-6 border-b border-stealth-border">
                     <button 
                         onClick={() => setShowCreateModal(true)}
-                        className={`w-full py-2 bg-red-900/10 hover:bg-red-600 hover:text-white ${themeColor} border border-red-600/50 transition-all flex justify-center items-center gap-2 text-xs font-bold uppercase tracking-wider`}
+                        className="cyber-button w-full flex items-center justify-center gap-2 text-[11px] py-2.5 bg-stealth-accent text-black border-stealth-accent hover:bg-white hover:border-white"
                     >
-                        <Plus size={14} /> New Live Bot
+                        <Plus size={14} strokeWidth={3} /> 실전 봇 신규 가동
                     </button>
                 </div>
 
-                <div className={`flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-red-900 min-h-0 ${!isSidebarOpen && 'hidden md:block'}`}>
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
                     {bots.map(bot => (
                         <div 
                             key={bot.id}
-                            onClick={() => { setSelectedBotId(bot.id); setIsSidebarOpen(false); setShowAnalysis(false); }}
-                            className={`group relative p-3 border cursor-pointer transition-all ${hoverBg}
-                                ${selectedBotId === bot.id 
-                                    ? 'border-red-500 bg-red-900/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]' 
-                                    : 'border-red-900/30 hover:border-red-500/50 text-gray-500'}`}
+                            onClick={() => { setSelectedBotId(bot.id); setShowAnalysis(false); }}
+                            className={`group p-4 rounded-lg border cursor-pointer transition-all ${
+                                selectedBotId === bot.id 
+                                    ? 'border-stealth-accent bg-stealth-accent/5 shadow-lg' 
+                                    : 'border-white/5 hover:border-white/20'
+                            }`}
                         >
-                            <div className="flex justify-between items-start mb-1">
-                                <div className={`font-bold text-sm truncate pr-2 ${selectedBotId === bot.id ? 'text-red-400' : 'group-hover:text-red-300'}`}>
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={`text-sm font-bold truncate pr-2 ${selectedBotId === bot.id ? 'text-white' : 'text-slate-400'}`}>
                                     {bot.name}
-                                </div>
-                                <div className={`w-2 h-2 rounded-full shrink-0 ${bot.status === 'RUNNING' ? 'bg-red-500 animate-pulse' : 'bg-gray-700'}`} />
+                                </span>
+                                <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${bot.status === 'RUNNING' ? 'bg-stealth-accent animate-pulse shadow-[0_0_8px_var(--color-stealth-accent)]' : 'bg-slate-700'}`} />
                             </div>
-                            <div className="text-[10px] font-mono opacity-70 flex justify-between items-center">
-                                <span className="truncate max-w-[80px]">{bot.pair}</span>
-                                {bot.backtest_file && (
-                                    <span className="text-red-600 text-[8px]">MC</span>
-                                )}
-                                <Trash2 size={12} className="hover:text-white transition-colors z-10" onClick={(e) => handleDeleteBot(e, bot.id)}/>
+                            <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 uppercase tracking-tighter">
+                                <span>{bot.pair}</span>
+                                <Trash2 size={12} className="hover:text-red-500 transition-colors" onClick={(e) => handleDeleteBot(e, bot.id)}/>
                             </div>
                         </div>
                     ))}
                     {bots.length === 0 && (
-                        <div className="text-center py-10 text-xs text-gray-700">NO LIVE BOTS</div>
+                        <div className="text-center py-20 text-[10px] font-black text-slate-700 uppercase tracking-widest font-mono">NO_LIVE_NODES_ACTIVE</div>
                     )}
                 </div>
             </div>
 
-            {/* ================================================= */}
-            {/* [우측 대시보드]                                     */}
-            {/* ================================================= */}
-            <div className="flex-1 flex flex-col bg-black min-w-0 h-full overflow-hidden relative">
-                
+            {/* [메인] 대시보드 */}
+            <div className="flex-1 flex flex-col min-w-0 bg-stealth-bg overflow-auto">
                 {!selectedBotId ? (
-                    <div className={`flex-1 flex flex-col items-center justify-center text-red-900/30 gap-4 p-4 text-center`}>
-                        <Server size={48} strokeWidth={1} />
-                        <span className="text-base tracking-widest uppercase">Select a bot to trade real money</span>
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-700 gap-6">
+                        <Server size={48} strokeWidth={1} className="opacity-20" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em]">가동 중인 실전 노드를 선택하세요</span>
                     </div>
                 ) : (
-                    <>
-                        {/* 상단 정보바 */}
-                        <div className={`min-h-14 border-b ${borderColor}/50 flex flex-row items-center justify-between px-4 py-2 bg-black/50 backdrop-blur-sm z-10 gap-2 shrink-0`}>
-                            <div className="overflow-hidden flex-1">
-                                <div className="text-[9px] text-red-700 font-bold uppercase tracking-wider mb-0.5">Real-Time Market</div>
-                                <h2 className={`text-base sm:text-lg font-bold ${themeColor} flex items-center gap-2 truncate`}>
-                                    {selectedBot?.name} 
-                                    <span className="text-[10px] font-normal text-gray-500 bg-red-900/10 px-1.5 border border-red-900/30 rounded hidden sm:inline-block">
-                                        {selectedBot?.pair}
-                                    </span>
+                    <div className="p-8 space-y-8 max-w-6xl w-full mx-auto">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-stealth-border pb-8">
+                            <div>
+                                <div className="flex items-center gap-2 text-[9px] font-black text-red-500/70 uppercase tracking-[0.3em] mb-2">
+                                    <ShieldAlert size={12} /> Live_Production_Node: {selectedBotId}
+                                </div>
+                                <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
+                                    {selectedBot?.name}
                                 </h2>
                             </div>
                             
-                            <div className="flex items-center gap-2 shrink-0">
-                                {/* ★ 분석 토글 버튼 */}
+                            <div className="flex items-center gap-3">
                                 <button 
                                     onClick={() => setShowAnalysis(!showAnalysis)}
-                                    className={`px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase flex items-center gap-1 border transition-all ${
+                                    className={`px-4 py-2 text-[10px] font-black uppercase flex items-center gap-2 border rounded transition-all ${
                                         showAnalysis 
-                                            ? 'bg-red-500 text-black border-red-500' 
-                                            : 'bg-red-900/20 text-red-500 border-red-900 hover:border-red-500'
+                                            ? 'bg-white text-black border-white' 
+                                            : 'border-stealth-border text-slate-500 hover:text-white hover:border-white/30'
                                     }`}
                                 >
-                                    <BarChart3 size={12} /> Risk
+                                    <BarChart3 size={14} /> 리스크 분석
                                 </button>
 
                                 {isRunning ? (
-                                    <button onClick={handleStop} className="bg-gray-800 text-gray-400 border border-gray-600 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase flex items-center gap-1 hover:bg-gray-700">
-                                        <Square size={10} fill="currentColor" /> Stop
+                                    <button onClick={handleStop} className="bg-red-500/10 text-red-500 border border-red-500/30 px-5 py-2 text-[10px] font-black uppercase flex items-center gap-2 hover:bg-red-500 hover:text-white transition-all">
+                                        <Square size={12} fill="currentColor" /> 노드 중단
                                     </button>
                                 ) : (
-                                    <button onClick={handleStart} className="bg-red-600 text-black border border-red-500 px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase flex items-center gap-1 hover:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
-                                        <Play size={10} fill="currentColor" /> Start Live
+                                    <button onClick={handleStart} className="cyber-button px-5 py-2 text-[10px] flex items-center gap-2">
+                                        <Play size={12} fill="currentColor" /> 노드 가동
                                     </button>
                                 )}
                             </div>
                         </div>
 
-                        {/* 스탯 카드 */}
-                        <div className="p-3 sm:p-6 pb-0 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 shrink-0">
-                            <StatCard 
-                                title="Total Return" 
-                                value={`${statusData?.total_roi || 0}%`} 
-                                color={(statusData?.total_roi || 0) >= 0 ? "text-green-400" : "text-red-500"} 
-                                borderColor={borderColor}
-                            />
-                            <StatCard 
-                                title="Win / Loss" 
-                                value={`${statusData?.win_count || 0} / ${statusData?.loss_count || 0}`} 
-                                color="text-white" 
-                                borderColor={borderColor}
-                            />
-                            <StatCard 
-                                title="Trades" 
-                                value={statusData?.total_trade_count || 0} 
-                                color="text-red-400" 
-                                borderColor={borderColor}
-                            />
-                            <StatCard 
-                                title="Active" 
-                                value={statusData?.active_trade_count || 0} 
-                                color="text-yellow-500" 
-                                borderColor={borderColor}
-                            />
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <StatCard title="실전 수익률" value={`${statusData?.total_roi || 0}%`} color={(statusData?.total_roi || 0) >= 0 ? "text-stealth-accent" : "text-red-500"} />
+                            <StatCard title="승리 횟수" value={`${statusData?.win_count || 0}회`} color="text-white" />
+                            <StatCard title="패배 횟수" value={`${statusData?.loss_count || 0}회`} color="text-slate-500" />
+                            <StatCard title="미청산 포지션" value={`${statusData?.active_trade_count || 0}개`} color="text-amber-400" />
                         </div>
 
-                        {/* ★ Risk 분석 섹션 (토글) */}
                         {showAnalysis && (
-                            <div className="px-3 sm:px-6">
-                                <LiveAnalysisSection 
-                                    data={analysisData} 
-                                    onClose={() => setShowAnalysis(false)}
-                                />
-                            </div>
+                            <LiveAnalysisSection 
+                                data={analysisData} 
+                                onClose={() => setShowAnalysis(false)}
+                            />
                         )}
 
-                        {/* 로그 테이블 */}
-                        <div className="flex-1 p-3 sm:p-6 overflow-hidden flex flex-col min-h-0">
-                            <div className={`flex items-center justify-between mb-2 border-b ${borderColor}/50 pb-2 shrink-0`}>
-                                <h3 className={`text-red-600 font-bold text-xs uppercase tracking-widest flex items-center gap-2`}>
-                                    <FileText size={14}/> Live Logs
-                                </h3>
+                        <div className="glass-card flex flex-col h-[400px]">
+                            <div className="p-5 border-b border-stealth-border bg-white/[0.01] flex items-center gap-3">
+                                <FileText size={16} className="text-slate-500" />
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">실시간 체결 로그</h3>
                             </div>
-                            
-                            <div className={`flex-1 overflow-auto border ${borderColor}/30 bg-black scrollbar-thin scrollbar-thumb-red-900`}>
-                                <table className="w-full text-left text-xs min-w-[350px]">
-                                    <thead className="bg-red-900/10 text-red-500 sticky top-0 font-bold uppercase text-[10px]">
+                            <div className="flex-1 overflow-auto bg-black/20">
+                                <table className="w-full text-left">
+                                    <thead className="text-[9px] font-black text-slate-600 uppercase tracking-widest border-b border-white/5 sticky top-0 bg-[#1a1a1a]">
                                         <tr>
-                                            <th className="p-2">Time</th>
-                                            <th className="p-2">Type</th>
-                                            <th className="p-2 text-right">Profit %</th>
-                                            <th className="p-2 text-right">Profit $</th>
+                                            <th className="p-4">시간</th>
+                                            <th className="p-4">유형</th>
+                                            <th className="p-4 text-right">수익률(%)</th>
+                                            <th className="p-4 text-right">실현손익($)</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-red-900/20">
+                                    <tbody className="divide-y divide-white/5">
                                         {logs.map((log) => (
-                                            <tr key={log.id} className="hover:bg-red-900/5 transition-colors font-mono">
-                                                <td className="p-2 text-gray-500">{log.timestamp?.substring(5, 16)}</td>
-                                                <td className="p-2">
-                                                    <span className={`px-1 py-0.5 text-[9px] border ${log.is_win ? 'border-green-600 text-green-400' : 'border-red-600 text-red-500'}`}>
+                                            <tr key={log.id} className="hover:bg-white/[0.02] transition-colors font-mono text-[11px]">
+                                                <td className="p-4 text-slate-500">{log.timestamp?.substring(5, 16)}</td>
+                                                <td className="p-4">
+                                                    <span className={`px-2 py-0.5 rounded-[4px] text-[9px] font-black border ${log.is_win ? 'border-stealth-accent/30 text-stealth-accent' : 'border-red-500/30 text-red-500'}`}>
                                                         {log.is_win ? "WIN" : "LOSS"}
                                                     </span>
                                                 </td>
-                                                <td className={`p-2 font-bold text-right ${log.profit_percent >= 0 ? 'text-green-400' : 'text-red-500'}`}>
+                                                <td className={`p-4 font-bold text-right ${log.profit_percent >= 0 ? 'text-stealth-accent' : 'text-red-500'}`}>
                                                     {log.profit_percent}%
                                                 </td>
-                                                <td className={`p-2 text-right ${log.profit_abs >= 0 ? 'text-green-400' : 'text-red-500'}`}>
+                                                <td className={`p-4 text-right font-medium ${log.profit_abs >= 0 ? 'text-slate-300' : 'text-slate-500'}`}>
                                                     {log.profit_abs}
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                                {logs.length === 0 && <div className="p-10 text-center text-gray-700 text-xs">NO LIVE TRADES</div>}
+                                {logs.length === 0 && (
+                                    <div className="p-20 text-center text-slate-700 text-[10px] font-black uppercase tracking-widest">체결된 매매 기록이 없습니다</div>
+                                )}
                             </div>
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
 
-            {/* ================================================= */}
-            {/* [모달] 봇 생성                                      */}
-            {/* ================================================= */}
+            {/* [모달] 실전 봇 생성 */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-black border border-red-500 w-full max-w-sm shadow-[0_0_30px_rgba(239,68,68,0.2)] p-6 relative">
-                        <button onClick={() => setShowCreateModal(false)} className="absolute top-4 right-4 text-red-700 hover:text-red-400">
-                            <X size={20}/>
-                        </button>
-                        
-                        <h2 className="text-lg font-bold text-red-500 mb-4 flex items-center gap-2">
-                            <AlertTriangle size={20}/> DEPLOY LIVE BOT
-                        </h2>
-                        
-                        <div className="bg-red-900/20 border border-red-900/50 p-3 mb-4 text-[10px] text-red-300">
-                            ⚠️ CAUTION: This bot will use REAL FUNDS.<br/>
-                            Ensure your strategy is thoroughly tested.
+                <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="glass-card w-full max-w-md p-10 border-red-500/20 shadow-2xl">
+                        <div className="flex justify-between items-center mb-10">
+                            <h2 className="text-sm font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                                <ShieldAlert size={18} className="text-red-500" /> 실전 투자 유닛 배치
+                            </h2>
+                            <button onClick={() => setShowCreateModal(false)} className="text-slate-600 hover:text-white transition-colors">
+                                <X size={24}/>
+                            </button>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-6">
+                            <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-lg mb-6">
+                                <p className="text-[10px] text-red-400 font-bold leading-relaxed uppercase tracking-tight">
+                                    주의: 실제 자산이 거래소 API를 통해 운영됩니다. 전략 검증이 완료되었는지 반드시 재확인하십시오.
+                                </p>
+                            </div>
+
                             <div>
-                                <label className="block text-[10px] text-red-700 font-bold mb-1 uppercase">Bot Name</label>
+                                <label className="block text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] mb-2.5">봇 프로필 이름</label>
                                 <input 
-                                    className={`w-full bg-black border ${borderColor} text-red-400 px-3 py-2 text-sm focus:border-red-500 outline-none`}
-                                    placeholder="e.g. BTC Live Trader"
+                                    className="cyber-input w-full"
+                                    placeholder="예: 실전_바이낸스_01"
                                     value={newBotConfig.name}
                                     onChange={(e) => setNewBotConfig({...newBotConfig, name: e.target.value})}
                                 />
                             </div>
 
-                            {/* 백테스트 선택 */}
                             <div>
-                                <label className="block text-[10px] text-red-700 font-bold mb-1 uppercase">
-                                    Link Backtest Result (Required for Risk Monitoring)
-                                </label>
+                                <label className="block text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] mb-2.5">검증 데이터 연결 (MC)</label>
                                 <select
-                                    className={`w-full bg-black border ${borderColor} text-red-400 px-3 py-2 text-sm focus:border-red-500 outline-none`}
+                                    className="cyber-input w-full appearance-none cursor-pointer border-red-500/30 focus:border-red-500"
                                     value={newBotConfig.backtest_file}
                                     onChange={(e) => {
                                         const selected = backtestOptions.find(o => o.filename === e.target.value);
@@ -624,33 +409,30 @@ function LiveTrading() {
                                         });
                                     }}
                                 >
-                                    <option value="">-- Select Backtest --</option>
+                                    <option value="">데이터 선택 안 함</option>
                                     {backtestOptions.map(opt => (
                                         <option key={opt.filename} value={opt.filename}>
                                             {opt.strategy} ({opt.date}) {opt.has_mc ? '✓MC' : ''}
                                         </option>
                                     ))}
                                 </select>
-                                <p className="text-[9px] text-gray-600 mt-1">
-                                    Required for MDD threshold monitoring
-                                </p>
                             </div>
 
                             <div>
-                                <label className="block text-[10px] text-red-700 font-bold mb-1 uppercase">Strategy</label>
+                                <label className="block text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] mb-2.5">전략 클래스</label>
                                 <input 
-                                    className={`w-full bg-black border ${borderColor} text-red-400 px-3 py-2 text-sm focus:border-red-500 outline-none`}
-                                    placeholder="e.g. MyStrategy"
+                                    className="cyber-input w-full font-mono"
+                                    placeholder="예: ProStrategy_v1"
                                     value={newBotConfig.strategy}
                                     onChange={(e) => setNewBotConfig({...newBotConfig, strategy: e.target.value})}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] text-red-700 font-bold mb-1 uppercase">Pair</label>
+                                <label className="block text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] mb-2.5">타겟 페어</label>
                                 <input 
-                                    className={`w-full bg-black border ${borderColor} text-red-400 px-3 py-2 text-sm focus:border-red-500 outline-none`}
-                                    placeholder="e.g. BTC/USDT"
+                                    className="cyber-input w-full font-mono"
+                                    placeholder="예: ETH/USDT"
                                     value={newBotConfig.pair}
                                     onChange={(e) => setNewBotConfig({...newBotConfig, pair: e.target.value})}
                                 />
@@ -659,9 +441,9 @@ function LiveTrading() {
 
                         <button 
                             onClick={handleCreateBot}
-                            className="mt-6 w-full bg-red-600 hover:bg-red-500 text-black font-bold py-3 text-xs uppercase tracking-wider transition-all shadow-lg shadow-red-900/20"
+                            className="mt-10 w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded text-xs tracking-[0.2em] transition-all shadow-lg"
                         >
-                            ⚠️ Confirm Live Deployment
+                            실전 환경 배치
                         </button>
                     </div>
                 </div>
@@ -670,10 +452,10 @@ function LiveTrading() {
     );
 }
 
-const StatCard = ({ title, value, color, borderColor }) => (
-    <div className={`bg-black border ${borderColor}/30 p-2 sm:p-3 shadow-[0_0_10px_rgba(0,0,0,0.5)]`}>
-        <div className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">{title}</div>
-        <div className={`text-base sm:text-xl font-bold ${color} font-mono truncate`}>{value}</div>
+const StatCard = ({ title, value, color }) => (
+    <div className="bg-white/[0.02] border border-stealth-border p-5 rounded">
+        <div className="text-[9px] text-slate-600 font-black uppercase tracking-widest mb-2">{title}</div>
+        <div className={`text-2xl font-black ${color} font-mono truncate`}>{value}</div>
     </div>
 );
 

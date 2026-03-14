@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
     ArrowLeft, FileText, Shield, BarChart3, 
-    CheckCircle2, XCircle, Award, Zap, Calendar, ArrowRight
+    CheckCircle2, XCircle, Award, Zap, Calendar, ArrowRight, Loader2
 } from 'lucide-react';
 import MonteCarloSection from './MonteCarloSection';
 import AIFeedbackSection from './AIFeedbackSection';
@@ -41,7 +41,7 @@ const ScoreProgressBar = ({ name, value, score, full_mark, target }) => {
                 />
             </div>
             <div className="text-[9px] text-slate-600 mt-2 font-bold uppercase tracking-tight">
-                Benchmark: {target}
+                기준: {target}
             </div>
         </div>
     );
@@ -80,7 +80,7 @@ const FilterCard = ({ name, value, pass, target, onClick, clickable }) => (
         
         {clickable && (
             <div className="mt-4 flex items-center gap-1.5 text-white">
-                <span className="text-[9px] font-black uppercase tracking-widest">Detail Report</span>
+                <span className="text-[9px] font-black uppercase tracking-widest">상세 보고서 보기</span>
                 <ArrowRight size={10} strokeWidth={3} />
             </div>
         )}
@@ -104,6 +104,7 @@ function BacktestDetail() {
                 const response = await axios.get(`/api/backtest/results/${filename}`);
                 setData(response.data);
             } catch (err) {
+                console.error("Detail Fetch Error:", err);
                 setError("데이터 로드 실패");
             } finally {
                 setLoading(false);
@@ -112,10 +113,18 @@ function BacktestDetail() {
         fetchDetail();
     }, [filename]);
 
-    if (loading || !data) {
+    if (loading) {
         return (
             <div className="flex h-[80vh] items-center justify-center text-white font-black tracking-[0.3em] uppercase text-xs">
-                <Loader2 className="animate-spin mr-3 text-slate-600" /> System Analysis...
+                <Loader2 className="animate-spin mr-3 text-slate-600" /> 분석 데이터 분석 중...
+            </div>
+        );
+    }
+
+    if (error || !data) {
+        return (
+            <div className="flex h-[80vh] items-center justify-center text-red-500 font-black tracking-[0.3em] uppercase text-xs">
+                {error || "데이터가 존재하지 않습니다."}
             </div>
         );
     }
@@ -129,7 +138,7 @@ function BacktestDetail() {
         'S': 'text-purple-400 border-purple-500/30',
         'A': 'text-stealth-accent border-stealth-accent/30',
         'B': 'text-blue-400 border-blue-500/30',
-        'C': 'text-amber-400 border-amber-500/30',
+        'C': 'text-amber-400 border-amber-400/30',
         'Fail': 'text-red-400 border-red-500/30',
     };
 
@@ -149,7 +158,7 @@ function BacktestDetail() {
                     onClick={() => navigate('/')} 
                     className="flex items-center text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
                 >
-                    <ArrowLeft size={12} className="mr-2" strokeWidth={3} /> Return to Registry
+                    <ArrowLeft size={12} className="mr-2" strokeWidth={3} /> 히스토리 목록으로
                 </button>
                 
                 <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-stealth-border pb-10">
@@ -181,14 +190,14 @@ function BacktestDetail() {
                         <div className="flex items-center gap-4">
                             <Award size={24} className="text-white" />
                             <div>
-                                <h2 className="text-lg font-black text-white uppercase tracking-[0.1em]">Performance Index</h2>
-                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] mt-1">Algorithmic Grade Assessment</p>
+                                <h2 className="text-lg font-black text-white uppercase tracking-[0.1em]">종합 성과 지표</h2>
+                                <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] mt-1">알고리즘 기반 정밀 성능 평가</p>
                             </div>
                         </div>
                         
                         <div className={`flex items-center gap-8 px-10 py-4 border rounded-md ${gradeStyles[scoreData.grade]}`}>
                             <div className="text-right border-r border-current/20 pr-8">
-                                <div className="text-[8px] uppercase font-black tracking-[0.3em] opacity-60">Aggregate</div>
+                                <div className="text-[8px] uppercase font-black tracking-[0.3em] opacity-60">총점</div>
                                 <div className="text-3xl font-black font-mono leading-none mt-1">{scoreData.total_score}</div>
                             </div>
                             <div className="text-6xl font-black tracking-tighter">{scoreData.grade}</div>
@@ -198,7 +207,7 @@ function BacktestDetail() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-stealth-border">
                         <div className="p-10">
                             <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                                <Shield size={14} /> Risk Mitigation <span className="text-[10px] text-slate-600 ml-auto">67% Weight</span>
+                                <Shield size={14} /> 리스크 관리 <span className="text-[10px] text-slate-600 ml-auto">67% 가중치</span>
                             </h3>
                             <div className="space-y-2">
                                 {scoreData.details?.phase1?.items?.map((item, idx) => (
@@ -209,7 +218,7 @@ function BacktestDetail() {
 
                         <div className="p-10">
                             <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                                <BarChart3 size={14} /> Capital Efficiency <span className="text-[10px] text-slate-600 ml-auto">33% Weight</span>
+                                <BarChart3 size={14} /> 자본 효율성 <span className="text-[10px] text-slate-600 ml-auto">33% 가중치</span>
                             </h3>
                             <div className="space-y-2">
                                 {scoreData.details?.phase2?.items?.map((item, idx) => (
@@ -220,25 +229,25 @@ function BacktestDetail() {
                     </div>
 
                     <div className="p-10 border-t border-stealth-border bg-white/[0.01]">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-8">Verification Protocol</h3>
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-8">안정성 검증 프로토콜</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <FilterCard 
-                                name="Trading Volume" 
-                                value={`${scoreData.details?.filters?.trades?.value}`}
+                                name="거래 횟수" 
+                                value={`${scoreData.details?.filters?.trades?.value}회`}
                                 pass={scoreData.details?.filters?.trades?.pass}
-                                target="Min 150 Executions"
+                                target="최소 150회"
                             />
                             <FilterCard 
-                                name="Expectancy" 
+                                name="기대 수익" 
                                 value={`${scoreData.details?.filters?.expectancy?.value}`}
                                 pass={scoreData.details?.filters?.expectancy?.pass}
-                                target="Min 0.5% Per Trade"
+                                target="거래당 최소 0.5%"
                             />
                             <FilterCard 
-                                name="Stability (MC)" 
+                                name="파산 확률 (MC)" 
                                 value={`${scoreData.details?.filters?.monte_carlo?.value}`}
                                 pass={scoreData.details?.filters?.monte_carlo?.pass}
-                                target="Zero Ruin Probability"
+                                target="파산 위험 0% 기준"
                                 onClick={() => mcData && setShowMC(true)}
                                 clickable={!!mcData}
                             />
@@ -247,7 +256,7 @@ function BacktestDetail() {
                         {!scoreData.is_qualified && (
                             <div className="mt-8 p-5 bg-red-500/5 border border-red-500/20 rounded flex items-center gap-4">
                                 <div className="w-2 h-2 rounded-full bg-red-500 animate-ping"></div>
-                                <span className="text-[10px] text-red-400 font-black uppercase tracking-[0.2em]">Protocol Failure: {scoreData.fail_reason}</span>
+                                <span className="text-[10px] text-red-400 font-black uppercase tracking-[0.2em]">검증 실패: {scoreData.fail_reason}</span>
                             </div>
                         )}
                     </div>

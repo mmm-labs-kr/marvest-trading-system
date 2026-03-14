@@ -57,13 +57,13 @@ function BacktestList() {
     setRunLog(null);
   };
 
-  // 등급별 스타일 (Stealth 버전: 배경 없이 텍스트와 보더 강조)
+  // 등급별 스타일 (Stealth 버전)
   const getGradeStyle = (grade) => {
     const styles = {
       'S': 'text-purple-400 border-purple-500/40',
       'A': 'text-stealth-accent border-stealth-accent/40',
       'B': 'text-blue-400 border-blue-500/40',
-      'C': 'text-amber-400 border-amber-500/40',
+      'C': 'text-amber-400 border-amber-400/40',
       'Fail': 'text-red-400 border-red-500/40',
     };
     return styles[grade] || 'text-slate-500 border-slate-700';
@@ -71,7 +71,7 @@ function BacktestList() {
 
   if (loading) return (
     <div className="flex h-[60vh] items-center justify-center text-white font-black tracking-[0.2em] uppercase text-xs">
-      <Loader2 className="animate-spin mr-3 text-slate-500" /> System Loading...
+      <Loader2 className="animate-spin mr-3 text-slate-500" /> 데이터 로드 중...
     </div>
   );
 
@@ -83,8 +83,8 @@ function BacktestList() {
         <div className="flex items-center gap-4">
           <div className="w-1 bg-white h-8"></div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tighter uppercase">Backtest History</h1>
-            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1.5">Strategy Performance Registry</p>
+            <h1 className="text-2xl font-black text-white tracking-tighter uppercase">백테스트 히스토리</h1>
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1.5">전략 성과 기록부</p>
           </div>
         </div>
         <button 
@@ -92,7 +92,7 @@ function BacktestList() {
           className="cyber-button flex items-center gap-2 text-xs"
         >
           <Plus size={16} strokeWidth={3} />
-          New Simulation
+          새 테스트 실행
         </button>
       </div>
       
@@ -102,12 +102,12 @@ function BacktestList() {
           <table className="min-w-full text-left">
             <thead>
               <tr className="border-b border-stealth-border bg-white/[0.02]">
-                <th className="py-5 px-8 font-black text-slate-500 text-[9px] uppercase tracking-[0.2em] text-center w-28">Grade</th>
-                <th className="py-5 px-8 font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">Strategy Identity</th>
-                <th className="py-5 px-8 font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">Resource</th>
-                <th className="py-5 px-8 text-right font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">Volume</th>
-                <th className="py-5 px-8 text-right font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">Win Rate</th>
-                <th className="py-5 px-8 text-right font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">Net Return</th>
+                <th className="py-5 px-8 font-black text-slate-500 text-[9px] uppercase tracking-[0.2em] text-center w-28">등급</th>
+                <th className="py-5 px-8 font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">전략 클래스</th>
+                <th className="py-5 px-8 font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">리소스 파일</th>
+                <th className="py-5 px-8 text-right font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">거래 횟수</th>
+                <th className="py-5 px-8 text-right font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">승률</th>
+                <th className="py-5 px-8 text-right font-black text-slate-500 text-[9px] uppercase tracking-[0.2em]">수익률</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stealth-border">
@@ -139,7 +139,7 @@ function BacktestList() {
                        </div>
                     </td>
                     <td className="py-6 px-8 text-right">
-                        <span className="font-mono text-slate-400 font-bold text-xs">{item.total_trades}</span>
+                        <span className="font-mono text-slate-400 font-bold text-xs">{item.total_trades}회</span>
                     </td>
                     <td className="py-6 px-8 text-right">
                         <span className="font-mono text-slate-400 font-bold text-xs">{item.win_rate}%</span>
@@ -161,7 +161,7 @@ function BacktestList() {
         {results.length === 0 && (
           <div className="flex flex-col items-center justify-center py-32 text-slate-600 gap-4">
             <List size={32} strokeWidth={1} className="opacity-20" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Data available</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em]">데이터가 없습니다</p>
           </div>
         )}
       </div>
@@ -174,7 +174,7 @@ function BacktestList() {
             <div className="px-8 py-6 border-b border-stealth-border flex justify-between items-center bg-white/[0.02]">
               <div className="flex items-center gap-3">
                 <Play size={16} fill="white" className="text-white" />
-                <h3 className="font-black text-white text-xs uppercase tracking-[0.2em]">Start Simulation</h3>
+                <h3 className="font-black text-white text-xs uppercase tracking-[0.2em]">시뮬레이션 실행</h3>
               </div>
               {!isRunning && (
                 <button onClick={closeModal} className="p-1 rounded text-slate-500 hover:text-white transition-colors">
@@ -189,19 +189,19 @@ function BacktestList() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mb-3">
-                      Strategy Identifier
+                      전략 클래스 식별자
                     </label>
                     <input 
                       type="text"
                       value={strategyName}
                       onChange={(e) => setStrategyName(e.target.value)}
-                      placeholder="e.g. TrendFollowStrategy"
+                      placeholder="예: MyStrategy"
                       className="cyber-input w-full font-mono text-sm"
                     />
                     <div className="mt-4 flex items-start gap-3 p-4 bg-white/[0.02] rounded-md border border-white/5">
                        <div className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium uppercase tracking-tight">
-                         Ensure the class name matches your python file definition exactly.
+                         파이썬 파일 내부에 정의된 정확한 클래스 명칭을 입력해 주세요.
                        </p>
                     </div>
                   </div>
@@ -210,14 +210,14 @@ function BacktestList() {
                 <div className="text-center py-16 space-y-6">
                   <Loader2 size={32} className="animate-spin text-white mx-auto" />
                   <div>
-                    <p className="text-xs font-black text-white tracking-[0.3em] uppercase">Initializing Engine</p>
-                    <p className="text-[9px] text-slate-600 mt-2 font-black tracking-widest uppercase">Processing High-Frequency Analysis...</p>
+                    <p className="text-xs font-black text-white tracking-[0.3em] uppercase">엔진 초기화 중</p>
+                    <p className="text-[9px] text-slate-600 mt-2 font-black tracking-widest uppercase">고주기 시뮬레이션 분석을 수행하고 있습니다...</p>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-stealth-accent text-[10px] uppercase tracking-[0.3em]">Status: Completed</span>
+                    <span className="font-black text-stealth-accent text-[10px] uppercase tracking-[0.3em]">상태: 완료됨</span>
                   </div>
                   <div className="bg-black/60 border border-stealth-border p-5 rounded text-[10px] font-mono h-64 overflow-auto text-slate-400 whitespace-pre-wrap leading-relaxed shadow-inner">
                     {runLog}
@@ -234,13 +234,13 @@ function BacktestList() {
                     onClick={closeModal}
                     className="px-4 py-2 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
                   >
-                    Abort
+                    중단
                   </button>
                   <button 
                     onClick={handleRunBacktest}
                     className="cyber-button text-[10px]"
                   >
-                    Execute
+                    실행하기
                   </button>
                 </>
               )}
@@ -249,7 +249,7 @@ function BacktestList() {
                   onClick={closeModal}
                   className="px-8 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] font-black uppercase tracking-widest transition-colors"
                 >
-                  Terminate
+                  터미널 닫기
                 </button>
               )}
             </div>

@@ -19,7 +19,7 @@ const CollapsibleCard = ({ title, icon, expanded, onToggle, children }) => (
             </span>
             {expanded ? <ChevronUp size={16} className="text-slate-600" /> : <ChevronDown size={16} className="text-slate-600" />}
         </button>
-        {expanded && <div className="p-8 border-t border-stealth-border">{children}</div>}
+        {expanded && <div className="p-8 border-t border-stealth-border bg-black/20">{children}</div>}
     </div>
 );
 
@@ -47,7 +47,7 @@ const NewStrategyModal = ({ isOpen, onClose, onConfirm, loading, originalName })
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="glass-card w-full max-w-md p-10 border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 <div className="flex justify-between items-center mb-8">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">Deploy New Strategy</h3>
+                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">새로운 전략 배포</h3>
                     <button onClick={onClose} className="text-slate-600 hover:text-white transition-colors">
                         <X size={24} />
                     </button>
@@ -55,7 +55,7 @@ const NewStrategyModal = ({ isOpen, onClose, onConfirm, loading, originalName })
 
                 <div className="space-y-8 mb-10">
                     <div>
-                        <label className="block text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] mb-3">Identifier</label>
+                        <label className="block text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] mb-3">식별자 (ID)</label>
                         <input
                             type="text"
                             value={strategyName}
@@ -67,7 +67,7 @@ const NewStrategyModal = ({ isOpen, onClose, onConfirm, loading, originalName })
                     </div>
 
                     <div className="p-5 bg-white/[0.02] rounded border border-white/5">
-                        <div className="text-[8px] text-slate-600 font-black uppercase tracking-[0.3em] mb-2">Target Path</div>
+                        <div className="text-[8px] text-slate-600 font-black uppercase tracking-[0.3em] mb-2">대상 경로</div>
                         <code className="text-[10px] text-slate-400 font-mono break-all font-bold">user_data/strategies/{strategyName}.py</code>
                     </div>
                 </div>
@@ -77,14 +77,14 @@ const NewStrategyModal = ({ isOpen, onClose, onConfirm, loading, originalName })
                         onClick={onClose}
                         className="flex-1 px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-white transition-colors"
                     >
-                        Cancel
+                        취소
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={loading}
                         className="cyber-button flex-1 text-[10px]"
                     >
-                        {loading ? 'Processing...' : 'Confirm'}
+                        {loading ? '처리 중...' : '확인'}
                     </button>
                 </div>
             </div>
@@ -215,9 +215,9 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                         <Cpu size={24} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-black text-white uppercase tracking-[0.15em]">Intelligence Analysis</h2>
+                        <h2 className="text-xl font-black text-white uppercase tracking-[0.15em]">지능형 로직 분석</h2>
                         <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.25em] mt-1.5 flex items-center gap-2">
-                            Gemini 2.5 Logic Engine <div className="w-1 h-1 bg-white rounded-full"></div> Offline Mode
+                            Gemini 2.5 Logic Engine <div className="w-1 h-1 bg-white rounded-full"></div> 온라인 상태
                         </p>
                     </div>
                 </div>
@@ -229,11 +229,11 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                 >
                     {loading ? (
                         <>
-                            <Loader2 size={14} className="animate-spin" /> Analyzing
+                            <Loader2 size={14} className="animate-spin" /> 분석 중...
                         </>
                     ) : (
                         <>
-                            <Sparkles size={14} /> Run Neural Audit
+                            <Sparkles size={14} /> AI 분석 실행
                         </>
                     )}
                 </button>
@@ -243,26 +243,26 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
             {successMessage && (
                 <div className="p-6 bg-stealth-accent/5 border border-stealth-accent/20 rounded flex items-center gap-4 animate-in slide-in-from-left-4">
                     <CheckCircle2 size={20} className="text-stealth-accent" />
-                    <span className="text-[10px] text-stealth-accent font-black uppercase tracking-[0.2em]">Strategy Deployed: {successMessage.name}</span>
+                    <span className="text-[10px] text-stealth-accent font-black uppercase tracking-[0.2em]">전략 배포 완료: {successMessage.name}</span>
                 </div>
             )}
 
             {/* Content Area */}
             {!feedback && !loading ? (
                 <div className="py-20 text-center border border-dashed border-stealth-border rounded">
-                    <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.3em]">No diagnostic data present</p>
+                    <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.3em]">분석 데이터가 없습니다</p>
                 </div>
             ) : loading ? (
                 <div className="py-24 text-center space-y-6">
                     <Loader2 size={32} className="animate-spin text-white mx-auto opacity-20" />
-                    <p className="text-[9px] text-slate-600 font-black uppercase tracking-[0.4em] animate-pulse">Deep inspection in progress</p>
+                    <p className="text-[9px] text-slate-600 font-black uppercase tracking-[0.4em] animate-pulse">전략 정밀 검사 진행 중</p>
                 </div>
             ) : feedback && (
                 <div className="grid grid-cols-1 gap-6">
                     
                     {/* Summary */}
                     <CollapsibleCard
-                        title="Architecture Summary"
+                        title="아키텍처 요약"
                         icon={<Code size={14} />}
                         expanded={expanded.summary}
                         onToggle={() => setExpanded({...expanded, summary: !expanded.summary})}
@@ -270,7 +270,7 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                         <div className="space-y-10">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                                 <div>
-                                    <div className="text-[8px] text-slate-600 font-black uppercase tracking-[0.3em] mb-5">Primary Indicators</div>
+                                    <div className="text-[8px] text-slate-600 font-black uppercase tracking-[0.3em] mb-5">주요 기술 지표</div>
                                     <div className="flex flex-wrap gap-2">
                                         {feedback.strategy_summary.indicators?.map((ind, idx) => (
                                             <span key={idx} className="px-3 py-1.5 border border-white/10 text-[10px] font-black text-white uppercase tracking-tighter bg-white/[0.02]">
@@ -280,7 +280,7 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                                     </div>
                                 </div>
                                 <div className="space-y-6">
-                                    <div className="text-[8px] text-slate-600 font-black uppercase tracking-[0.3em]">Logic Definition</div>
+                                    <div className="text-[8px] text-slate-600 font-black uppercase tracking-[0.3em]">로직 정의</div>
                                     <div className="space-y-4">
                                         <div className="flex items-start gap-4">
                                             <div className="w-1.5 h-1.5 bg-stealth-accent rounded-full mt-1.5"></div>
@@ -298,7 +298,7 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
 
                     {/* Failures */}
                     <CollapsibleCard
-                        title="Vulnerability Audit"
+                        title="취약점 정밀 진단"
                         icon={<AlertTriangle size={14} />}
                         expanded={expanded.failures}
                         onToggle={() => setExpanded({...expanded, failures: !expanded.failures})}
@@ -318,7 +318,7 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
 
                     {/* Suggestions */}
                     <CollapsibleCard
-                        title={`Optimization Proposals (${getSelectedCount()}/${feedback.suggestions?.length || 0})`}
+                        title={`최적화 개선 제안 (${getSelectedCount()}/${feedback.suggestions?.length || 0})`}
                         icon={<Lightbulb size={14} />}
                         expanded={expanded.suggestions}
                         onToggle={() => setExpanded({...expanded, suggestions: !expanded.suggestions})}
@@ -346,14 +346,14 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                                                 <div className="font-black text-white text-xs uppercase tracking-[0.1em]">{item.title}</div>
                                                 {item.expected_impact && (
                                                     <span className="text-[8px] font-black text-stealth-accent border border-stealth-accent/30 px-2.5 py-1 uppercase tracking-widest">
-                                                        Impact: {item.expected_impact}
+                                                        예상 효과: {item.expected_impact}
                                                     </span>
                                                 )}
                                             </div>
                                             <p className="text-[11px] text-slate-500 font-medium leading-relaxed uppercase tracking-tight mb-6">{item.description}</p>
                                             {item.code_hint && (
                                                 <div className="p-5 bg-black/40 border border-white/5 rounded-sm">
-                                                    <div className="text-[8px] text-slate-700 font-black uppercase mb-3">Refactoring Hint</div>
+                                                    <div className="text-[8px] text-slate-700 font-black uppercase mb-3">리팩토링 힌트</div>
                                                     <code className="text-[10px] text-white/60 font-mono break-all">{item.code_hint}</code>
                                                 </div>
                                             )}
@@ -365,8 +365,8 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
 
                         <div className="flex items-center gap-6 mt-10 pt-10 border-t border-stealth-border">
                             <div className="flex gap-4">
-                                <button onClick={selectAll} className="text-[9px] font-black text-slate-600 hover:text-white uppercase tracking-[0.2em] transition-colors">Select All</button>
-                                <button onClick={() => setSelectedSuggestions({})} className="text-[9px] font-black text-slate-600 hover:text-red-500 uppercase tracking-[0.2em] transition-colors">Clear</button>
+                                <button onClick={selectAll} className="text-[9px] font-black text-slate-600 hover:text-white uppercase tracking-[0.2em] transition-colors">전체 선택</button>
+                                <button onClick={() => setSelectedSuggestions({})} className="text-[9px] font-black text-slate-600 hover:text-red-500 uppercase tracking-[0.2em] transition-colors">해제</button>
                             </div>
                             <div className="flex-1" />
                             <button
@@ -374,7 +374,7 @@ const AIFeedbackSection = ({ strategyName, backtestStats }) => {
                                 disabled={getSelectedCount() === 0}
                                 className={`cyber-button h-12 px-12 text-[10px] ${getSelectedCount() === 0 ? 'opacity-20 grayscale' : ''}`}
                             >
-                                Apply Selected Refactoring
+                                선택한 개선안 적용하기
                             </button>
                         </div>
                     </CollapsibleCard>
