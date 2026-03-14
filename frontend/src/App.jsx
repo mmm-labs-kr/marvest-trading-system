@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { Menu, X, BarChart2, PlayCircle, Activity, Layout, ShieldCheck } from 'lucide-react';
+import { Menu, X, BarChart2, PlayCircle, Activity, Layout, ShieldCheck, Code } from 'lucide-react';
 
 // 페이지 컴포넌트 임포트
 import BacktestList from './components/BacktestList';
 import BacktestDetail from './components/BacktestDetail';
 import PaperTrading from './components/PaperTrading';
 import LiveTrading from './components/LiveTrading';
+import StrategyEditor from './components/StrategyEditor';
 import Login from './components/Login';
 
 import './App.css';
 
-// 사이드바 메뉴 항목 정의 (한글화 적용)
+// 사이드바 메뉴 항목 정의 (전략 에디터 추가)
 const MENU_ITEMS = [
   { path: '/', name: '백테스트 분석', icon: <BarChart2 size={18} /> },
+  { path: '/editor', name: '전략 개발 도구', icon: <Code size={18} /> },
   { path: '/paper', name: '모의 투자 운영', icon: <PlayCircle size={18} /> },
   { path: '/live', name: '실전 투자 운영', icon: <Activity size={18} /> },
 ];
@@ -118,7 +120,7 @@ function AppContent() {
         </div>
       )}
 
-      {/* 3. 메인 콘텐츠 영역 (중앙 정렬 max-w 제거하여 Dashboard가 좌측 끝에 붙을 수 있도록 함) */}
+      {/* 3. 메인 콘텐츠 영역 */}
       <main className="flex-1 bg-stealth-bg overflow-hidden">
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -129,6 +131,14 @@ function AppContent() {
                 <div className="max-w-6xl mx-auto w-full py-10 px-6 overflow-auto h-full">
                   <BacktestList />
                 </div>
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/editor" 
+            element={
+              <PrivateRoute>
+                <StrategyEditor />
               </PrivateRoute>
             } 
           />

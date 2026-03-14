@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { TrendingUp, TrendingDown, FileText, Play, X, Loader2, List, Plus } from 'lucide-react';
+import { TrendingUp, TrendingDown, FileText, Play, X, Loader2, List, Plus, ChevronDown } from 'lucide-react';
 
 function BacktestList() {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ function BacktestList() {
   // --- 모달 및 실행 관련 상태 ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [strategyName, setStrategyName] = useState("");
+  const [availableStrategies, setAvailableStrategies] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [runLog, setRunLog] = useState(null);
 
@@ -19,19 +20,32 @@ function BacktestList() {
       const response = await axios.get('/api/backtest/results');
       setResults(response.data);
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error("결과 로드 실패:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchAvailableStrategies = async () => {
+    try {
+      const response = await axios.get('/api/configs/strategies/list');
+      setAvailableStrategies(response.data);
+      if (response.data.length > 0) {
+        setStrategyName(response.data[0]);
+      }
+    } catch (err) {
+      console.error("전략 목록 로드 실패:", err);
+    }
+  };
+
   useEffect(() => {
     fetchResults();
+    fetchAvailableStrategies();
   }, []);
 
   const handleRunBacktest = async () => {
-    if (!strategyName.trim()) {
-      alert("전략 이름을 입력해주세요!");
+    if (!strategyName) {
+      alert("테스트할 전략을 선택해주세요!");
       return;
     }
     setIsRunning(true);
@@ -53,11 +67,9 @@ function BacktestList() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setStrategyName("");
     setRunLog(null);
   };
 
-  // 등급별 스타일 (Stealth 버전)
   const getGradeStyle = (grade) => {
     const styles = {
       'S': 'text-purple-400 border-purple-500/40',
@@ -189,19 +201,25 @@ function BacktestList() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mb-3">
-                      전략 클래스 식별자
+                      테스트할 전략 선택
                     </label>
-                    <input 
-                      type="text"
-                      value={strategyName}
-                      onChange={(e) => setStrategyName(e.target.value)}
-                      placeholder="예: MyStrategy"
-                      className="cyber-input w-full font-mono text-sm"
-                    />
+                    <div className="relative">
+                        <select
+                            className="cyber-input w-full appearance-none cursor-pointer pr-10"
+                            value={strategyName}
+                            onChange={(e) => setStrategyName(e.target.value)}
+                        >
+                            {availableStrategies.map(name => (
+                                <option key={name} value={name}>{name}</option>
+                            ))}
+                        </select>
+                        <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                    </div>
+                    
                     <div className="mt-4 flex items-start gap-3 p-4 bg-white/[0.02] rounded-md border border-white/5">
                        <div className="w-1 h-1 bg-white rounded-full mt-1.5 flex-shrink-0"></div>
                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium uppercase tracking-tight">
-                         파이썬 파일 내부에 정의된 정확한 클래스 명칭을 입력해 주세요.
+                         목록에 없는 전략은 '전략 개발 도구' 메뉴에서 새로 생성할 수 있습니다.
                        </p>
                     </div>
                   </div>
