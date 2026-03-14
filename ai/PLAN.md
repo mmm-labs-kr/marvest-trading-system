@@ -1,9 +1,9 @@
 # Marvest 작업 계획서
 
 ## 현재 상태
-- 단계: Phase 2 진행 중 (코드 정리 및 로직 개선)
-- 마지막 완료 작업: Phase 2 - Task 8 (에러 응답 형식 및 예외 처리 강화)
-- 다음 작업: Phase 2 - Task 9 (`bots.json` 동시성 제어 방안 검토)
+- 단계: Phase 3 진행 중 (문서화 및 최종 점검)
+- 마지막 완료 작업: Phase 2 완료 (코드 정리 및 로직 개선)
+- 다음 작업: Phase 3 - Task 11 (주요 함수 docstring 및 타입 힌트 보강)
 
 ---
 
@@ -25,7 +25,7 @@
 | 7 | `trading.py` OS 호환성 및 프로세스 관리 개선 | 중 | ✅ | TASK-007.md |
 | 8 | 에러 응답 형식 및 예외 처리 강화 | 중 | ✅ | TASK-008.md |
 | 9 | `bots.json` 동시성 제어 방안 검토 (Locking) | 중 | ✅ | TASK-009.md |
-| 10 | 불필요한 import 및 미사용 코드 제거 | 소 | ⬜ | - |
+| 10 | 불필요한 import 및 미사용 코드 제거 | 소 | ✅ | TASK-010.md |
 
 ## Phase 3: 문서화 및 최종 점검
 
@@ -47,6 +47,7 @@
 - [x] `get_latest_mc_for_strategy` 로직을 `monte_carlo.py`로 일원화
 - [x] `is_process_running` OS 호환성 개선 (Windows ctypes 사용)
 - [x] 전역 예외 처리기 도입 및 에러 응답 형식 통일
+- [x] `bots.json`에 대한 Thread Lock 및 Atomic Write 적용
 
 ### 미해결
 - [ ] 서버 재시작 시 실행 중인 프로세스 정보 유실 (PID 영속화로 일부 해결됨)

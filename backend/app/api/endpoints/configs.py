@@ -1,6 +1,6 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from app.core.config import USER_DATA_DIR, STRATEGIES_DIR
 from app.core.exceptions import ConfigFileNotFoundException, InternalServerException
 

@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, List
 from app.core.config import STRATEGIES_DIR, GOOGLE_API_KEY

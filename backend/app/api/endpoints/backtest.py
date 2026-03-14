@@ -1,6 +1,5 @@
 import os
 import subprocess
-import sys
 import json
 import zipfile
 from datetime import datetime
