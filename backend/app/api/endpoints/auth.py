@@ -4,6 +4,7 @@ import pyotp
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.core.config import OTP_SECRET_SB, OTP_SECRET_JS
+from app.core.exceptions import AuthException
 
 router = APIRouter()
 
@@ -20,11 +21,11 @@ class LoginRequest(BaseModel):
 def login(request: LoginRequest):
     secret_key = VALID_USERS.get(request.user_id)
     if not secret_key:
-        raise HTTPException(status_code=401, detail="Invalid User ID")
+        raise AuthException("Invalid User ID")
 
     totp = pyotp.TOTP(secret_key)
     if totp.verify(request.otp_code, valid_window=1):
         # 성공 시 메시지 반환 (나중에 JWT 토큰으로 교체 권장)
         return {"status": "success", "user": request.user_id}
     else:
-        raise HTTPException(status_code=401, detail="Invalid OTP Code")
+        raise AuthException("Invalid OTP Code")

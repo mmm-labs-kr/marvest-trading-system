@@ -13,6 +13,7 @@ import time
 import ctypes
 from typing import List, Optional, Dict
 from app.core.config import USER_DATA_DIR, BOTS_FILE, DB_DIR, BACKTEST_RESULTS_DIR, MC_RESULTS_DIR, LOGS_DIR, PAPER_CONFIGS_DIR, STRATEGIES_DIR
+from app.core.exceptions import BotNotFoundException, ConfigFileNotFoundException, InternalServerException
 from .monte_carlo import get_latest_mc_for_strategy
 
 router = APIRouter()
@@ -260,7 +261,7 @@ def create_bot(req: BotCreateRequest):
 def delete_bot(bot_id: str):
     bots = load_bots_data()
     if bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot not found")
+        raise BotNotFoundException(bot_id)
 
     # 봇이 실행 중이면 먼저 정지
     bot_info = bots[bot_id]
@@ -281,7 +282,7 @@ def start_bot(req: BotControlRequest):
     bots = load_bots_data()
     
     if req.bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot ID not found")
+        raise BotNotFoundException(req.bot_id)
         
     bot_info = bots[req.bot_id]
     mode = bot_info.get("mode", "paper")
@@ -295,7 +296,7 @@ def start_bot(req: BotControlRequest):
         db_path, log_path, config_path = get_bot_paths(req.bot_id, bot_info['strategy'], mode)
         
         if not os.path.exists(config_path):
-             raise Exception(f"Config file not found: {config_path}")
+             raise ConfigFileNotFoundException(config_path)
 
         command = [
             "freqtrade", "trade", 
@@ -329,8 +330,10 @@ def start_bot(req: BotControlRequest):
         
         return {"message": f"[{mode.upper()}] Bot {bot_info['name']} started", "pid": proc.pid}
         
+    except MarvestException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerException(message=str(e))
 
 
 @router.post("/stop")
@@ -339,7 +342,7 @@ def stop_bot(req: BotControlRequest):
     bots = load_bots_data()
     
     if req.bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot ID not found")
+        raise BotNotFoundException(req.bot_id)
     
     bot_info = bots[req.bot_id]
     pid = bot_info.get("pid")
@@ -384,7 +387,7 @@ def stop_bot(req: BotControlRequest):
         
         return {"message": "Bot stopped successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error stopping bot: {str(e)}")
+        raise InternalServerException(message=f"Error stopping bot: {str(e)}")
 
 
 # --- [API 3: 모니터링 (Status/Logs)] ---
@@ -393,7 +396,7 @@ def stop_bot(req: BotControlRequest):
 def get_bot_status(bot_id: str):
     bots = load_bots_data()
     if bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot not found")
+        raise BotNotFoundException(bot_id)
         
     bot_info = bots[bot_id]
     strategy_name = bot_info['strategy']
@@ -542,7 +545,7 @@ def get_backtest_options():
 def get_bot_analysis(bot_id: str):
     bots = load_bots_data()
     if bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot not found")
+        raise BotNotFoundException(bot_id)
     
     bot_info = bots[bot_id]
     mode = bot_info.get("mode", "paper")
@@ -605,7 +608,7 @@ def add_fake_trade(bot_id: str, profit_pct: float = 0.02):
     
     bots = load_bots_data()
     if bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot not found")
+        raise BotNotFoundException(bot_id)
     
     bot_info = bots[bot_id]
     db_path, _, _ = get_bot_paths(bot_id, bot_info['strategy'], bot_info.get('mode', 'paper'))
@@ -670,7 +673,7 @@ def add_random_trades(bot_id: str, count: int = 10):
 def clear_trades(bot_id: str):
     bots = load_bots_data()
     if bot_id not in bots:
-        raise HTTPException(status_code=404, detail="Bot not found")
+        raise BotNotFoundException(bot_id)
     
     bot_info = bots[bot_id]
     db_path, _, _ = get_bot_paths(bot_id, bot_info['strategy'], bot_info.get('mode', 'paper'))

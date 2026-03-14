@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from app.core.config import STRATEGIES_DIR, GOOGLE_API_KEY
+from app.core.exceptions import ConfigFileNotFoundException, InternalServerException, MarvestException
 
 import google.generativeai as genai
 

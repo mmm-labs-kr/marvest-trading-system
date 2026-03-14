@@ -2,8 +2,8 @@
 
 ## 현재 상태
 - 단계: Phase 2 진행 중 (코드 정리 및 로직 개선)
-- 마지막 완료 작업: Phase 2 - Task 6 (중복 로직 통합: `get_latest_mc_for_strategy`)
-- 다음 작업: Phase 2 - Task 7 (`trading.py` OS 호환성 및 프로세스 관리 개선)
+- 마지막 완료 작업: Phase 2 - Task 8 (에러 응답 형식 및 예외 처리 강화)
+- 다음 작업: Phase 2 - Task 9 (`bots.json` 동시성 제어 방안 검토)
 
 ---
 
@@ -23,7 +23,7 @@
 |---|------|------|------|----------|
 | 6 | 중복 로직(`get_latest_mc_for_strategy`) 통합 | 소 | ✅ | `backend/app/api/endpoints/monte_carlo.py` |
 | 7 | `trading.py` OS 호환성 및 프로세스 관리 개선 | 중 | ✅ | TASK-007.md |
-| 8 | 에러 응답 형식 및 예외 처리 강화 | 중 | ⬜ | TASK-008.md |
+| 8 | 에러 응답 형식 및 예외 처리 강화 | 중 | ✅ | TASK-008.md |
 | 9 | `bots.json` 동시성 제어 방안 검토 (Locking) | 중 | ⬜ | - |
 | 10 | 불필요한 import 및 미사용 코드 제거 | 소 | ⬜ | - |
 
@@ -45,10 +45,11 @@
 - [x] Strategy not found → 클래스명으로 입력해야 함
 - [x] 모든 백엔드 엔드포인트의 하드코딩된 경로를 `app.core.config`로 통합
 - [x] `get_latest_mc_for_strategy` 로직을 `monte_carlo.py`로 일원화
+- [x] `is_process_running` OS 호환성 개선 (Windows ctypes 사용)
+- [x] 전역 예외 처리기 도입 및 에러 응답 형식 통일
 
 ### 미해결
-- [ ] taskkill Windows 전용 (Linux 배포 시 문제)
-- [ ] 서버 재시작 시 실행 중인 프로세스 정보 유실
+- [ ] 서버 재시작 시 실행 중인 프로세스 정보 유실 (PID 영속화로 일부 해결됨)
 
 ---
 
