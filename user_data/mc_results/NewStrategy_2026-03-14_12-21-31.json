@@ -1,0 +1,1388 @@
+{
+  "strategy": "NewStrategy",
+  "backtest_file": "backtest-result-2026-03-14_12-21-31.zip",
+  "created_at": "2026-03-14T12:21:32.712168",
+  "total_trades": 225,
+  "mc_data": {
+    "ruin_probability": 62.12,
+    "stats": {
+      "median_final_balance": 4789.82,
+      "worst_mdd": -88.31,
+      "avg_mdd": -55.66
+    },
+    "chart_data": [
+      {
+        "trade_num": 1,
+        "upper": 10099.9,
+        "median": 10099.9,
+        "lower": 9481.02
+      },
+      {
+        "trade_num": 2,
+        "upper": 10200.8,
+        "median": 10100.03,
+        "lower": 8988.97
+      },
+      {
+        "trade_num": 3,
+        "upper": 10302.7,
+        "median": 10048.36,
+        "lower": 9078.77
+      },
+      {
+        "trade_num": 4,
+        "upper": 10405.63,
+        "median": 9768.01,
+        "lower": 8980.82
+      },
+      {
+        "trade_num": 5,
+        "upper": 10509.58,
+        "median": 9865.6,
+        "lower": 8693.59
+      },
+      {
+        "trade_num": 6,
+        "upper": 10614.57,
+        "median": 9863.29,
+        "lower": 8666.95
+      },
+      {
+        "trade_num": 7,
+        "upper": 10696.28,
+        "median": 9872.51,
+        "lower": 8514.08
+      },
+      {
+        "trade_num": 8,
+        "upper": 10778.42,
+        "median": 9861.07,
+        "lower": 8399.93
+      },
+      {
+        "trade_num": 9,
+        "upper": 10841.22,
+        "median": 9798.92,
+        "lower": 8336.64
+      },
+      {
+        "trade_num": 10,
+        "upper": 10904.14,
+        "median": 9691.77,
+        "lower": 8256.8
+      },
+      {
+        "trade_num": 11,
+        "upper": 10979.23,
+        "median": 9682.03,
+        "lower": 8155.84
+      },
+      {
+        "trade_num": 12,
+        "upper": 11033.57,
+        "median": 9680.74,
+        "lower": 8073.85
+      },
+      {
+        "trade_num": 13,
+        "upper": 11094.91,
+        "median": 9656.76,
+        "lower": 8031.73
+      },
+      {
+        "trade_num": 14,
+        "upper": 11120.15,
+        "median": 9616.71,
+        "lower": 7946.83
+      },
+      {
+        "trade_num": 15,
+        "upper": 11179.07,
+        "median": 9581.63,
+        "lower": 7843.66
+      },
+      {
+        "trade_num": 16,
+        "upper": 11203.21,
+        "median": 9547.36,
+        "lower": 7799.23
+      },
+      {
+        "trade_num": 17,
+        "upper": 11187.74,
+        "median": 9534.49,
+        "lower": 7719.48
+      },
+      {
+        "trade_num": 18,
+        "upper": 11124.77,
+        "median": 9509.11,
+        "lower": 7644.12
+      },
+      {
+        "trade_num": 19,
+        "upper": 11172.07,
+        "median": 9465.7,
+        "lower": 7601.35
+      },
+      {
+        "trade_num": 20,
+        "upper": 11177.67,
+        "median": 9419.83,
+        "lower": 7520.49
+      },
+      {
+        "trade_num": 21,
+        "upper": 11227.35,
+        "median": 9373.46,
+        "lower": 7471.26
+      },
+      {
+        "trade_num": 22,
+        "upper": 11249.75,
+        "median": 9339.09,
+        "lower": 7349.53
+      },
+      {
+        "trade_num": 23,
+        "upper": 11262.52,
+        "median": 9331.12,
+        "lower": 7299.38
+      },
+      {
+        "trade_num": 24,
+        "upper": 11306.43,
+        "median": 9305.34,
+        "lower": 7247.13
+      },
+      {
+        "trade_num": 25,
+        "upper": 11333.05,
+        "median": 9267.81,
+        "lower": 7199.15
+      },
+      {
+        "trade_num": 26,
+        "upper": 11347.61,
+        "median": 9225.81,
+        "lower": 7152.98
+      },
+      {
+        "trade_num": 27,
+        "upper": 11363.22,
+        "median": 9198.58,
+        "lower": 7099.44
+      },
+      {
+        "trade_num": 28,
+        "upper": 11376.53,
+        "median": 9185.02,
+        "lower": 7038.08
+      },
+      {
+        "trade_num": 29,
+        "upper": 11371.36,
+        "median": 9162.94,
+        "lower": 6964.18
+      },
+      {
+        "trade_num": 30,
+        "upper": 11358.86,
+        "median": 9125.87,
+        "lower": 6927.77
+      },
+      {
+        "trade_num": 31,
+        "upper": 11367.63,
+        "median": 9095.05,
+        "lower": 6897.37
+      },
+      {
+        "trade_num": 32,
+        "upper": 11385.67,
+        "median": 9065.83,
+        "lower": 6838.64
+      },
+      {
+        "trade_num": 33,
+        "upper": 11408.29,
+        "median": 9034.57,
+        "lower": 6805.23
+      },
+      {
+        "trade_num": 34,
+        "upper": 11456.97,
+        "median": 9010.06,
+        "lower": 6754.15
+      },
+      {
+        "trade_num": 35,
+        "upper": 11480.78,
+        "median": 8976.45,
+        "lower": 6694.77
+      },
+      {
+        "trade_num": 36,
+        "upper": 11458.2,
+        "median": 8942.56,
+        "lower": 6710.14
+      },
+      {
+        "trade_num": 37,
+        "upper": 11400.38,
+        "median": 8912.55,
+        "lower": 6615.88
+      },
+      {
+        "trade_num": 38,
+        "upper": 11440.88,
+        "median": 8884.56,
+        "lower": 6596.68
+      },
+      {
+        "trade_num": 39,
+        "upper": 11429.04,
+        "median": 8861.88,
+        "lower": 6534.25
+      },
+      {
+        "trade_num": 40,
+        "upper": 11381.98,
+        "median": 8842.57,
+        "lower": 6512.71
+      },
+      {
+        "trade_num": 41,
+        "upper": 11361.8,
+        "median": 8789.38,
+        "lower": 6473.58
+      },
+      {
+        "trade_num": 42,
+        "upper": 11367.38,
+        "median": 8771.77,
+        "lower": 6375.15
+      },
+      {
+        "trade_num": 43,
+        "upper": 11384.52,
+        "median": 8722.71,
+        "lower": 6345.56
+      },
+      {
+        "trade_num": 44,
+        "upper": 11370.27,
+        "median": 8710.96,
+        "lower": 6318.37
+      },
+      {
+        "trade_num": 45,
+        "upper": 11376.39,
+        "median": 8684.74,
+        "lower": 6275.18
+      },
+      {
+        "trade_num": 46,
+        "upper": 11381.2,
+        "median": 8644.29,
+        "lower": 6217.85
+      },
+      {
+        "trade_num": 47,
+        "upper": 11419.13,
+        "median": 8615.78,
+        "lower": 6175.58
+      },
+      {
+        "trade_num": 48,
+        "upper": 11383.63,
+        "median": 8589.29,
+        "lower": 6147.19
+      },
+      {
+        "trade_num": 49,
+        "upper": 11401.87,
+        "median": 8566.04,
+        "lower": 6156.86
+      },
+      {
+        "trade_num": 50,
+        "upper": 11411.24,
+        "median": 8525.24,
+        "lower": 6093.41
+      },
+      {
+        "trade_num": 51,
+        "upper": 11388.55,
+        "median": 8492.6,
+        "lower": 6044.85
+      },
+      {
+        "trade_num": 52,
+        "upper": 11375.63,
+        "median": 8457.82,
+        "lower": 6004.19
+      },
+      {
+        "trade_num": 53,
+        "upper": 11359.69,
+        "median": 8424.82,
+        "lower": 5985.11
+      },
+      {
+        "trade_num": 54,
+        "upper": 11362.02,
+        "median": 8418.89,
+        "lower": 5914.87
+      },
+      {
+        "trade_num": 55,
+        "upper": 11336.45,
+        "median": 8377.42,
+        "lower": 5866.64
+      },
+      {
+        "trade_num": 56,
+        "upper": 11380.82,
+        "median": 8345.66,
+        "lower": 5844.25
+      },
+      {
+        "trade_num": 57,
+        "upper": 11349.08,
+        "median": 8313.83,
+        "lower": 5770.89
+      },
+      {
+        "trade_num": 58,
+        "upper": 11371.68,
+        "median": 8266.52,
+        "lower": 5707.96
+      },
+      {
+        "trade_num": 59,
+        "upper": 11378.37,
+        "median": 8261.83,
+        "lower": 5691.3
+      },
+      {
+        "trade_num": 60,
+        "upper": 11373.51,
+        "median": 8226.58,
+        "lower": 5651.63
+      },
+      {
+        "trade_num": 61,
+        "upper": 11361.21,
+        "median": 8195.04,
+        "lower": 5587.48
+      },
+      {
+        "trade_num": 62,
+        "upper": 11404.97,
+        "median": 8171.0,
+        "lower": 5557.33
+      },
+      {
+        "trade_num": 63,
+        "upper": 11370.96,
+        "median": 8141.87,
+        "lower": 5521.76
+      },
+      {
+        "trade_num": 64,
+        "upper": 11420.67,
+        "median": 8124.39,
+        "lower": 5491.91
+      },
+      {
+        "trade_num": 65,
+        "upper": 11403.35,
+        "median": 8098.72,
+        "lower": 5503.4
+      },
+      {
+        "trade_num": 66,
+        "upper": 11391.17,
+        "median": 8085.68,
+        "lower": 5438.72
+      },
+      {
+        "trade_num": 67,
+        "upper": 11432.51,
+        "median": 8047.89,
+        "lower": 5402.85
+      },
+      {
+        "trade_num": 68,
+        "upper": 11414.49,
+        "median": 8025.13,
+        "lower": 5381.95
+      },
+      {
+        "trade_num": 69,
+        "upper": 11429.46,
+        "median": 7990.6,
+        "lower": 5369.12
+      },
+      {
+        "trade_num": 70,
+        "upper": 11398.47,
+        "median": 7954.28,
+        "lower": 5337.51
+      },
+      {
+        "trade_num": 71,
+        "upper": 11425.48,
+        "median": 7936.93,
+        "lower": 5327.87
+      },
+      {
+        "trade_num": 72,
+        "upper": 11393.39,
+        "median": 7924.79,
+        "lower": 5293.08
+      },
+      {
+        "trade_num": 73,
+        "upper": 11380.73,
+        "median": 7880.92,
+        "lower": 5251.3
+      },
+      {
+        "trade_num": 74,
+        "upper": 11369.71,
+        "median": 7869.14,
+        "lower": 5220.92
+      },
+      {
+        "trade_num": 75,
+        "upper": 11395.56,
+        "median": 7847.44,
+        "lower": 5196.31
+      },
+      {
+        "trade_num": 76,
+        "upper": 11358.23,
+        "median": 7812.64,
+        "lower": 5163.49
+      },
+      {
+        "trade_num": 77,
+        "upper": 11349.96,
+        "median": 7796.74,
+        "lower": 5118.15
+      },
+      {
+        "trade_num": 78,
+        "upper": 11344.35,
+        "median": 7762.31,
+        "lower": 5121.95
+      },
+      {
+        "trade_num": 79,
+        "upper": 11267.02,
+        "median": 7734.51,
+        "lower": 5055.65
+      },
+      {
+        "trade_num": 80,
+        "upper": 11297.23,
+        "median": 7713.36,
+        "lower": 5033.17
+      },
+      {
+        "trade_num": 81,
+        "upper": 11263.6,
+        "median": 7684.61,
+        "lower": 5001.02
+      },
+      {
+        "trade_num": 82,
+        "upper": 11281.89,
+        "median": 7660.32,
+        "lower": 4971.21
+      },
+      {
+        "trade_num": 83,
+        "upper": 11295.64,
+        "median": 7637.23,
+        "lower": 4955.96
+      },
+      {
+        "trade_num": 84,
+        "upper": 11298.92,
+        "median": 7618.32,
+        "lower": 4940.34
+      },
+      {
+        "trade_num": 85,
+        "upper": 11295.36,
+        "median": 7569.32,
+        "lower": 4898.22
+      },
+      {
+        "trade_num": 86,
+        "upper": 11221.71,
+        "median": 7569.84,
+        "lower": 4819.56
+      },
+      {
+        "trade_num": 87,
+        "upper": 11258.44,
+        "median": 7526.53,
+        "lower": 4824.9
+      },
+      {
+        "trade_num": 88,
+        "upper": 11255.5,
+        "median": 7504.87,
+        "lower": 4831.11
+      },
+      {
+        "trade_num": 89,
+        "upper": 11242.04,
+        "median": 7491.4,
+        "lower": 4773.02
+      },
+      {
+        "trade_num": 90,
+        "upper": 11236.93,
+        "median": 7457.24,
+        "lower": 4750.38
+      },
+      {
+        "trade_num": 91,
+        "upper": 11226.69,
+        "median": 7436.6,
+        "lower": 4711.88
+      },
+      {
+        "trade_num": 92,
+        "upper": 11208.22,
+        "median": 7401.26,
+        "lower": 4697.78
+      },
+      {
+        "trade_num": 93,
+        "upper": 11214.54,
+        "median": 7372.9,
+        "lower": 4670.85
+      },
+      {
+        "trade_num": 94,
+        "upper": 11242.04,
+        "median": 7348.69,
+        "lower": 4647.82
+      },
+      {
+        "trade_num": 95,
+        "upper": 11261.54,
+        "median": 7327.91,
+        "lower": 4637.03
+      },
+      {
+        "trade_num": 96,
+        "upper": 11246.94,
+        "median": 7318.79,
+        "lower": 4574.63
+      },
+      {
+        "trade_num": 97,
+        "upper": 11190.35,
+        "median": 7302.57,
+        "lower": 4575.45
+      },
+      {
+        "trade_num": 98,
+        "upper": 11226.02,
+        "median": 7281.29,
+        "lower": 4543.6
+      },
+      {
+        "trade_num": 99,
+        "upper": 11144.65,
+        "median": 7264.26,
+        "lower": 4503.96
+      },
+      {
+        "trade_num": 100,
+        "upper": 11188.14,
+        "median": 7234.79,
+        "lower": 4491.29
+      },
+      {
+        "trade_num": 101,
+        "upper": 11196.18,
+        "median": 7216.29,
+        "lower": 4461.19
+      },
+      {
+        "trade_num": 102,
+        "upper": 11109.27,
+        "median": 7195.92,
+        "lower": 4450.36
+      },
+      {
+        "trade_num": 103,
+        "upper": 11164.49,
+        "median": 7174.52,
+        "lower": 4449.23
+      },
+      {
+        "trade_num": 104,
+        "upper": 11132.45,
+        "median": 7152.12,
+        "lower": 4420.11
+      },
+      {
+        "trade_num": 105,
+        "upper": 11094.2,
+        "median": 7141.81,
+        "lower": 4406.08
+      },
+      {
+        "trade_num": 106,
+        "upper": 11117.4,
+        "median": 7115.09,
+        "lower": 4354.85
+      },
+      {
+        "trade_num": 107,
+        "upper": 11150.75,
+        "median": 7083.6,
+        "lower": 4357.85
+      },
+      {
+        "trade_num": 108,
+        "upper": 11168.12,
+        "median": 7061.49,
+        "lower": 4345.94
+      },
+      {
+        "trade_num": 109,
+        "upper": 11111.57,
+        "median": 7040.87,
+        "lower": 4287.01
+      },
+      {
+        "trade_num": 110,
+        "upper": 11078.0,
+        "median": 7016.67,
+        "lower": 4296.21
+      },
+      {
+        "trade_num": 111,
+        "upper": 11128.92,
+        "median": 6986.2,
+        "lower": 4234.83
+      },
+      {
+        "trade_num": 112,
+        "upper": 11101.82,
+        "median": 6942.58,
+        "lower": 4213.25
+      },
+      {
+        "trade_num": 113,
+        "upper": 11086.14,
+        "median": 6934.74,
+        "lower": 4196.34
+      },
+      {
+        "trade_num": 114,
+        "upper": 11007.11,
+        "median": 6917.42,
+        "lower": 4160.7
+      },
+      {
+        "trade_num": 115,
+        "upper": 10986.14,
+        "median": 6882.32,
+        "lower": 4148.16
+      },
+      {
+        "trade_num": 116,
+        "upper": 11023.65,
+        "median": 6859.66,
+        "lower": 4147.21
+      },
+      {
+        "trade_num": 117,
+        "upper": 11025.22,
+        "median": 6839.25,
+        "lower": 4103.33
+      },
+      {
+        "trade_num": 118,
+        "upper": 11074.3,
+        "median": 6819.83,
+        "lower": 4076.39
+      },
+      {
+        "trade_num": 119,
+        "upper": 11008.86,
+        "median": 6809.43,
+        "lower": 4069.07
+      },
+      {
+        "trade_num": 120,
+        "upper": 10972.17,
+        "median": 6778.19,
+        "lower": 4053.27
+      },
+      {
+        "trade_num": 121,
+        "upper": 10937.94,
+        "median": 6751.91,
+        "lower": 4029.32
+      },
+      {
+        "trade_num": 122,
+        "upper": 10931.39,
+        "median": 6719.23,
+        "lower": 4018.92
+      },
+      {
+        "trade_num": 123,
+        "upper": 10938.94,
+        "median": 6704.49,
+        "lower": 3978.94
+      },
+      {
+        "trade_num": 124,
+        "upper": 10914.31,
+        "median": 6670.5,
+        "lower": 3964.38
+      },
+      {
+        "trade_num": 125,
+        "upper": 10847.69,
+        "median": 6657.76,
+        "lower": 3977.11
+      },
+      {
+        "trade_num": 126,
+        "upper": 10810.67,
+        "median": 6631.01,
+        "lower": 3954.75
+      },
+      {
+        "trade_num": 127,
+        "upper": 10735.56,
+        "median": 6617.44,
+        "lower": 3915.5
+      },
+      {
+        "trade_num": 128,
+        "upper": 10726.63,
+        "median": 6598.44,
+        "lower": 3896.39
+      },
+      {
+        "trade_num": 129,
+        "upper": 10718.74,
+        "median": 6555.25,
+        "lower": 3878.44
+      },
+      {
+        "trade_num": 130,
+        "upper": 10736.21,
+        "median": 6550.26,
+        "lower": 3844.61
+      },
+      {
+        "trade_num": 131,
+        "upper": 10808.23,
+        "median": 6525.68,
+        "lower": 3826.12
+      },
+      {
+        "trade_num": 132,
+        "upper": 10804.46,
+        "median": 6503.08,
+        "lower": 3790.85
+      },
+      {
+        "trade_num": 133,
+        "upper": 10783.51,
+        "median": 6470.22,
+        "lower": 3731.83
+      },
+      {
+        "trade_num": 134,
+        "upper": 10791.78,
+        "median": 6450.27,
+        "lower": 3735.84
+      },
+      {
+        "trade_num": 135,
+        "upper": 10776.18,
+        "median": 6429.94,
+        "lower": 3707.45
+      },
+      {
+        "trade_num": 136,
+        "upper": 10792.59,
+        "median": 6409.3,
+        "lower": 3712.95
+      },
+      {
+        "trade_num": 137,
+        "upper": 10713.4,
+        "median": 6394.28,
+        "lower": 3690.87
+      },
+      {
+        "trade_num": 138,
+        "upper": 10734.61,
+        "median": 6371.82,
+        "lower": 3682.78
+      },
+      {
+        "trade_num": 139,
+        "upper": 10714.0,
+        "median": 6338.29,
+        "lower": 3677.98
+      },
+      {
+        "trade_num": 140,
+        "upper": 10633.17,
+        "median": 6319.42,
+        "lower": 3651.07
+      },
+      {
+        "trade_num": 141,
+        "upper": 10679.86,
+        "median": 6303.97,
+        "lower": 3604.35
+      },
+      {
+        "trade_num": 142,
+        "upper": 10695.3,
+        "median": 6285.57,
+        "lower": 3602.52
+      },
+      {
+        "trade_num": 143,
+        "upper": 10678.98,
+        "median": 6260.73,
+        "lower": 3557.47
+      },
+      {
+        "trade_num": 144,
+        "upper": 10694.1,
+        "median": 6229.91,
+        "lower": 3505.66
+      },
+      {
+        "trade_num": 145,
+        "upper": 10712.11,
+        "median": 6204.12,
+        "lower": 3496.26
+      },
+      {
+        "trade_num": 146,
+        "upper": 10709.29,
+        "median": 6175.78,
+        "lower": 3503.18
+      },
+      {
+        "trade_num": 147,
+        "upper": 10662.11,
+        "median": 6172.41,
+        "lower": 3497.34
+      },
+      {
+        "trade_num": 148,
+        "upper": 10663.6,
+        "median": 6156.52,
+        "lower": 3457.25
+      },
+      {
+        "trade_num": 149,
+        "upper": 10624.78,
+        "median": 6137.13,
+        "lower": 3412.52
+      },
+      {
+        "trade_num": 150,
+        "upper": 10586.63,
+        "median": 6100.24,
+        "lower": 3417.43
+      },
+      {
+        "trade_num": 151,
+        "upper": 10560.62,
+        "median": 6071.93,
+        "lower": 3400.47
+      },
+      {
+        "trade_num": 152,
+        "upper": 10538.62,
+        "median": 6055.44,
+        "lower": 3390.63
+      },
+      {
+        "trade_num": 153,
+        "upper": 10546.27,
+        "median": 6050.95,
+        "lower": 3369.07
+      },
+      {
+        "trade_num": 154,
+        "upper": 10502.77,
+        "median": 6036.75,
+        "lower": 3355.23
+      },
+      {
+        "trade_num": 155,
+        "upper": 10491.22,
+        "median": 6020.92,
+        "lower": 3355.3
+      },
+      {
+        "trade_num": 156,
+        "upper": 10474.97,
+        "median": 5987.82,
+        "lower": 3334.53
+      },
+      {
+        "trade_num": 157,
+        "upper": 10500.39,
+        "median": 5962.69,
+        "lower": 3309.24
+      },
+      {
+        "trade_num": 158,
+        "upper": 10546.89,
+        "median": 5952.02,
+        "lower": 3295.14
+      },
+      {
+        "trade_num": 159,
+        "upper": 10547.38,
+        "median": 5936.55,
+        "lower": 3273.95
+      },
+      {
+        "trade_num": 160,
+        "upper": 10478.82,
+        "median": 5914.37,
+        "lower": 3252.11
+      },
+      {
+        "trade_num": 161,
+        "upper": 10434.41,
+        "median": 5894.74,
+        "lower": 3232.48
+      },
+      {
+        "trade_num": 162,
+        "upper": 10490.94,
+        "median": 5868.51,
+        "lower": 3242.27
+      },
+      {
+        "trade_num": 163,
+        "upper": 10484.03,
+        "median": 5850.69,
+        "lower": 3247.79
+      },
+      {
+        "trade_num": 164,
+        "upper": 10485.57,
+        "median": 5832.6,
+        "lower": 3209.88
+      },
+      {
+        "trade_num": 165,
+        "upper": 10483.18,
+        "median": 5814.8,
+        "lower": 3205.91
+      },
+      {
+        "trade_num": 166,
+        "upper": 10429.11,
+        "median": 5798.64,
+        "lower": 3206.33
+      },
+      {
+        "trade_num": 167,
+        "upper": 10405.66,
+        "median": 5783.11,
+        "lower": 3172.61
+      },
+      {
+        "trade_num": 168,
+        "upper": 10382.22,
+        "median": 5762.73,
+        "lower": 3139.39
+      },
+      {
+        "trade_num": 169,
+        "upper": 10393.74,
+        "median": 5745.07,
+        "lower": 3126.47
+      },
+      {
+        "trade_num": 170,
+        "upper": 10326.84,
+        "median": 5730.28,
+        "lower": 3106.44
+      },
+      {
+        "trade_num": 171,
+        "upper": 10326.1,
+        "median": 5720.4,
+        "lower": 3104.21
+      },
+      {
+        "trade_num": 172,
+        "upper": 10307.26,
+        "median": 5699.9,
+        "lower": 3108.33
+      },
+      {
+        "trade_num": 173,
+        "upper": 10331.46,
+        "median": 5677.17,
+        "lower": 3072.77
+      },
+      {
+        "trade_num": 174,
+        "upper": 10345.59,
+        "median": 5638.76,
+        "lower": 3040.07
+      },
+      {
+        "trade_num": 175,
+        "upper": 10351.19,
+        "median": 5625.78,
+        "lower": 3039.09
+      },
+      {
+        "trade_num": 176,
+        "upper": 10315.83,
+        "median": 5609.73,
+        "lower": 3007.54
+      },
+      {
+        "trade_num": 177,
+        "upper": 10243.92,
+        "median": 5601.86,
+        "lower": 3000.39
+      },
+      {
+        "trade_num": 178,
+        "upper": 10126.29,
+        "median": 5574.21,
+        "lower": 3003.28
+      },
+      {
+        "trade_num": 179,
+        "upper": 10061.53,
+        "median": 5548.26,
+        "lower": 2991.04
+      },
+      {
+        "trade_num": 180,
+        "upper": 10120.27,
+        "median": 5529.08,
+        "lower": 2984.54
+      },
+      {
+        "trade_num": 181,
+        "upper": 10098.9,
+        "median": 5514.24,
+        "lower": 2952.61
+      },
+      {
+        "trade_num": 182,
+        "upper": 10063.17,
+        "median": 5506.71,
+        "lower": 2946.73
+      },
+      {
+        "trade_num": 183,
+        "upper": 10093.88,
+        "median": 5482.58,
+        "lower": 2930.86
+      },
+      {
+        "trade_num": 184,
+        "upper": 10110.66,
+        "median": 5474.07,
+        "lower": 2888.45
+      },
+      {
+        "trade_num": 185,
+        "upper": 10036.45,
+        "median": 5449.03,
+        "lower": 2874.33
+      },
+      {
+        "trade_num": 186,
+        "upper": 9955.74,
+        "median": 5432.78,
+        "lower": 2870.0
+      },
+      {
+        "trade_num": 187,
+        "upper": 9900.57,
+        "median": 5411.78,
+        "lower": 2866.3
+      },
+      {
+        "trade_num": 188,
+        "upper": 9882.59,
+        "median": 5406.17,
+        "lower": 2864.58
+      },
+      {
+        "trade_num": 189,
+        "upper": 9865.67,
+        "median": 5388.89,
+        "lower": 2825.07
+      },
+      {
+        "trade_num": 190,
+        "upper": 9896.28,
+        "median": 5365.2,
+        "lower": 2826.08
+      },
+      {
+        "trade_num": 191,
+        "upper": 9871.14,
+        "median": 5341.25,
+        "lower": 2817.8
+      },
+      {
+        "trade_num": 192,
+        "upper": 9849.48,
+        "median": 5322.24,
+        "lower": 2806.89
+      },
+      {
+        "trade_num": 193,
+        "upper": 9870.39,
+        "median": 5314.55,
+        "lower": 2811.31
+      },
+      {
+        "trade_num": 194,
+        "upper": 9883.28,
+        "median": 5303.92,
+        "lower": 2815.83
+      },
+      {
+        "trade_num": 195,
+        "upper": 9786.35,
+        "median": 5285.61,
+        "lower": 2775.83
+      },
+      {
+        "trade_num": 196,
+        "upper": 9744.91,
+        "median": 5274.28,
+        "lower": 2759.68
+      },
+      {
+        "trade_num": 197,
+        "upper": 9747.11,
+        "median": 5264.0,
+        "lower": 2762.43
+      },
+      {
+        "trade_num": 198,
+        "upper": 9722.75,
+        "median": 5243.73,
+        "lower": 2759.57
+      },
+      {
+        "trade_num": 199,
+        "upper": 9726.76,
+        "median": 5231.25,
+        "lower": 2729.63
+      },
+      {
+        "trade_num": 200,
+        "upper": 9740.87,
+        "median": 5198.94,
+        "lower": 2701.34
+      },
+      {
+        "trade_num": 201,
+        "upper": 9719.14,
+        "median": 5187.67,
+        "lower": 2702.36
+      },
+      {
+        "trade_num": 202,
+        "upper": 9691.22,
+        "median": 5185.2,
+        "lower": 2675.45
+      },
+      {
+        "trade_num": 203,
+        "upper": 9663.42,
+        "median": 5157.3,
+        "lower": 2658.86
+      },
+      {
+        "trade_num": 204,
+        "upper": 9643.08,
+        "median": 5138.57,
+        "lower": 2619.16
+      },
+      {
+        "trade_num": 205,
+        "upper": 9669.91,
+        "median": 5119.38,
+        "lower": 2616.62
+      },
+      {
+        "trade_num": 206,
+        "upper": 9603.91,
+        "median": 5094.87,
+        "lower": 2613.39
+      },
+      {
+        "trade_num": 207,
+        "upper": 9632.32,
+        "median": 5071.11,
+        "lower": 2613.17
+      },
+      {
+        "trade_num": 208,
+        "upper": 9552.74,
+        "median": 5053.43,
+        "lower": 2590.76
+      },
+      {
+        "trade_num": 209,
+        "upper": 9547.61,
+        "median": 5053.67,
+        "lower": 2565.44
+      },
+      {
+        "trade_num": 210,
+        "upper": 9505.07,
+        "median": 5034.18,
+        "lower": 2556.94
+      },
+      {
+        "trade_num": 211,
+        "upper": 9459.19,
+        "median": 5009.45,
+        "lower": 2546.15
+      },
+      {
+        "trade_num": 212,
+        "upper": 9460.54,
+        "median": 4996.34,
+        "lower": 2546.4
+      },
+      {
+        "trade_num": 213,
+        "upper": 9479.82,
+        "median": 4978.84,
+        "lower": 2556.01
+      },
+      {
+        "trade_num": 214,
+        "upper": 9481.43,
+        "median": 4963.69,
+        "lower": 2525.81
+      },
+      {
+        "trade_num": 215,
+        "upper": 9409.72,
+        "median": 4953.98,
+        "lower": 2496.69
+      },
+      {
+        "trade_num": 216,
+        "upper": 9408.1,
+        "median": 4937.69,
+        "lower": 2489.29
+      },
+      {
+        "trade_num": 217,
+        "upper": 9367.7,
+        "median": 4910.12,
+        "lower": 2477.84
+      },
+      {
+        "trade_num": 218,
+        "upper": 9283.75,
+        "median": 4901.87,
+        "lower": 2470.9
+      },
+      {
+        "trade_num": 219,
+        "upper": 9294.65,
+        "median": 4889.44,
+        "lower": 2472.41
+      },
+      {
+        "trade_num": 220,
+        "upper": 9320.14,
+        "median": 4870.0,
+        "lower": 2452.81
+      },
+      {
+        "trade_num": 221,
+        "upper": 9313.38,
+        "median": 4869.59,
+        "lower": 2440.94
+      },
+      {
+        "trade_num": 222,
+        "upper": 9187.88,
+        "median": 4855.69,
+        "lower": 2426.7
+      },
+      {
+        "trade_num": 223,
+        "upper": 9194.07,
+        "median": 4836.7,
+        "lower": 2422.15
+      },
+      {
+        "trade_num": 224,
+        "upper": 9220.15,
+        "median": 4828.54,
+        "lower": 2408.58
+      },
+      {
+        "trade_num": 225,
+        "upper": 9189.89,
+        "median": 4789.82,
+        "lower": 2405.18
+      }
+    ],
+    "mdd_histogram": [
+      7,
+      35,
+      126,
+      261,
+      390,
+      493,
+      596,
+      640,
+      569,
+      454,
+      437,
+      304,
+      230,
+      170,
+      123,
+      86,
+      50,
+      22,
+      6,
+      1
+    ]
+  }
+}

@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+@theme {
+  --color-cyber-bg: #050a15;
+  --color-cyber-card: #0a1628;
+  --color-cyber-blue: #3b82f6;
+  --color-cyber-light: #60a5fa;
+  --color-cyber-glow: rgba(59, 130, 246, 0.5);
+}
+
+@layer base {
+  body {
+    @apply bg-cyber-bg text-slate-300 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-cyber-card/60 backdrop-blur-md border border-blue-500/20 rounded-xl shadow-lg shadow-black/40;
+  }
+  
+  .cyber-button {
+    @apply px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all duration-200 
+           active:scale-95 shadow-lg shadow-blue-900/20 border border-blue-400/30;
+  }
+
+  .cyber-input {
+    @apply bg-slate-900/50 border border-blue-500/30 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-400 
+           focus:ring-1 focus:ring-blue-400/50 transition-all text-white;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px var(--color-cyber-glow);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-cyber-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-blue-900/50 rounded-full hover:bg-blue-800/50 transition-colors;
+}
