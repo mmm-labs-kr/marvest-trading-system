@@ -37,12 +37,12 @@
 | 13 | 디자인 테마 시안 적용 (Option A: Cyber Blue) | 중 | ✅ | `index.css`, `App.jsx`, `BacktestList.jsx`, `BacktestDetail.jsx`, `AIFeedbackSection.jsx` |
 | 14 | 디자인 테마 시안 적용 (Option B: Dark Stealth) | 중 | ✅ | `index.css`, `App.jsx`, `BacktestList.jsx`, `BacktestDetail.jsx`, `AIFeedbackSection.jsx` |
 | 15 | 디자인 테마 시안 적용 (Option C: Vivid Neon) | 중 | ✅ | `index.css`, `App.jsx`, `BacktestList.jsx`, `BacktestDetail.jsx`, `AIFeedbackSection.jsx` |
-| 16 | UI 텍스트 한글화 및 시안 B 최종 확정 | 소 | ✅ | 모든 컴포넌트 |
+| 16 | UI 텍스트 한글화 및 시안 B 최종 확정 및 레이아웃 수정 | 소 | ✅ | 모든 컴포넌트, TASK-016.md |
 
 ## Phase 5: 전략 관리 IDE 시스템 구현
 | # | Task | 규모 | 상태 | 상세파일 |
 |---|------|------|------|----------|
-| 17 | 전략 파일 CRUD 백엔드 API 구현 | 중 | ⬜ | `configs.py` 보강 |
+| 17 | 전략 파일 CRUD 백엔드 API 구현 | 중 | 🔄 | `configs.py` 보강 |
 | 18 | 전략 목록 브라우저 및 코드 에디터 통합 | 대 | ⬜ | `StrategyEditor.jsx` |
 | 19 | 에디터-백테스트 연동 (파일명 자동 바인딩) | 중 | ⬜ | - |
 
