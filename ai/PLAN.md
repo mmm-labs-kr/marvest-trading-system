@@ -54,6 +54,14 @@
 | 22 | 전략 에디터 내 백테스트 히스토리 통합 (IDE화) | 대 | ✅ | `StrategyEditor.jsx`, `App.jsx` |
 | 23 | AI 분석 결과 반영 후 에디터 자동 로드 흐름 개선 | 중 | ✅ | `AIFeedbackSection.jsx`, `StrategyEditor.jsx` |
 
+## Phase 7: 미래 확장성 및 고도화 (Advanced DE)
+| # | Task | 규모 | 상태 | 핵심 키워드 |
+|---|------|------|------|----------|
+| 24 | 파일 기반 데이터(`bots.json`)를 RDBMS(PostgreSQL/SQLite)로 마이그레이션 | 대 | ⬜ | DB Schema, Migration, Transaction |
+| 25 | Redis를 이용한 분산 락(Distributed Lock) 도입 | 중 | ⬜ | Scalability, Concurrency |
+| 26 | Celery + Redis 기반의 비동기 작업 큐 도입 | 대 | ⬜ | Async Task, Worker, Message Queue |
+| 27 | 대용량 시계열 데이터 파티셔닝 전략 수립 | 중 | ⬜ | Data Partitioning, Performance |
+
 ---
 
 ## 디버깅 로그

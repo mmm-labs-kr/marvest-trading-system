@@ -5,6 +5,7 @@ Thumbs.db
 .idea/
 *.swp
 *.bak
+ai/
 
 ### Python & Virtual Environments ###
 venv/
