@@ -331,19 +331,34 @@ def extract_python_code(response_text: str) -> str:
     return cleaned
 
 
+def validate_python_syntax(code: str) -> tuple:
+    """Python 문법 유효성 검사"""
+    try:
+        compile(code, "<string>", "exec")
+        return True, None
+    except SyntaxError as e:
+        return False, f"문법 오류: {e.msg} (라인 {e.lineno})"
+    except Exception as e:
+        return False, f"유효성 검사 중 오류 발생: {str(e)}"
+
 def validate_strategy_code(code: str, strategy_name: str) -> tuple:
-    """전략 코드 유효성 검사"""
+    """전략 코드 유효성 검사 (문법 및 필수 구조)"""
     errors = []
     
-    # 클래스 정의 확인
+    # 1. 문법 검사
+    is_syntax_valid, syntax_error = validate_python_syntax(code)
+    if not is_syntax_valid:
+        errors.append(syntax_error)
+    
+    # 2. 클래스 정의 확인
     if f"class {strategy_name}" not in code:
         errors.append(f"클래스 '{strategy_name}'이 정의되지 않았습니다")
     
-    # IStrategy 상속 확인
+    # 3. IStrategy 상속 확인
     if "IStrategy" not in code:
         errors.append("IStrategy를 상속하지 않았습니다")
     
-    # 필수 메서드 확인
+    # 4. 필수 메서드 확인
     required_methods = ['populate_indicators', 'populate_entry_trend', 'populate_exit_trend']
     for method in required_methods:
         if f"def {method}" not in code:

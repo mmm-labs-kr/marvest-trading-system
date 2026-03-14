@@ -110,10 +110,16 @@ function StrategyEditor() {
                 alert("백테스트 완료!");
                 fetchHistory();
             } else {
-                alert("백테스트 실패: " + response.data.message);
+                // 백엔드에서 보낸 에러 메시지 표시
+                alert("백테스트 실패: " + (response.data.message || "알 수 없는 오류"));
             }
         } catch (err) {
-            alert("백테스트 요청 실패");
+            console.error("Backtest Error:", err);
+            // MarvestException 형식을 따르는 상세 에러 메시지 추출
+            const errorMsg = err.response?.data?.message || err.message;
+            const errorDetail = err.response?.data?.detail ? `\n\n[상세 정보]\n${err.response.data.detail}` : "";
+            
+            alert(`백테스트 요청 실패: ${errorMsg}${errorDetail}`);
         } finally {
             setIsRunning(false);
         }
